@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title%></title>
+    <link rel='stylesheet' href='/stylesheets/productstyle.css' />
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/">About</a></li>
+        <li><a href="/">Contact Us</a></li>
+      </ul>
+    </nav>
+    <div class="container">
+      <form action="/products" method="post" id="contact">
+        <fieldset>
+        <legend>Enter product details</legend>
+        <input type="text" name="name" id="name" placeholder="Enter product name" required/>
+        <input type="text" name="type" id="type" placeholder="Enter product type" required />
+        <input type="text" name="price" id="price" placeholder="Enter price" required/>
+        </fieldset>
+        <button class="btn">Submit</button>
+      </form>
+    </div>
+    <footer>
+      <p>&copy; 2020</p>
+    </footer>
+  </body>       
+</html>

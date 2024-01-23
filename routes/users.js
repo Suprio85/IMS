@@ -4,6 +4,8 @@ const oracledb = require('oracledb');
 const dbConfig = require('../dbconfig');
 
 
+
+
 /* GET products listing. */
 router.get('/', async function(req, res, next) {
     try {
@@ -27,6 +29,5 @@ router.get('/', async function(req, res, next) {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 module.exports = router;

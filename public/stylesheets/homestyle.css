@@ -10,6 +10,8 @@
 
 /* ================= VARIABLE ================ */
 :root {
+  
+  
   --primary-color: hsl(9, 94%, 61%);
   --primary-color-alt: hsl(28, 72%, 83%);
   --second-color: #3e537c;
@@ -19,7 +21,6 @@
   --white-color-alt: hsl(12, 14%, 93%);
   --dark-color: hsl(300, 100%, 0%);
 }
-
 /* ================= BASE ==================== */
 li {
   list-style: none;

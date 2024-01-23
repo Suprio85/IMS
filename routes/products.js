@@ -27,7 +27,7 @@ router.post('/', async function(req, res, next) {
         await connection.close();
 
         console.log('Rows inserted: ' + result.rowsAffected);
-        res.redirect('/');
+        res.redirect('/users');
         }
 
         else{

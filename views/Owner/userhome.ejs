@@ -1,0 +1,129 @@
+<span style="font-family: verdana, geneva, sans-serif"
+  ><!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title></title>
+      <link rel="stylesheet" href="/stylesheets/userstyle.css" />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/shopmanger/productquantity.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/shopmanager/productquantity.css"
+      />
+      <!-- ... other head elements ... -->
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+    </head>
+
+    <body>
+      <header class="header">
+        <div class="logo">
+          <a href="/">Home</a>
+          <a href="/login">Login </a>
+          <a href="/products">Products</a>
+        </div>
+
+        <div class="header-icons">
+          <i class="fas fa-bell"></i>
+          <div class="account">
+            <img src="./pic/img.jpg" alt="" />
+            <h4><%= username %></h4>
+            <a style="display: flex" href="/logout">Logout</a>
+          </div>
+        </div>
+      </header>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="/shopmanager/profile">Profile</a>
+            <a href="/shopmanager/addproduct">Add Products</a>
+            <a href="/shopmanager/productquantity">Update Products</a>
+            <a href="/shopmanager/request">Request For Product</a>
+            <a href="/shopmanager/sales">Sales</a>
+          </div>
+        </nav>
+
+        <div class="main-body">
+          <div class="line-chart-container">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <script>
+            let products = <%- JSON.stringify(products) %>;
+            console.log(products);
+             let productprice = [];
+             products.forEach((product) => {
+               productprice.push(product.price);
+             });
+             console.log(productprice);
+          document.addEventListener('DOMContentLoaded', function () {
+            // Your data for the line chart
+            const chartData = {
+              labels: ['January', 'February', 'March'],
+              datasets: [{
+                label: 'Monthly sales',
+                data: productprice,
+                borderColor: 'blue',
+                borderWidth: 2,
+                fill: true,
+              }, {
+           label: 'Additional Data',
+           data: [200, 300, 400],
+           borderColor: 'red',
+           borderWidth: 2,
+           fill: true,
+         }],
+            };
+
+             const chartData2 = {
+               labels: ['January', 'February', 'March'],
+               datasets: [{
+                 label: 'Monthly sales',
+                 data: [100, 200, 300],
+                 borderColor: 'blue',
+                 borderWidth: 2,
+                 fill: true,
+               }],
+             };
+
+
+            // Get the canvas element
+            const canvas = document.getElementById('lineChart');
+
+        //    Create the line chart
+            const lineChart = new Chart(canvas, {
+              type: 'line',
+              data: chartData,
+              options: {
+                scales: {
+                  x: {
+                    type: 'category',
+                    labels: ['January', 'February', 'March'],
+                  },
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+              },
+            });
+          });
+      </script>
+    </body>
+  </html>
+</span>

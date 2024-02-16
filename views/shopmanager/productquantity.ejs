@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Show</title>
+    <link rel="stylesheet" href="../stylesheets/shopmanger/productquantity.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="../stylesheets/shopmanager/productquantity.css" />
+</head>
+<!-- ... (other HTML code) ... -->
+<body>
+     <form id="searchForm" class="search-bar">
+        <input type="text" id="categoryInput" placeholder="Search by category">
+        <input type="number" id="priceInput" placeholder="Search by price">
+        <input type="number" id="quantityInput" placeholder="Search by quantity">
+        <button type="button" onclick="searchProducts"><i class="fas fa-search"></i> Search</button>
+    </form>
+
+    <% products.forEach(product => { %>
+        <div class="card-container">
+            <div class="card">
+                <img src="/images/laptop.png" alt="<%= product.name %> Image" />
+                <div class="card-content">
+                    <h2><%= product[0] %></h2>
+                    <p><%= product[1] %></p>
+                    <p><%= product[2] %></p>
+                    <button class="btn update-btn" data-action="price">Update Price</button>
+                    <button class="btn update-btn" data-action="quantity">Update Quantity</button>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+
+    <!-- The Modal for Price Update -->
+    <div id="priceUpdateModal" class="modal">
+        <!-- Modal content for updating price -->
+        <div class="modal-content">
+            <span class="close" id="priceCloseBtn">&times;</span>
+            <h2>Update Price</h2>
+            <form id="priceUpdateForm">
+                <!-- Add form field for updating price -->
+                <label for="price">New Price:</label>
+                <input type="text" id="price" name="price" required>
+                <button type="submit">Update Price</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- The Modal for Quantity Update -->
+    <div id="quantityUpdateModal" class="modal">
+        <!-- Modal content for updating quantity -->
+        <div class="modal-content">
+            <span class="close" id="quantityCloseBtn">&times;</span>
+            <h2>Update Quantity</h2>
+            <form id="quantityUpdateForm">
+                <!-- Add form field for updating quantity -->
+                <label for="quantity">New Quantity:</label>
+                <input type="text" id="quantity" name="quantity" required>
+                <button type="submit">Update Quantity</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code directly in the HTML file
+        document.addEventListener('DOMContentLoaded', function () {
+            const priceUpdateBtns = document.querySelectorAll('.update-btn[data-action="price"]');
+            const quantityUpdateBtns = document.querySelectorAll('.update-btn[data-action="quantity"]');
+            const priceUpdateModal = document.getElementById('priceUpdateModal');
+            const quantityUpdateModal = document.getElementById('quantityUpdateModal');
+            const priceCloseBtn = document.getElementById('priceCloseBtn');
+            const quantityCloseBtn = document.getElementById('quantityCloseBtn');
+
+            priceUpdateBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    priceUpdateModal.style.display = 'block';
+                });
+            });
+
+            quantityUpdateBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    quantityUpdateModal.style.display = 'block';
+                });
+            });
+
+            priceCloseBtn.addEventListener('click', () => {
+                priceUpdateModal.style.display = 'none';
+            });
+
+            quantityCloseBtn.addEventListener('click', () => {
+                quantityUpdateModal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === priceUpdateModal) {
+                    priceUpdateModal.style.display = 'none';
+                }
+                if (event.target === quantityUpdateModal) {
+                    quantityUpdateModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</body>
+<!-- ... (other HTML code) ... -->
+
+
+</html>

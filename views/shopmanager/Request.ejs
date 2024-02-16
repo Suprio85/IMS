@@ -1,0 +1,125 @@
+    <head>
+      <meta charset="UTF-8" />
+      <title>Admin Dashboard | By Code Info</title>
+      <link rel="stylesheet" href="style.css" />
+      <!-- Font Awesome Cdn Link -->
+      <link rel="stylesheet" href="../stylesheets/shopmanger/request.css" />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/shopmanger/productquantity.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+    </head>
+    <body>
+      <header class="header">
+        <div class="logo">
+          <a href="/">Home</a>
+        </div>
+        <div class="header-icons">
+          <i class="fas fa-bell"></i>
+          <div class="account">
+            <img src="./pic/img.jpg" alt="" />
+            <h4><%= username %></h4> 
+            <a style="display: flex" href="/logout">Logout</a> 
+          </div>
+        </div>
+      </header>
+      <div class="container">
+        <div class="main-body">
+          <h2>Request</h2>
+          <div class="history_lists">
+            <div class="list1">
+              <div class="row">
+                <h4>Request For a Product</h4>
+              </div>
+              <form
+                action="/shopmanager/request"
+                method="post"
+                id="contact search-bar search_box fa-search"
+              >
+                <fieldset>
+                  <legend>Enter product details</legend>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    placeholder="Enter Product Name"
+                    required
+                  />
+                  <input
+                    type="number"
+                    name="amount"
+                    id="amount"
+                    placeholder="Enter Product Amount"
+                    required
+                    min="1"
+                  />
+                </fieldset>
+                <button id="add-btn" class="btn">Add Request</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar">
+          <h4>Transaction</h4>
+          <% requests.forEach(request => { %>
+            <div class="balance">
+                <i class="fas fa-dollar icon"></i>
+                <div class="info">
+                    
+                    <h5> Name : <%= request.name %></h5>
+                    <span><i class="fas fa-dollar">Amount :</i><%= request.amount %></span>
+                </div>
+            </div>
+        <% }); %>
+        <% if (requests.length > 0) { %>
+          <button id="send-btn" class="btn">Send Request</button>
+        <% } %>
+      </div>
+      </div>
+      <base href="/shopmanager/" />
+      <script>
+        console.log("Hello World");
+        const requests = <%- JSON.stringify(requests) %>;
+        console.log(requests);
+      
+        document.addEventListener('DOMContentLoaded', function () {
+          const sendBtn = document.getElementById('send-btn');
+      
+          sendBtn.addEventListener('click', function () {
+            // Check if there are requests to send
+            if (requests.length > 0) {
+              // Make an AJAX request to your backend endpoint
+              console.log('Sending requests:', requests);
+              fetch('/shopmanager/sendrequests', {
+                method: 'POST',
+
+                body: JSON.stringify(requests),
+              })
+                .then(data => {
+
+                  sendBtn.style.display = 'none';
+                  //requests =[];
+                  console.log('Requests sent successfully:', data.body);
+                })
+                .catch(error => {
+                  console.log('Error sending requests:');
+                  console.error('Error sending requests:', error);
+                });
+            }
+          });
+        });
+      </script>      
+    </body>
+  </html>
+</span>

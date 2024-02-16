@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Purchase Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background: rgb(219, 219, 219);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: black;
+        }
+
+        #purchaseTable {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .downloadLink {
+            color: #084481;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .downloadLink:hover {
+            color: #0056b3;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 10ms;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(86, 84, 84, 0.433);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Purchase Details</h1>
+    <table id="purchaseTable" class="table table-hover table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Purchase ID</th>
+                <th>Purchase Time</th>
+                <th>Shop ID</th>
+                <th>Customer ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% purchases.forEach(purchase => { %>
+                <tr>
+                    <td>
+                        <%= purchase.PURCHASE_ID %>
+                        <br>
+                        <a class="downloadLink" href="/download/purchases/<%= purchase.PURCHASE_ID %>">Download</a>
+                    </td>
+                    <td>
+                        <%= purchase.PURCHASE_TIME %>
+                    </td>
+                    <td>
+                        <%= purchase.SHOP_ID %>
+                    </td>
+                    <td>
+                        <%= purchase.CUSTOMER_ID %>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

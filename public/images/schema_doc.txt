@@ -1,0 +1,184 @@
+JOBS(
+    JOB_ID varchar2(10) pk, unique
+    job_title varchar2(20) unique
+    job_description varchar2(50)
+    Max_salary Number not null
+    Min_Salary Number not null
+)
+
+Region(
+    Region_Id Number PK
+    Region Name varchar2(15) not null.
+)
+
+Area(
+    Area_Code Number pk
+    Street_Address Varchar2(25) unique not null
+    postal_code Varchar2(15) not null
+    City Varchar2(15) not null
+    Region_ID FK(Region)
+)
+
+Shops(
+    Shop_ID Number PK
+    Shop_Name Varchar2(50) not null
+    opening_time Timestamp(0) with time zone not null
+    closing_time Timestamp(0) with time zone not null
+    Email Varchar2(75) unique not null
+    Phone_Number Varchar2(15) unique not null
+    Area_Code fk
+)
+
+Employees(
+    Employee_Id Number pk
+    First_Name Varchar2(15) not null
+    Last_Name Varchar2(15) not null
+    Salary Number not null (0+)
+    Bank_Account Number not null unique
+    Hiring_Date Date not null
+    username varchar2(75) not null unique
+    password varchar2(1000) not null unique
+    image Varchar2(150) not null unique
+    JOB_ID FK(JOBS) not null
+    Area_Code FK
+)
+
+
+Factory(
+    Factory_ID PK
+    Factory_Liscence Varchar2() unique, not null
+    opening_date Date
+    closing_date
+        check(closing_date is null ?)
+    Area_Code FK
+)
+
+Cashier(
+    Employee_Id Pk FK(Employee_Id)
+    Shop_ID FK(Shops) not null
+    Work_Shift Varchar2(10) (morning or night)
+)
+
+Shop_Manager(
+    Employee_Id pk fk
+    Shop_ID fk
+)
+
+Production_Manager(
+    Employee_Id pk fk
+    Factory_ID fk
+)
+
+Supply_manager(
+    Employee_Id pk fk
+    Region_ID fk
+)
+
+
+Inventory(
+    Inventory_Id Pk
+    Inventory_Name 
+    Volume
+    Speciality
+    Area_Code fk
+)
+
+Inventory_Lot(
+    Lot_id pk
+    Supply_Date
+    Factory_ID fk
+    Inventory_Id fk
+)
+
+
+
+
+
+Catagory(
+    Catagory_Id Number PK
+    Catagory_name Varchar2(25) not null
+)
+
+Product(
+    Product_ID Number pk
+    Product_Name varchar2(30) not null
+    price number(5, 3) (null or 0+)
+    Waranty_Years Number(4, 2) (.6+)
+    Image Varchar2(150) not null
+    Catagory_Id Number FK(Catagory) not null
+)
+
+Product_Allotment(
+    Product_ID, Region_ID fk pk
+    Amount 
+)
+
+Inventory_Products(
+    Product_ID, Inventory_Id pk fk
+    Quantity
+)
+
+Inventory_Lot_Products(
+    Product_ID, Lot_id pk fk
+    Quantity
+    price
+    Manufacture_Date
+)
+
+Shop_Products(
+    Product_ID, Shop_ID pk fk
+    Quantity
+)
+
+
+Shipment_Request(
+    request_Id pk
+    Shop_ID fk
+    Date
+    Status (some check constraints)
+)
+
+Shipment_Request_Products(
+    Product_ID, request_Id Pk fk
+    Quantity
+)
+
+Shipment(
+    Shipment_Id pk
+    Shipping_Date
+    Receiving_Date
+    Shipping_Cost
+    Delivery_Status
+    Inventory_Id fk
+    Shop_ID fk
+)
+
+Shipment_Products(
+    Shipment_Id, Product_ID pk fk
+    Quantity
+    Return Date
+    Return_amount
+    (checks on return)
+)
+
+Customer(
+    customer_id pk
+    Customer_Name
+    Email unique
+    Mobile_No unique
+)
+
+Purchase(
+    Purchase_Id pk
+    Shop_ID fk
+    customer_id fk
+    Purchase_Time 
+)
+
+Purchase_Products(
+    Purchase_Id, Product_ID pk, fk
+    price
+    Quantity
+)
+
+18+7+

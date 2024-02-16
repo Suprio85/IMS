@@ -1,109 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
-    <style>
-        body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #1e1777;
-}
-
-nav {
-    background-color: #333;
-    color: white;
-    padding: 10px;
-}
-
-nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
-
-nav li {
-    margin-right: 20px;
-}
-
-.container {
-    width: 80%;
-    margin: 20px auto;
-}
-
-form {
-    margin-bottom: 20px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-table, th, td {
-    border: 1px solid #0c0000;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-}
-
-thead {
-    background-color: #333;
-    color: white;
-}
-
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
-     </style>
+    <title>Product Show</title>
+    <link rel="stylesheet" href="/stylesheets/productshow.css" />
 </head>
-<body>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/">About</a></li>
-            <li><a href="/">Contact Us</a></li>
-        </ul>
-    </nav>
-    <div class="container">
-        <form action="/" method="post" id="contact">
-            <!-- Your form fields go here -->
-        </form>
 
-        <!-- Display data in a table -->
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-            <% for (var i = 0; i < products.length ;i++) { %>
-             <tr>
-               <td><%= products[i][1] %></td>
-               <td><%= products[i][2] %></td>
-               <td><%= products[i][3] %></td>
-             </tr> <% }%>
-            </tbody>
-        </table>
-    </div>
-    <footer>
-        <p>&copy; 2020</p>
-    </footer>
+<body>
+    <% products.forEach(product => { %>
+        <div class="card-container">
+            <div class="card">
+                <img src="/images/laptop.png" alt="<%= product.name %> Image" />
+                <div class="card-content">
+                    <h2><%= product[0] %></h2>
+                    <p><%= product[1] %></p>
+                    <p><%= product[2] %></p>
+                    <a class="btn" href="/">Read More</a>
+                </div>
+            </div>
+        </div>
+    <% }); %>
 </body>
+
 </html>

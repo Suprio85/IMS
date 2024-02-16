@@ -1,0 +1,93 @@
+<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Admin Dashboard | By Code Info</title>
+      <link rel="stylesheet" href="style.css" />
+      <!-- Font Awesome Cdn Link -->
+      <link rel='stylesheet' href='../stylesheets/shopmanger/addproduct.css'/>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+    </head>
+    <body>
+      <header class="header">
+        <div class="logo">
+          <a href="/">Home</a>
+        </div>
+        <div class="header-icons">
+          <i class="fas fa-bell"></i>
+          <div class="account">
+            <img src="./pic/img.jpg" alt="">
+            <h4><%= username %></h4>
+             <a style="display: flex;" href="/logout">Logout</a>
+          </div>
+        </div>
+      </header>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="#">History</a>
+            <a href="#">Application</a>
+            <a href="#">My Account</a>
+            <a href="#">Documnets</a>
+    
+            <div class="links">
+              <span>Quick Link</span>
+              <a href="#">Paypal</a>
+              <a href="#">EasyPay</a>
+              <a href="#">SadaPay</a>
+            </div>
+          </div>
+        </nav>
+     <!-- </div> -->
+    
+        <div class="main-body">
+          <h2>ADD products</h2>
+          <!-- <div class="promo_card">
+            <h1>Welcome to EasyPay</h1>
+            <span>Lorem ipsum dolor sit amet.</span>
+            <button>Learn More</button>
+          </div> -->
+    
+          <div class="history_lists">
+            <div class="list1">
+              <div class="row">
+                <h4>Products</h4>
+                <a href="#">See all</a>
+              </div>
+                  <form action="/products" method="post" id="contact">
+                    <fieldset>
+                    <legend>Enter product details</legend>
+                    <label for="productName">Product Name:</label>
+                    <input type="text" id="productName" name="productName" required>
+            
+                    <label for="price">Price:</label>
+                    <input type="number" id="price" name="price" step="0.001" required>
+            
+                    <label for="warrantyYears">Warranty Years:</label>
+                    <input type="number" id="warrantyYears" name="warrantyYears" step="0.01" required min="0.5">
+            
+                    <label for="image">Image URL:</label>
+                    <input type="text" id="image" name="image">
+            
+                    <label for="status">Status:</label>
+                    <select id="status" name="status" required>
+                        <option value="continued">Continued</option>
+                        <option value="discontinued">Discontinued</option>
+                    </select>
+            
+                    <label for="category">Category :</label>
+                    <input type="text" id="categoryname" name="categoryname" required>
+                    </fieldset>
+                    <button class="btn">Submit</button>
+                  </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+    </span>

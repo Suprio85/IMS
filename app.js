@@ -21,6 +21,10 @@ const flash = require('connect-flash');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var productsRouter = require('./routes/products');
+var shopmanagerRouter = require('./routes/shopmanager');
+var ownerRouter = require('./routes/owner');   
+var productionmanagerRouter = require('./routes/productionmanager');
+var hashRouter = require('./routes/hash');
 
 
 var app = express();
@@ -48,6 +52,10 @@ app.use(function(req, res, next) {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use ('/products', productsRouter);
+app.use('/shopmanager', shopmanagerRouter);
+app.use('/owner', ownerRouter);
+app.use('/productionmanager', productionmanagerRouter);
+app.use('/hash', hashRouter);
 
 
 

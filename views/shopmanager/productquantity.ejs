@@ -1,111 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Product Show</title>
-    <link rel="stylesheet" href="../stylesheets/shopmanger/productquantity.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-    <link rel="stylesheet" href="../stylesheets/shopmanager/productquantity.css" />
-</head>
-<!-- ... (other HTML code) ... -->
-<body>
-     <form id="searchForm" class="search-bar">
-        <input type="text" id="categoryInput" placeholder="Search by category">
-        <input type="number" id="priceInput" placeholder="Search by price">
-        <input type="number" id="quantityInput" placeholder="Search by quantity">
-        <button type="button" onclick="searchProducts"><i class="fas fa-search"></i> Search</button>
+    <link
+      rel="stylesheet"
+      href="../stylesheets/shopmanger/productquantity.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../stylesheets/shopmanager/productquantity.css"
+    />
+  </head>
+  <!-- ... (other HTML code) ... -->
+  <body>
+    <form id="searchForm" class="search-bar">
+      <input type="text" id="categoryInput" placeholder="Search by category" />
+      <input type="number" id="priceInput" placeholder="Search by price" />
+      <input
+        type="number"
+        id="quantityInput"
+        placeholder="Search by quantity"
+      />
+      <button type="button" onclick="searchProducts">
+        <i class="fas fa-search"></i> Search
+      </button>
     </form>
 
     <% products.forEach(product => { %>
-        <div class="card-container">
-            <div class="card">
-                <img src="/images/laptop.png" alt="<%= product.name %> Image" />
-                <div class="card-content">
-                    <h2><%= product[0] %></h2>
-                    <p><%= product[1] %></p>
-                    <p><%= product[2] %></p>
-                    <button class="btn update-btn" data-action="price">Update Price</button>
-                    <button class="btn update-btn" data-action="quantity">Update Quantity</button>
-                </div>
-            </div>
+    <div class="card-container">
+      <div class="card">
+        <img src="/images/laptop.png" alt="<%= product.name %> Image" />
+        <div class="card-content">
+          <h2><%= product[0] %></h2>
+          <p><%= product[1] %></p>
+          <p><%= product[2] %></p>
+          <button
+            class="btn update-btn"
+            data-action="price"
+            data-product-id="<%= product[0] %>"
+          >
+            Update Price
+          </button>
+          <button
+            class="btn update-btn"
+            data-action="quantity"
+            data-product-id="<%= product[0] %>">Update Quantity</button>
         </div>
+      </div>
+    </div>
     <% }); %>
 
-    <!-- The Modal for Price Update -->
     <div id="priceUpdateModal" class="modal">
-        <!-- Modal content for updating price -->
-        <div class="modal-content">
-            <span class="close" id="priceCloseBtn">&times;</span>
-            <h2>Update Price</h2>
-            <form id="priceUpdateForm">
-                <!-- Add form field for updating price -->
-                <label for="price">New Price:</label>
-                <input type="text" id="price" name="price" required>
-                <button type="submit">Update Price</button>
-            </form>
-        </div>
+      <!-- Modal content for updating price -->
+      <div class="modal-content">
+        <span class="close" id="priceCloseBtn">&times;</span>
+        <h2>Update Price</h2>
+        <form
+          id="priceUpdateForm"
+          method="post"
+          action="/shopmanager/productquantity"
+        >
+          <!-- Add hidden input field for product ID -->
+          <input type="hidden" id="productIdPrice" name="productId" value="" />
+          <!-- Add form field for updating price -->
+          <label for="price">New Price:</label>
+          <input type="text" id="price" name="price" required />
+          <button type="submit">Update Price</button>
+        </form>
+      </div>
     </div>
 
     <!-- The Modal for Quantity Update -->
     <div id="quantityUpdateModal" class="modal">
-        <!-- Modal content for updating quantity -->
-        <div class="modal-content">
-            <span class="close" id="quantityCloseBtn">&times;</span>
-            <h2>Update Quantity</h2>
-            <form id="quantityUpdateForm">
-                <!-- Add form field for updating quantity -->
-                <label for="quantity">New Quantity:</label>
-                <input type="text" id="quantity" name="quantity" required>
-                <button type="submit">Update Quantity</button>
-            </form>
-        </div>
+      <!-- Modal content for updating quantity -->
+      <div class="modal-content">
+        <span class="close" id="quantityCloseBtn">&times;</span>
+        <h2>Update Quantity</h2>
+        <form
+          id="quantityUpdateForm"
+          method="post"
+          action="/shopmanager/productquantity"
+        >
+          <!-- Add hidden input field for product ID -->
+          <input
+            type="hidden"
+            id="productIdQuantity"
+            name="productId"
+            value=""
+          />
+          <!-- Add form field for updating quantity -->
+          <label for="quantity">New Quantity:</label>
+          <input type="text" id="quantity" name="quantity" required />
+          <button type="submit">Update Quantity</button>
+        </form>
+      </div>
     </div>
 
     <script>
-        // JavaScript code directly in the HTML file
-        document.addEventListener('DOMContentLoaded', function () {
-            const priceUpdateBtns = document.querySelectorAll('.update-btn[data-action="price"]');
-            const quantityUpdateBtns = document.querySelectorAll('.update-btn[data-action="quantity"]');
-            const priceUpdateModal = document.getElementById('priceUpdateModal');
-            const quantityUpdateModal = document.getElementById('quantityUpdateModal');
-            const priceCloseBtn = document.getElementById('priceCloseBtn');
-            const quantityCloseBtn = document.getElementById('quantityCloseBtn');
+      // JavaScript code directly in the HTML file
+      document.addEventListener("DOMContentLoaded", function () {
+        const priceUpdateBtns = document.querySelectorAll(
+          '.update-btn[data-action="price"]'
+        );
+        const quantityUpdateBtns = document.querySelectorAll(
+          '.update-btn[data-action="quantity"]'
+        );
+        const priceUpdateModal = document.getElementById("priceUpdateModal");
+        const quantityUpdateModal = document.getElementById(
+          "quantityUpdateModal"
+        );
+        const priceCloseBtn = document.getElementById("priceCloseBtn");
+        const quantityCloseBtn = document.getElementById("quantityCloseBtn");
 
-            priceUpdateBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    priceUpdateModal.style.display = 'block';
-                });
-            });
+        priceUpdateBtns.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const productId = btn.getAttribute("data-product-id");
+            document.getElementById("productIdPrice").value = productId;
+            priceUpdateModal.style.display = "block";
+          });
+        });
 
-            quantityUpdateBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    quantityUpdateModal.style.display = 'block';
-                });
-            });
+        quantityUpdateBtns.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const productId = btn.getAttribute("data-product-id");
+            document.getElementById("productIdQuantity").value = productId;
+            quantityUpdateModal.style.display = "block";
+          });
+        });
 
-            priceCloseBtn.addEventListener('click', () => {
-                priceUpdateModal.style.display = 'none';
-            });
+        priceCloseBtn.addEventListener("click", () => {
+          priceUpdateModal.style.display = "none";
+        });
 
-            quantityCloseBtn.addEventListener('click', () => {
-                quantityUpdateModal.style.display = 'none';
-            });
+        quantityCloseBtn.addEventListener("click", () => {
+          quantityUpdateModal.style.display = "none";
+        });
 
-            window.addEventListener('click', (event) => {
-                if (event.target === priceUpdateModal) {
-                    priceUpdateModal.style.display = 'none';
-                }
-                if (event.target === quantityUpdateModal) {
-                    quantityUpdateModal.style.display = 'none';
-                }
+        window.addEventListener("click", (event) => {
+          if (event.target === priceUpdateModal) {
+            priceUpdateModal.style.display = "none";
+          }
+          if (event.target === quantityUpdateModal) {
+            quantityUpdateModal.style.display = "none";
+          }
+        });
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const priceUpdateForm = document.getElementById("priceUpdateForm");
+        const quantityUpdateForm =
+          document.getElementById("quantityUpdateForm");
+
+        priceUpdateForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const formData = {
+            productId: document.getElementById("productIdPrice").value,
+            price: document.getElementById("price").value,
+          };
+
+          fetch("/shopmanager/productquantity", {
+            method: "POST",
+            body: JSON.stringify(formData),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error("Error updating product quantity");
+              }
+            })
+            .then((result) => {
+              if (result.success) {
+                alert("Product quantity updated successfully");
+                window.location.reload(); // Reload the current page
+                // or redirect to another page
+                // window.location.href = '/some-other-page';
+              } else {
+                alert("Product quantity update failed");
+              }
+            })
+            .catch((error) => {
+              console.error("Error updating product quantity:", error);
+              alert("Error updating product quantity");
             });
         });
+
+        quantityUpdateForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const formData = {
+        // Assuming you have form fields like productIdQuantity and quantity in your HTML
+        productId: document.getElementById('productIdQuantity').value,
+        quantity: document.getElementById('quantity').value
+    };
+
+    fetch('/shopmanager/productquantity/update', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Error updating product quantity');
+        }
+    })
+    .then(result => {
+        if (result.success) {
+            alert('Product quantity updated successfully');
+            window.location.reload(); // Reload the current page
+            // or redirect to another page
+            // window.location.href = '/some-other-page';
+        } else {
+            alert('Product quantity update failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating product quantity:', error);
+        alert('Error updating product quantity');
+    });
+});
+
+    });
     </script>
-
-</body>
-<!-- ... (other HTML code) ... -->
-
-
+  </body>
 </html>

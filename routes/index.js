@@ -50,7 +50,7 @@ router.post('/login', async (req, res, next) => {
 
       req.session.user = user; // Store user in session
       req.flash('success', 'Successfully logged in');
-      res.redirect('/user');
+      res.redirect('owner');
     } else {
       // Invalid username/password
       req.flash('error', 'Invalid username or password');

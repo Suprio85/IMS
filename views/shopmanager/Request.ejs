@@ -1,125 +1,188 @@
-    <head>
-      <meta charset="UTF-8" />
-      <title>Admin Dashboard | By Code Info</title>
-      <link rel="stylesheet" href="style.css" />
-      <!-- Font Awesome Cdn Link -->
-      <link rel="stylesheet" href="../stylesheets/shopmanger/request.css" />
-      <link
-        rel="stylesheet"
-        href="../stylesheets/shopmanger/productquantity.css"
-      />
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-      />
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"
-      />
-    </head>
-    <body>
-      <header class="header">
-        <div class="logo">
-          <a href="/">Home</a>
-        </div>
-        <div class="header-icons">
-          <i class="fas fa-bell"></i>
-          <div class="account">
-            <img src="./pic/img.jpg" alt="" />
-            <h4><%= username %></h4> 
-            <a style="display: flex" href="/logout">Logout</a> 
-          </div>
-        </div>
-      </header>
-      <div class="container">
-        <div class="main-body">
-          <h2>Request</h2>
-          <div class="history_lists">
-            <div class="list1">
-              <div class="row">
-                <h4>Request For a Product</h4>
-              </div>
-              <form
-                action="/shopmanager/request"
-                method="post"
-                id="contact search-bar search_box fa-search"
-              >
-                <fieldset>
-                  <legend>Enter product details</legend>
-                  <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    placeholder="Enter Product Name"
-                    required
-                  />
-                  <input
-                    type="number"
-                    name="amount"
-                    id="amount"
-                    placeholder="Enter Product Amount"
-                    required
-                    min="1"
-                  />
-                </fieldset>
-                <button id="add-btn" class="btn">Add Request</button>
-              </form>
-            </div>
-          </div>
-        </div>
-        <div class="sidebar">
-          <h4>Transaction</h4>
-          <% requests.forEach(request => { %>
-            <div class="balance">
-                <i class="fas fa-dollar icon"></i>
-                <div class="info">
-                    
-                    <h5> Name : <%= request.name %></h5>
-                    <span><i class="fas fa-dollar">Amount :</i><%= request.amount %></span>
-                </div>
-            </div>
-        <% }); %>
-        <% if (requests.length > 0) { %>
-          <button id="send-btn" class="btn">Send Request</button>
-        <% } %>
-      </div>
-      </div>
-      <base href="/shopmanager/" />
-      <script>
-        console.log("Hello World");
-        const requests = <%- JSON.stringify(requests) %>;
-        console.log(requests);
-      
-        document.addEventListener('DOMContentLoaded', function () {
-          const sendBtn = document.getElementById('send-btn');
-      
-          sendBtn.addEventListener('click', function () {
-            // Check if there are requests to send
-            if (requests.length > 0) {
-              // Make an AJAX request to your backend endpoint
-              console.log('Sending requests:', requests);
-              fetch('/shopmanager/sendrequests', {
-                method: 'POST',
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard | By Code Info</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../stylesheets/shopmanger/request.css" />
+  <link rel="stylesheet" href="../stylesheets/shopmanger/productquantity.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
 
-                body: JSON.stringify(requests),
-              })
-                .then(data => {
+  
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="/">Home</a>
+    </div>
+    <div class="header-icons">
+      <i class="fas fa-bell"></i>
+      <div class="account">
+        <img src="./pic/img.jpg" alt="" />
+        <h4><%= username %></h4>
+        <a style="display: flex" href="/logout">Logout</a>
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="main-body">
+      <h2>Request</h2>
+      <div class="history_lists">
+        <div class="list1">
+          <div class="row">
+            <h4>Request For a Product</h4>
+          </div>
+          <form
+            action="/shopmanager/request"
+            method="post"
+            id="contact search-bar search_box fa-search"
+          >
+            <fieldset>
+              <legend>Enter product details</legend>
+              <input
+                type="number"
+                name="id"
+                id="productId"
+                placeholder="Enter Product ID"
+                required
+              />
+              <input
+                type="number"
+                name="amount"
+                id="amount"
+                placeholder="Enter Product Amount"
+                required
+                min="1"
+              />
+            </fieldset>
+            <button id="add-btn" class="btn">Add Request</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <h4>All Requests</h4>
+      <% requests.forEach((request,index) => { %>
+      <div class="balance">
+        <i class="fas fa-dollar icon"></i>
+        <div class="info">
+          <h5>ProductID : <%= request.id %></h5>
+          <span><i class="fas fa-dollar">Amount :</i><%= request.amount %></span>
+          <button class="cancel-btn">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </div>
+      <% }); %> <% if (requests.length > 0) { %>
+      <button id="send-btn" class="btn">Send Request</button>
+      <% } %>
+    </div>
+  </div>
+  <script>  
+document.addEventListener('DOMContentLoaded', function () {
+  const sidebar = document.querySelector('.sidebar');
+  const requests = <%- JSON.stringify(requests) %>;
 
-                  sendBtn.style.display = 'none';
-                  //requests =[];
-                  console.log('Requests sent successfully:', data.body);
-                })
-                .catch(error => {
-                  console.log('Error sending requests:');
-                  console.error('Error sending requests:', error);
-                });
-            }
-          });
+  function sendRequests() {
+    // Check if there are requests to send
+    if (requests.length > 0) {
+      // Make an AJAX request to your backend endpoint
+      console.log('Sending requests:', requests);
+      fetch('/shopmanager/sendrequests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requests),
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Check if the response indicates success
+          if (data.success) {
+            // Hide the sidebar
+            sidebar.style.display = 'none';
+            console.log('Requests sent successfully:', data.message);
+
+            // Show a success message to the user
+            alert('Requests sent successfully!');
+          } else {
+            console.error('Error sending requests:', data.message);
+            // Show an error message to the user
+            alert('Error sending requests: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error sending requests:', error);
+          // Show an error message to the user
+          alert('Error sending requests: ' + error.message);
         });
-      </script>      
-    </body>
-  </html>
-</span>
+    }
+  }
+
+  function cancelRequest(index) {
+    
+    requests.splice(index, 1);
+    
+    console.log('Request canceled:', index);
+    
+    updateSidebar();
+  }
+
+  function updateSidebar() {
+    const sidebarContent = document.querySelector('.sidebar');
+    sidebarContent.innerHTML = '';
+
+    requests.forEach((request, index) => {
+      const balanceDiv = document.createElement('div');
+      balanceDiv.classList.add('balance');
+
+      const icon = document.createElement('i');
+      icon.classList.add('fas', 'fa-dollar', 'icon');
+      balanceDiv.appendChild(icon);
+
+      const infoDiv = document.createElement('div');
+      infoDiv.classList.add('info');
+
+      const nameHeading = document.createElement('h5');
+      nameHeading.textContent = 'ProductID: ' + request.id;
+      infoDiv.appendChild(nameHeading);
+
+      const amountSpan = document.createElement('span');
+      amountSpan.innerHTML = '<i class="fas fa-dollar">Amount:</i> ' + request.amount;
+      infoDiv.appendChild(amountSpan);
+
+      const cancelButton = document.createElement('button');
+      cancelButton.classList.add('cancel-btn');
+      cancelButton.innerHTML = '<i class="fas fa-times"></i> Cancel';
+      cancelButton.addEventListener('click', () => cancelRequest(index));
+      infoDiv.appendChild(cancelButton);
+
+      balanceDiv.appendChild(infoDiv);
+      sidebarContent.appendChild(balanceDiv);
+    });
+
+    if (requests.length > 0) {
+      const sendButton = document.createElement('button');
+      sendButton.id = 'send-btn';
+      sendButton.classList.add('btn');
+      sendButton.textContent = 'Send Request';
+      sidebarContent.appendChild(sendButton);
+      sendButton.addEventListener('click', sendRequests);
+
+    }
+  }
+
+  updateSidebar();
+});
+</script>
+
+
+</body>

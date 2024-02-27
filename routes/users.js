@@ -12,9 +12,14 @@ router.get('/', async function(req, res, next) {
         const connection = await oracledb.getConnection(dbConfig);
 
         // Fetch products from the database
+        // const query =`SELECT P.*, C.CATAGORY_NAME FROM PRODUCTS P LEFT JOIN CATAGORY C ON P.CATAGORY_ID = C.CATAGORY_ID`;
+        // const result = await connection.execute(query);
+        // const products = result.rows;
+
+
         const result = await connection.execute(`SELECT * FROM PRODUCT`);
         const products = result.rows;
-
+        console.log(result);
         console.log(products);
         console.log(typeof(products));
         console.log(typeof(products[0].name));

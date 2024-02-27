@@ -5,7 +5,7 @@
       <title>Admin Dashboard | By Code Info</title>
       <link rel="stylesheet" href="style.css" />
       <!-- Font Awesome Cdn Link -->
-      <link rel='stylesheet' href='../stylesheets/shopmanger/addproduct.css'/>
+      <link rel='stylesheet' href='../stylesheets/owner/addproduct.css'/>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
     </head>
@@ -58,7 +58,7 @@
                 <h4>Products</h4>
                 <a href="#">See all</a>
               </div>
-                  <form action="/products" method="post" id="contact">
+                 <form action="/owner/addproduct" method="post" id="contact">
                     <fieldset>
                     <legend>Enter product details</legend>
                     <label for="productName">Product Name:</label>
@@ -88,6 +88,53 @@
           </div>
         </div>
       </div>
+      <script>
+    const form = document.getElementById('contact');
+    document.getElementById('contact').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const productName = document.getElementById('productName').value;
+      const price = document.getElementById('price').value;
+      const warrantyYears = document.getElementById('warrantyYears').value;
+      const image = document.getElementById('image').value;
+      const status = document.getElementById('status').value;
+      const categoryname = document.getElementById('categoryname').value;
+      fetch('/owner/addproduct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productName,
+          price,
+          warrantyYears,
+          image,
+          status,
+          categoryname,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          if (data.success ) {
+            alert('Product added successfully');
+            resetform();
+          } else {
+            alert('Product not added');
+          }
+        });
+    });
+
+    function resetform() {
+      document.getElementById('productName').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('warrantyYears').value = '';
+      document.getElementById('image').value = '';
+      document.getElementById('status').value = '';
+      document.getElementById('categoryname').value = '';
+    }
+
+  
+      </script>
     </body>
     </html>
     </span>

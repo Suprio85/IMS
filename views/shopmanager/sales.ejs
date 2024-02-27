@@ -43,34 +43,27 @@
     </style>
 </head>
 
+
 <body>
     <h1>Purchase Details</h1>
     <table id="purchaseTable" class="table table-hover table-striped table-bordered">
         <thead class="thead-dark">
             <tr>
                 <th>Purchase ID</th>
-                <th>Purchase Time</th>
-                <th>Shop ID</th>
+                <th>Product ID</th>
                 <th>Customer ID</th>
+                <th>Product Price</th>
+                <th>Quantity</th>
             </tr>
         </thead>
         <tbody>
             <% purchases.forEach(purchase => { %>
                 <tr>
-                    <td>
-                        <%= purchase.PURCHASE_ID %>
-                        <br>
-                        <a class="downloadLink" href="/download/purchases/<%= purchase.PURCHASE_ID %>">Download</a>
-                    </td>
-                    <td>
-                        <%= purchase.PURCHASE_TIME %>
-                    </td>
-                    <td>
-                        <%= purchase.SHOP_ID %>
-                    </td>
-                    <td>
-                        <%= purchase.CUSTOMER_ID %>
-                    </td>
+                    <td><%= purchase.PURCHASE_ID %></td>
+                    <td><%= purchase.PRODUCT_ID %></td>
+                    <td><%= purchase.CUSTOMER_ID %></td>
+                    <td><%= purchase.PRODUCT_PRICE %></td>
+                    <td><%= purchase.QUANTITY %></td>
                 </tr>
             <% }); %>
         </tbody>
@@ -79,6 +72,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- Add any additional scripts you may need -->
 </body>
 
 </html>

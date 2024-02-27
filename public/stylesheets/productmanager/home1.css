@@ -327,6 +327,62 @@ input[type="number"]:focus {
     background-color: rgba(255, 255, 255, 0.5);
     }
 
+    #cart {
+            /* border: 3px solid #dadada; */
+    border-radius: 6;
+    padding: 8px;
+    margin-top: 0px;
+    background-color: #fffbfb;
+    width: 34%;
+    height: unset;
+      }
+  
+      #cart h2 {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+      }
+  
+      #cartItems {
+        list-style-type: none;
+        padding: 0;
+        margin: 0; 
+        max-height: 200px; 
+        overflow-y: auto; 
+      }
+  
+      #cartItems li {
+        margin-bottom: 5px;
+        font-family: 'Verdana', sans-serif; 
+        color: #333; 
+        padding: 8px; 
+        border: 1px solid #ccc; 
+        border-radius: 40px; 
+        background-color: #ada3a3; 
+      }
+
+      #cartItems li:hover {
+        background-color: #f7ecec;
+        cursor: pointer;
+       
+         
+      }
+  
+      button {
+        display: flex;
+        margin-top: 10px;
+        justify-content: center;
+        padding: 8px;
+        background-color: #4CAF50;
+        color: white;
+        border: darkgray;
+        border-radius: 110px;
+        cursor: pointer;
+      }
+  
+      button:hover {
+        background-color: #45a049;
+      }
+
 
 
 /* Product Card Styles */

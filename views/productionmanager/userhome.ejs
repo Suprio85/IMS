@@ -1,158 +1,158 @@
-<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <title></title>
-      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-      <link rel="stylesheet" href="../stylesheets/shopmanger/productquantity.css" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-      <link rel="stylesheet" href="../stylesheets/productmanager/home1.css" />
-      <link rel="stylesheet" href="../stylesheets/productmanager/home2.css">
-      <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"> -->
-    </head>
-    <body>
-      <header class="header">
-        <div class="logo">
-          <a href="/">Home</a>
-          <a href="/login">Login </a>
-          <a href="/products">Products</a>        
-        </div>
-    
-        <div class="header-icons">
-          <i class="fas fa-bell"></i>
-          <div class="account">
-            <img src="./pic/img.jpg" alt="">
-            <h4><%= username %></h4>
-             <a style="display: flex;" href="/logout">Logout</a>
-          </div>
-        </div>
-      </header>
-      <div class="container">
-        <nav>
-          <div class="side_navbar">
-            <span>Main Menu</span>
-            <a href="#" class="active">Dashboard</a>
-            <a href="/shopmanager/profile">Profile</a>
-            <a href="/shopmanager/addproduct">Add Products</a>
-            <a href="/shopmanager/productquantity">Update Products</a>
-            <a href="/shopmanager/request">Request For Product</a>
-            <a href="/shopmanager/sales">Sales</a>
-    
-            <div class="links">
-              <span>Quick Link</span>
-              <a href="#">Paypal</a>
-              <a href="#">EasyPay</a>
-              <a href="#">SadaPay</a>
-            </div>
-          </div>
-        </nav>
-    
-        <div class="main-body">
-          <h2>Dashboard</h2>
-          <!-- <div class="promo_card">
-            <h1>Welcome to EasyPay</h1>
-            <span>Lorem ipsum dolor sit amet.</span>
-            <button>Learn More</button>
-          </div> -->
-          <div class="history_lists">
-            <% products.forEach(product => { %>
-                <div class="card-container">
-                    <div class="card">
-                        <img src="/images/inventory.jpg" alt="<%= product.name %> Image" />
-                        <div class="card-content">
-                            <h2><%= product[0] %></h2>
-                            <p><%= product[1] %></p>
-                            <p><%= product[2] %></p>
-                            <h5> Reigeion : Dhaka</h5>
-                            <button class="btn update-btn" data-action="price">ADD PRODUCT</button>
-                        </div>
-                    </div>
-                </div>
-            <% }); %>
-        
-            <!-- The Modal for Price Update -->
-            <div id="priceUpdateModal" class="modal">
-                <!-- Modal content for updating price -->
-                <div class="modal-content">
-                    <span class="close" id="priceCloseBtn">&times;</span>
-                    <h2>ADD PRODUCT</h2>
-                    <form id="priceUpdateForm">
-                        <!-- Add form field for updating price with Bootstrap floating label -->
-                        <div class="form-group">
-                            <label for="Name" class="form-floating">Product Name:</label>
-                            <input type="text" id="name" name="name" class="form-control" required>
-                            <label for="catagory" class="form-floating">Catagory:</label>
-                            <input type="text" id="catagory" name="catagory" class="form-control" required>
-                            <label for="amount" class="form-floating">Amount:</label>
-                            <input type="number" id="amount" name="amount" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">ADD PRODUCT</button>
-                    </form>
-                </div>
-            </div>
-        
-            <!-- The Modal for Quantity Update -->
-            <div id="quantityUpdateModal" class="modal">
-                <!-- Modal content for updating quantity -->
-                <div class="modal-content">
-                    <span class="close" id="quantityCloseBtn">&times;</span>
-                    <h2>Update Quantity</h2>
-                    <form id="quantityUpdateForm">
-                        <!-- Add form field for updating quantity -->
-                        <label for="quantity">New Quantity:</label>
-                        <input type="text" id="quantity" name="quantity" required>
-                        <button type="submit">Update Quantity</button>
-                    </form>
-                </div>
-            </div>
-        
-            <script>
-                // JavaScript code directly in the HTML file
-                document.addEventListener('DOMContentLoaded', function () {
-                    const priceUpdateBtns = document.querySelectorAll('.update-btn[data-action="price"]');
-                    const quantityUpdateBtns = document.querySelectorAll('.update-btn[data-action="quantity"]');
-                    const priceUpdateModal = document.getElementById('priceUpdateModal');
-                    const quantityUpdateModal = document.getElementById('quantityUpdateModal');
-                    const priceCloseBtn = document.getElementById('priceCloseBtn');
-                    const quantityCloseBtn = document.getElementById('quantityCloseBtn');
-        
-                    priceUpdateBtns.forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            priceUpdateModal.style.display = 'block';
-                        });
-                    });
-        
-                    quantityUpdateBtns.forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            quantityUpdateModal.style.display = 'block';
-                        });
-                    });
-        
-                    priceCloseBtn.addEventListener('click', () => {
-                        priceUpdateModal.style.display = 'none';
-                    });
-        
-                    quantityCloseBtn.addEventListener('click', () => {
-                        quantityUpdateModal.style.display = 'none';
-                    });
-        
-                    window.addEventListener('click', (event) => {
-                        if (event.target === priceUpdateModal) {
-                            priceUpdateModal.style.display = 'none';
-                        }
-                        if (event.target === quantityUpdateModal) {
-                            quantityUpdateModal.style.display = 'none';
-                        }
-                    });
-                });
-            </script>
-            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-          </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="../stylesheets/shopmanger/productquantity.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link rel="stylesheet" href="../stylesheets/productmanager/home1.css" />
+  <link rel="stylesheet" href="../stylesheets/productmanager/home2.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <a href="/">Home</a>
+      <a href="/login">Login </a>
+      <a href="/products">Products</a>
+    </div>
+
+    <div class="header-icons">
+      <i class="fas fa-bell"></i>
+      <div class="account">
+        <img src="./pic/img.jpg" alt="" />
+        <h4><%= username %></h4>
+        <a style="display: flex" href="/logout">Logout</a>
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <nav>
+      <div class="side_navbar">
+        <span>Main Menu</span>
+        <a href="#" class="active">Dashboard</a>
+        <a href="/shopmanager/profile">Profile</a>
+        <a href="/shopmanager/addproduct">Add Products</a>
+        <a href="/shopmanager/productquantity">Update Products</a>
+        <a href="/shopmanager/request">Request For Product</a>
+        <a href="/shopmanager/sales">Sales</a>
+
+        <div class="links">
+          <span>Quick Link</span>
+          <a href="#">Paypal</a>
+          <a href="#">EasyPay</a>
+          <a href="#">SadaPay</a>
         </div>
       </div>
-    </body>
-    </html>
-    </span>
+    </nav>
+
+    <div class="main-body">
+      <h2>Dashboard</h2>
+      <div class="history_lists">
+        <% Inventorys.forEach(Inventory => { %>
+        <div class="card-container">
+          <div class="card">
+            <img src="/images/inventory.jpg" alt="<%= Inventory.name %> Image" />
+            <div class="card-content">
+              <h5>Inventory: <%= Inventory.name %></h5>
+              <button class="btn btn-primary update-btn"
+                      data-action="price"
+                      data-inventory-id="<%= Inventory.id %>"
+                      onclick="openModal()">
+                SEND PRODUCTS
+              </button>
+            </div>
+          </div>
+        </div>
+        <% }); %>%
+      </div>
+    </div>
+
+    <!-- The Modal for sending products -->
+    <div id="sendProductsModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add to Cart</h2>
+        <label for="productId">Product ID:</label>
+        <input type="text" id="productId" name="productId" required>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" required>
+        <button onclick="addToCart()">Add to Cart</button>
+      </div>
+    </div>
+
+    <!-- The Cart section -->
+    <div id="cart">
+      <h2>Cart</h2>
+      <ul id="cartItems"></ul>
+      <button onclick="sendRequests()">Send Requests</button>
+    </div>
+
+    <script>
+      let Inventoryid;
+      function openModal() {
+        var modal = document.getElementById("sendProductsModal");
+         Inventoryid = event.target.getAttribute("data-inventory-id"); 
+        console.log(Inventoryid);
+        modal.style.display = "block";
+      }
+
+      function closeModal() {
+        var modal = document.getElementById("sendProductsModal");
+        modal.style.display = "none";
+      }
+
+      function addToCart() {
+        var productId = document.getElementById("productId").value;
+        var amount = document.getElementById("amount").value;
+        var cartItems = document.getElementById("cartItems");
+        
+
+        
+
+        var listItem = document.createElement("li");
+        listItem.innerHTML = `Product ID: ${productId}, Amount: ${amount}, Inventory ID: ${Inventoryid}`;
+        cartItems.appendChild(listItem);
+
+        document.getElementById("productId").value = "";
+        document.getElementById("amount").value = "";
+        
+
+
+        closeModal();
+      }
+
+      async function sendRequests() {
+    var cartItems = document.getElementById("cartItems").getElementsByTagName("li");
+    var requests = [];
+
+    for (var i = 0; i < cartItems.length; i++) {
+      requests.push(cartItems[i].innerHTML);
+    }
+
+    // Use fetch to send cart items to the backend
+    try {
+      const response = await fetch('/productionmanager', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ requests }),
+      });
+
+      if (response.ok) {
+        alert('Requests sent successfully');
+        console.log('Requests sent successfully');
+        document.getElementById("cartItems").innerHTML = "";
+      } else {
+        console.error('Failed to send requests');
+        alert('Failed to send requests');
+      }
+    } catch (error) {
+      console.error('Error sending requests:', error);
+    }
+  }
+    </script>
+  </div>
+</body>
+</html>

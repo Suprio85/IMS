@@ -4,7 +4,14 @@
     <head>
       <meta charset="UTF-8" />
       <title></title>
-      <link rel="stylesheet" href="/stylesheets/userstyle.css" />
+      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
       <link
         rel="stylesheet"
         href="../stylesheets/shopmanger/productquantity.css"
@@ -15,19 +22,13 @@
       />
       <link
         rel="stylesheet"
-        href="../stylesheets/shopmanager/productquantity.css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
       />
-      <!-- ... other head elements ... -->
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"
-      />
-    </head>
+      <link rel="stylesheet" href="../stylesheets/owner/home1.css" />
+      <link rel="stylesheet" href="../stylesheets/owner/home2.css" />
 
+      <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"> -->
+    </head>
     <body>
       <header class="header">
         <div class="logo">
@@ -50,79 +51,213 @@
           <div class="side_navbar">
             <span>Main Menu</span>
             <a href="#" class="active">Dashboard</a>
-            <a href="/shopmanager/profile">Profile</a>
-            <a href="/shopmanager/addproduct">Add Products</a>
-            <a href="/shopmanager/productquantity">Update Products</a>
-            <a href="/shopmanager/request">Request For Product</a>
-            <a href="/shopmanager/sales">Sales</a>
+            <a href="/">Profile</a>
+            <a href="/owner/addproduct">Add Products</a>
+            <a href="/owner/location">Locations</a>
+            <a href="/">Request For Product</a>
+            <a href="/">Sales</a>
           </div>
         </nav>
 
         <div class="main-body">
-          <div class="line-chart-container">
-            <canvas id="lineChart"></canvas>
+          <h2>Dashboard</h2>
+          <form
+            method="post"
+            action="/owner/search"
+            id="searchForm"
+            class="search-bar"
+          >
+            <input
+              type="text"
+              id="nameInput"
+              name="nameInput"
+              placeholder="Search by name"
+            />
+            <input
+              type="text"
+              id="categoryInput"
+              name="categoryInput"
+              placeholder="Search by category"
+            />
+            <input
+              type="number"
+              id="priceInput"
+              name="priceInput"
+              placeholder="Search by price"
+            />
+            <input
+              type="number"
+              id="productidInput"
+              name="productidInput"
+              placeholder="Search by productId"
+            />
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
+          </form>
+          <% products.forEach(product => { %>
+          <div class="card-container">
+            <div class="card">
+              <img src="/images/laptop.png" alt="<%= product.name %> Image" />
+              <div class="card-content">
+                <h2><%= product.name %></h2>
+                <p>product id : <%= product.id %></p>
+                <p>price: <%= product.price %></p>
+                <button
+                  class="btn update-btn"
+                  data-action="price"
+                  data-productid="<%= product.id %>"
+                >
+                  PRODUCT ANALYSIS
+                </button>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+          <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        </div>
+        <div id="popup" class="popup-container">
+          <div class="popup-content">
+            <button id="closePopup">&#10006;</button>
+            <form id="popupForm">
+              <select id="regionId" name="regionId" required autofocus>
+                <option value="" disabled selected>Select a Region</option>
+                <option value="General">All Region</option>
+                <% regions.forEach(region => { %>
+                <option value="<%= region.id %>"><%= region.name %></option>
+                <% }); %>
+              </select>
+              <label for="startMonth">Start Month:</label>
+              <input type="month" id="startMonth" name="startMonth" required />
+
+              <!-- Add a range input for selecting end month -->
+              <label for="endMonth">End Month:</label>
+              <input type="month" id="endMonth" name="endMonth" required />
+              <button type="button" onclick="submitForm()">Submit</button>
+            </form>
+            <div id="messageContainer"></div>
+            <canvas id="lineChart" width="400" height="200"></canvas>
           </div>
         </div>
       </div>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script>
-            let products = <%- JSON.stringify(products) %>;
-            console.log(products);
-             let productprice = [];
-             products.forEach((product) => {
-               productprice.push(product.price);
-             });
-             console.log(productprice);
-          document.addEventListener('DOMContentLoaded', function () {
-            // Your data for the line chart
-            const chartData = {
-              labels: ['January', 'February', 'March'],
-              datasets: [{
-                label: 'Monthly sales',
-                data: productprice,
-                borderColor: 'blue',
-                borderWidth: 2,
-                fill: true,
-              }, {
-           label: 'Additional Data',
-           data: [200, 300, 400],
-           borderColor: 'red',
-           borderWidth: 2,
-           fill: true,
-         }],
-            };
+        let productId;
+        document.addEventListener("DOMContentLoaded", function () {
+          // Function to open the pop-up
+          function openPopup(productId) {
+            document.getElementById("popup").style.display = "block";
 
-             const chartData2 = {
-               labels: ['January', 'February', 'March'],
-               datasets: [{
-                 label: 'Monthly sales',
-                 data: [100, 200, 300],
-                 borderColor: 'blue',
-                 borderWidth: 2,
-                 fill: true,
-               }],
-             };
+          }
 
+          // Attach the openPopup function to each product's button
+          let buttons = document.querySelectorAll(".update-btn");
+          buttons.forEach(function (button) {
+            button.addEventListener("click", function () {
+              // Retrieve the region ID from the button's data-regionid attribute
+               productId = button.getAttribute("data-productid");
+              console.log(productId);
 
-            // Get the canvas element
-            const canvas = document.getElementById('lineChart');
+              openPopup(productId);
 
-        //    Create the line chart
-            const lineChart = new Chart(canvas, {
-              type: 'line',
-              data: chartData,
-              options: {
-                scales: {
-                  x: {
-                    type: 'category',
-                    labels: ['January', 'February', 'March'],
-                  },
-                  y: {
-                    beginAtZero: true,
-                  },
-                },
-              },
             });
           });
+
+          // Attach the closePopup function to the close button
+          document
+            .getElementById("closePopup")
+            .addEventListener("click", closePopup);
+        });
+
+        function submitForm() {
+          const selectedRegionId = document.getElementById("regionId").value;
+          console.log("in submit form: ");
+          console.log(selectedRegionId);
+          console.log(productId);
+          const selectedStartMonth = document.getElementById("startMonth").value;
+          const selectedEndMonth = document.getElementById("endMonth").value;
+
+          const requestData = {
+            regionID: selectedRegionId,
+            productID: productId,
+            startMonth: selectedStartMonth,
+            endMonth: selectedEndMonth,
+          };
+
+          fetch("/owner", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Handle the response data as needed
+              console.log("Response from server:", data);
+
+              // Display a message or perform additional actions on the front end
+              const messageContainer =
+                document.getElementById("messageContainer");
+              if (data.success) {
+                messageContainer.innerHTML = `<p>${data.message}</p>`;
+                // Use dataForLineChart for creating a line chart
+                console.log("before chart");
+                console.log("Data for line chart:", data.dataForLineChart);
+                createLineChart(data.dataForLineChart, data.labelsForLineChart);
+              } else {
+                messageContainer.innerHTML = `<p>Error: ${data.message}</p>`;
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+        //generating random colors
+        function getRandomColor() {
+          var letters = "0123456789ABCDEF";
+          var color = "#";
+          for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+        }
+        function createLineChart(dataForLineChart, labelsForLineChart) {
+          console.log("Data for line chart:", dataForLineChart);
+
+          // Get the canvas and context
+          const canvas = document.getElementById("lineChart");
+          const ctx = canvas.getContext("2d");
+
+          // Check if the chart already exists, destroy it if it does
+          if (window.lineChartInstance) {
+            window.lineChartInstance.destroy();
+          }
+
+          // Create a new chart instance
+          window.lineChartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: labelsForLineChart,
+              datasets: [
+                {
+                  label: "Line Chart",
+                  data: dataForLineChart,
+                  borderColor: getRandomColor(),
+                  borderWidth: 4,
+                  fill: false,
+                },
+              ],
+            },
+          });
+        }
+
+        function closePopup() {
+           if(window.lineChartInstance)
+           window.lineChartInstance.destroy();
+          document.getElementById("popup").style.display = "none";
+          document.getElementById("regionId").value = "";
+        }
       </script>
     </body>
   </html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipment Details</title>
+    <link rel="stylesheet" href="path/to/your/css/style.css">
+    <!-- Include any additional stylesheets or scripts you may need -->
+</head>
+<style>
+   body {
+    padding: 20px;
+    background-color: #f8f9fa; /* Light gray background color */
+}
+
+h2 {
+    color: #007bff; /* Blue header text color */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff; /* White table background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for a subtle lift */
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #e2e6ea; /* Light blue background on hover */
+}
+
+.accept-btn {
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.accept-btn:hover {
+    background-color: #218838;
+}
+
+.
+
+/* Additional styles for the body background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    /* Gradient background */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal {
+    display: none; /* Hide the modal by default */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4); /* Add a semi-transparent overlay */
+}
+
+/* Style for the modal content */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for the close button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+</style>
+<body>
+
+<h1>Shipment Details</h1>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Shipment ID</th>
+            <th>Shipping Date</th>
+            <th>Receiving Date</th>
+            <th>Shipping Cost</th>
+            <th>Delivery Status</th>
+            <th>Inventory ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% shipments.forEach(shipment => { %>
+            <tr class="shipment-row" data-shipment-id="<%= shipment.SHIPMENT_ID %>">
+                <td><%= shipment.SHIPMENT_ID %></td>
+                <td><%= shipment.SHIPPING_DATE %></td>
+                <td class="receive-date">N/A</td>
+                <td><%= shipment.SHIPPING_COST %></td>
+                <td class="delivery-status"><%= shipment.DELIVERY_STATUS %></td>
+                <td><%= shipment.INVENTORY_ID %></td>
+            </tr>
+            <tr data-shipment-id-btn="<%= shipment.SHIPMENT_ID %>">
+                <td>
+                    <button class="accept-btn" onclick="updateDeliveryStatus(<%= shipment.SHIPMENT_ID %>)">Accept</button>
+                </td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<div id="productDetailsModal" class="modal">
+    <div class="modal-content">
+        <span id="closeProductDetailsModal" class="close">&times;</span>
+        <h2>Product Details</h2>
+        <table id="productDetailsTable">
+            <!-- ... -->
+        </table>
+    </div>
+
+<!-- JavaScript code for handling actions -->
+<script>
+     function updateDeliveryStatus(shipmentId) {
+            fetch(`/shopmanager/updateshipmentstatus`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ shipmentId, status: 'DELIVERED' })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update delivery status');
+                }
+                return response.json();
+            })
+            .then(result => {
+                // Show a success message or update the UI as needed
+                console.log(result.message);
+
+                // Optionally, you can update the delivery status in the UI
+            const deliveryStatusElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .delivery-status`);
+            const ReceivingDateElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .receive-date`);
+            
+                if (deliveryStatusElement) {
+                    deliveryStatusElement.textContent = 'DELIVERED';
+                }
+
+                if (ReceivingDateElement) {
+                    ReceivingDateElement.textContent = new Date().toISOString().split('T')[0];
+                }
+
+            
+            })
+            .catch(error => {
+                console.error('Error updating delivery status:', error);
+                // Handle error (e.g., show an alert)
+            });
+        }
+  
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const shipmentRows = document.querySelectorAll('.shipment-row');
+        const acceptButtons = document.querySelectorAll('.accept-btn');
+        const productDetailsModal = document.getElementById('productDetailsModal');
+        const closeProductDetailsModal = document.getElementById('closeProductDetailsModal');
+        let selectedShipmentId;
+
+
+        shipmentRows.forEach(row => {
+            row.addEventListener('click', () => {
+                 const shipmentId = row.getAttribute('data-shipment-id');
+                selectedShipmentId = shipmentId;   
+                // Call a function to fetch and display product details for the clicked shipmentId
+                displayProductDetails(shipmentId);
+            });
+        });
+
+        acceptButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+
+            const shipmentId = button.closest('tr').getAttribute('data-shipment-id-btn');
+            // Call a function to update delivery status to "DELIVERED"
+            console.log(shipmentId);
+            updateDeliveryStatus(shipmentId);
+        });
+    });
+
+        closeProductDetailsModal.addEventListener('click', () => {
+            productDetailsModal.style.display = 'none';
+        });
+
+        // Function to fetch and display product details
+        function displayProductDetails(shipmentId) {
+            fetch(`/shopmanager/shipmentproduct`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add any additional headers if needed
+                },
+                body: JSON.stringify({ shipmentId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch product details');
+                }
+                return response.json();
+            })
+            .then(productDetails => {
+                // Build HTML for product details table
+                const productDetailsTable = document.getElementById('productDetailsTable');
+                productDetailsTable.innerHTML = `
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Quantity</th>
+                        <th>Return Date</th>
+                        <th>Return Amount</th>
+                    </tr>
+                    ${productDetails.map(product => `
+                        <tr>
+                            <td>${product.PRODUCT_ID}</td>
+                            <td>${product.QUANTITY}</td>
+                            <td>${product.RETURN_DATE || 'N/A'}</td>
+                            <td>${product.RETURN_AMOUNT || 'N/A'}</td>
+                        </tr>
+                    `).join('')}
+                `;
+
+                // Show the modal
+                productDetailsModal.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching product details:', error);
+                // Handle error (e.g., show an alert)
+            });
+        }
+
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

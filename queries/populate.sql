@@ -4,4 +4,6 @@
 @inventory_amount_trig.sql;
 @total_sale_func.sql;
 
-@insesions.sql;
+@insersions.sql;
+
+COMMIT;

@@ -53,6 +53,7 @@ router.post('/login', async (req, res, next) => {
       if(user.job_id === 'MD') res.redirect('owner');
       else if(user.job_id === 'ShM') res.redirect('/shopmanager');
       else if(user.job_id === 'PM') res.redirect('/productionmanager');
+      else if(user.job_id === 'CASHIER') res.redirect('/cashier');
       else res.redirect('owner');
     } else {
       // Invalid username/password

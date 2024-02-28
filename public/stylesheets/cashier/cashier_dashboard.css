@@ -1,0 +1,64 @@
+/* Main Body Section */
+.main-body{
+  width: 76%;
+  padding: 1rem;
+}
+.promo_card{
+  width: 100%;
+  color: #fff;
+  margin-top: 10px;
+  border-radius: 8px;
+  padding: 0.5rem 1rem 1rem 3rem;
+  background: rgb(37, 37, 37);
+}
+.promo_card h1, .promo_card span, button{
+  margin: 10px;
+}
+.promo_card button{
+  display: block;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.history_lists{
+  display: flex;
+  /* align-items: ; */
+  justify-content: space-between;
+  flex-direction: column;
+}
+.row{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.list1 table{
+  margin-left: 1rem;
+}
+
+table{
+  background: #fff;
+  padding: 1rem;
+  text-align: left;
+  border-radius: 10px;
+}
+
+.recent-records table{
+  width: 90%;
+}
+
+table td, th{
+  padding: 0.2rem 0.8rem;
+}
+table th{
+  font-size: 15px;
+}
+table td{
+  font-size: 13px;
+  color: rgb(100, 100, 100);
+}
+
+table tr:hover{
+  background-color: rgba(225, 225, 225, 1);
+}

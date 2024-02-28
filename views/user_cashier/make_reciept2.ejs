@@ -1,0 +1,126 @@
+<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Cashier | Complete Purchase</title>
+      <!-- <link rel="stylesheet" href="style.css" /> -->
+      <!-- Font Awesome Cdn Link -->
+      <link rel='stylesheet' href='/stylesheets/cashier/header_style.css' />
+      <link rel='stylesheet' href='/stylesheets/cashier/cash_memo2.css' />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+      <%- include("./headers.ejs") %>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="/cashier/dashboard">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="/cashier/cash_memo" class="active">Make Purchase</a>
+            <a href="/cashier/search_record">Search Records</a>
+            <!-- <a href="#">My Account</a>
+            <a href="#">Documnets</a> -->
+    
+            <!-- <div class="links">
+              <span>Quick Link</span>
+              <a href="#">Paypal</a>
+              <a href="#">EasyPay</a>
+              <a href="#">SadaPay</a>
+            </div> -->
+          </div>
+        </nav>
+    
+        <div class="main-body">
+          <h2>Record Purchase</h2><br><br>
+          <!-- <div class="promo_card">
+            <h1>Welcome to EasyPay</h1>
+            <span>Lorem ipsum dolor sit amet.</span>
+            <button>Learn More</button>
+          </div> -->
+    
+          <form id="cash_memo" action="/cashier/record-purchase" method="POST">
+              <span>- Customer Info: </span><br><br>
+              <div class="customer">
+                <label for="customerName">Customer Name:  </label>
+                <input type="text" id="customer_name" name="customerName" required><br><br>
+
+                <label for="customerEmail">Customer Email:  </label>
+                <input type="email" id="customer_mail" name="customerEmail" required><br><br>
+
+                <label for="customerMobile">Customer Mobile:  </label>
+                <input type="tel" id="customer_mobile" name="customerMobile" required><br><br>
+              </div>
+
+              <span>- Product info: </span><br>
+              <div id="products">
+                  <div class="product">
+                      <br>
+                      <label for="productId">Product ID/Name:</label>
+                      <input type="number" class="productId" name="productId" required>
+                      <label for="quantity">Quantity:</label>
+                      <input type="number" class="quantity" name="quantity" required min="0">
+                      <button class="remove-product" id="remove_button" onclick="removeProduct(this)">Remove</button>
+                  </div>
+                  <br>
+              </div>
+              <!-- <br> -->
+              <button type="button" id="add_button" onclick="addProduct()">Add Product</button><br><br>
+
+              <button type="submit" id="submit_button">Submit</button>
+          </form>
+          
+        </div>
+      </div>
+      <div class="popup-container" id="popupContainer">
+        <div class="popup-content" id="general_popup_content">
+          <span><u>Customer Info:</u> </span>
+          <div class="customer-info" id="customerPopup">
+            <div class="customer-placeholders">
+              <ul>
+                <li>Name: </li>
+                <li>Email: </li>
+                <li>Number: </li>
+              </ul>
+            </div>
+            <div class="place-value">
+              <ul class="place-list" id="customer_value_list"></ul>
+            </div>
+          </div> <br><br>
+          <span>Purchase Info: </span>
+          <div class="product-info" id="productInfo">
+            <table id="products_table">
+              <!-- <caption>Purchase Info:</caption> -->
+              <thead>
+                <tr>
+                  <th>SL</th>
+                  <th>Product Name</th>
+                  <th>Price pp</th>
+                  <th>Quantity</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+          <div id="accessibility">
+            <button type="button" onclick="closePopup()">Close</button>
+            <button type="button" onclick="confirmPurchase()">Confirm</button>
+          </div>
+        </div>
+        <div class="popup-content" id="completion">
+          <span>Successful</span><br>
+          <div>
+            <button type="button" id="failed_back_button" onclick="backToReciept()" disabled>Back</button>
+            <button type="button" onclick="forwarding()">Ok</button>
+          </div>
+        </div>
+      </div>
+
+      
+      <script src="/javascripts/takeMemo.js">
+      </script>
+    </body>
+    </html>
+    </span>

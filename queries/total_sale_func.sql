@@ -1,0 +1,28 @@
+
+CREATE OR REPLACE FUNCTION GET_TOTAL_SALES(
+    p_product_id IN NUMBER,
+    p_shop_id IN NUMBER,
+    p_start_time IN TIMESTAMP,
+    p_end_time IN TIMESTAMP
+)
+RETURN NUMBER
+IS
+    v_total_sales NUMBER := 0;
+BEGIN
+    SELECT NVL(SUM(PR.QUANTITY), 0)
+    INTO v_total_sales
+    FROM PURCHASED_PRODUCT PR
+    JOIN PURCHASE P ON PR.PURCHASE_ID = P.PURCHASE_ID
+    JOIN SHOP_PRODUCTS SP ON PR.PRODUCT_ID = SP.PRODUCT_ID
+    WHERE PR.PRODUCT_ID = p_product_id
+        AND SP.SHOP_ID = p_shop_id
+        AND P.PURCHASE_TIME BETWEEN p_start_time AND p_end_time;
+
+    RETURN v_total_sales;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        RETURN NULL;
+END GET_TOTAL_SALES;
+
+/

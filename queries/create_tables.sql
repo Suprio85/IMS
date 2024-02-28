@@ -107,7 +107,7 @@ CREATE TABLE EMPLOYEES(
     CONSTRAINT EMP_MANAGER_FK FOREIGN KEY (MANAGER_ID) REFERENCES EMPLOYEES(EMPLOYEE_ID),
     CONSTRAINT EMP_ADDRESS_FK FOREIGN KEY (ADDRESS_AREA_CODE)
     REFERENCES AREAS(AREA_CODE),
-    CONSTRAINT EMP_SALARY_CHECK CHECK( SALARY>=0 )
+    CONSTRAINT EMP_SALARY_CHECK CHECK( SALARY>0 )
 );
 
 
@@ -195,7 +195,7 @@ CREATE TABLE INVENTORY_PRODUCTS(
     CONSTRAINT INVENTORY_PRODUCT_PK PRIMARY KEY (PRODUCT_ID, INVENTORY_ID),
     CONSTRAINT INV_PRODUCT_FK FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCTS(PRODUCT_ID),
     CONSTRAINT INV_PR_INVENTORY_FK FOREIGN KEY (INVENTORY_ID) REFERENCES INVENTORY(INVENTORY_ID),
-    CONSTRAINT INV_QUANTITY_CHECK CHECK( QUANTITY>0 )
+    CONSTRAINT INV_QUANTITY_CHECK CHECK( QUANTITY>=0 )
 );
 
 
@@ -203,8 +203,9 @@ CREATE TABLE INVENTORY_LOT_PRODUCTS(
     LOT_ID NUMBER NOT NULL,
     PRODUCT_ID NUMBER NOT NULL,
     QUANTITY NUMBER NOT NULL,
-    PRICE NUMBER(5, 3) NOT NULL,
+    PRICE NUMBER(12, 2) NOT NULL,
     MANUFACTURING_DATE DATE NOT NULL,
+    -- Add a new status Attribute
     CONSTRAINT INV_LOT_PRODUCT_PK PRIMARY KEY (PRODUCT_ID, LOT_ID),
     CONSTRAINT LOT_PRODUCT_FK FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCTS(PRODUCT_ID),
     CONSTRAINT INVENTORY_LOT_FK FOREIGN KEY (LOT_ID) REFERENCES INVENTORY_LOT(LOT_ID),
@@ -237,7 +238,7 @@ CREATE TABLE SHIPMENT_REQUEST_PRODUCT(
     PRODUCT_ID NUMBER NOT NULL,
     REQUEST_ID NUMBER NOT NULL,
     QUANTITY NUMBER NOT NULL,
-    
+    -- New Attribute
     SUPPLIABLE_AMOUNT NUMBER,
     CONSTRAINT SHIPMENT_REQUEST_PRODUCT_PK PRIMARY KEY (REQUEST_ID, PRODUCT_ID),
     CONSTRAINT SHIP_REQ_FK FOREIGN KEY (REQUEST_ID) REFERENCES SHIPMENT_REQUEST(REQUEST_ID),
@@ -309,7 +310,7 @@ CREATE TABLE PURCHASED_PRODUCT(
     CONSTRAINT QUANTITY_CHECK CHECK( QUANTITY>0)
 );
 
--- we need 4 seqences
+-- we need 5 seqences
 CREATE SEQUENCE PURCHASE_ID_SEQ
     INCREMENT BY 1
     START WITH 1000
@@ -345,6 +346,13 @@ CREATE SEQUENCE INVENTORY_LOT_ID_SEQ
     NOCACHE
     NOORDER;
     
+CREATE SEQUENCE CUSTOMER_ID_SEQ
+    INCREMENT BY 1
+    START WITH 1000
+    NOMAXVALUE
+    NOCYCLE
+    NOCACHE
+    NOORDER;
 
 -- A trigger to hash the passwords
 -- CREATE OR REPLACE TRIGGER hash_password_trigger
@@ -373,153 +381,90 @@ BEGIN
   -- Store the hashed password in the new row
   :NEW.USER_PASSWORD := RAWTOHEX(v_hashed_password);
 END;
-/
 
-CREATE OR REPLACE TRIGGER check_salary_limits_trigger
-BEFORE INSERT ON EMPLOYEES
-FOR EACH ROW
-DECLARE
-  v_min_salary NUMBER;
-  v_max_salary NUMBER;
-BEGIN
- 
-  SELECT MIN_SALARY, MAX_SALARY INTO v_min_salary, v_max_salary
-  FROM JOBS
-  WHERE JOB_ID = :NEW.JOB_ID;
 
-  
-  IF :NEW.SALARY < v_min_salary OR :NEW.SALARY > v_max_salary THEN
-    RAISE_APPLICATION_ERROR(-20001, 'Salary is not within the limits for the job ID');
-  END IF;
-END;
-/
 
-/*CREATE OR REPLACE TRIGGER check_inventory_amount_trigger
+CREATE OR REPLACE TRIGGER check_inventory_amount_trigger
 BEFORE INSERT ON SHIPMENT_PRODUCT
 FOR EACH ROW
 DECLARE
     v_current_inventory_amount NUMBER;
+    current_inventory_id NUMBER;
 BEGIN
-    
+    SELECT S.INVENTORY_ID INTO current_inventory_id
+    FROM SHIPMENT S WHERE S.SHIPMENT_ID = :NEW.SHIPMENT_ID;
+
     SELECT QUANTITY INTO v_current_inventory_amount
     FROM INVENTORY_PRODUCTS
-    WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND INVENTORY_ID = :NEW.INVENTORY_ID;
-
+    WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND INVENTORY_ID = current_inventory_id;
     
     IF :NEW.QUANTITY > v_current_inventory_amount THEN
-        
         RAISE_APPLICATION_ERROR(-20001, 'Shipment amount exceeds current inventory amount');
     ELSE
-        
         UPDATE INVENTORY_PRODUCTS
         SET QUANTITY = v_current_inventory_amount - :NEW.QUANTITY
-        WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND INVENTORY_ID = :NEW.INVENTORY_ID;
+        WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND INVENTORY_ID = current_inventory_id;
     END IF;
 END;
-/ */
-
-
--- CREATE OR REPLACE TRIGGER update_inventory_volume_trigger
--- AFTER INSERT ON INVENTORY_LOT
--- FOR EACH ROW
--- BEGIN
---   UPDATE INVENTORY
---   SET VOLUME = VOLUME + :NEW.QUANTITY
---   WHERE INVENTORY_ID = :NEW.INVENTORY_ID;
--- END;
--- /
-
--- CREATE OR REPLACE FUNCTION GET_TOTAL_SALES(
---     p_product_id IN NUMBER,
---     p_shop_id IN NUMBER,
---     p_start_time IN TIMESTAMP,
---     p_end_time IN TIMESTAMP
--- )
--- RETURN NUMBER
--- IS
---     v_total_sales NUMBER := 0;
--- BEGIN
---     SELECT NVL(SUM(PR.QUANTITY), 0)
---     INTO v_total_sales
---     FROM PURCHASED_PRODUCT PR
---     JOIN PURCHASE P ON PR.PURCHASE_ID = P.PURCHASE_ID
---     JOIN SHOP_PRODUCTS SP ON PR.PRODUCT_ID = SP.PRODUCT_ID
---     WHERE PR.PRODUCT_ID = p_product_id
---         AND SP.SHOP_ID = p_shop_id
---         AND P.PURCHASE_TIME BETWEEN p_start_time AND p_end_time;
-
---     RETURN v_total_sales;
--- EXCEPTION
---     WHEN OTHERS THEN
---         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
---         RETURN NULL;
--- END GET_TOTAL_SALES;
--- /
-
--- CREATE OR REPLACE TRIGGER update_shop_product_quantity
--- BEFORE INSERT ON PURCHASED_PRODUCT
--- FOR EACH ROW
--- DECLARE
---     v_available_quantity NUMBER;
--- BEGIN
---     -- Get the available quantity in SHOP_PRODUCTS for the specific product and shop
---     SELECT QUANTITY INTO v_available_quantity
---     FROM SHOP_PRODUCTS
---     WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND SHOP_ID = :NEW.SHOP_ID;
-
---     -- Check if the purchase quantity exceeds the available quantity
---     IF :NEW.QUANTITY > v_available_quantity THEN
---         -- Raise an exception if the quantity exceeds the available quantity
---         RAISE_APPLICATION_ERROR(-20001, 'Purchase quantity exceeds available quantity');
---     ELSE
---         -- Subtract the purchase quantity from the available quantity
---         UPDATE SHOP_PRODUCTS
---         SET QUANTITY = v_available_quantity - :NEW.QUANTITY
---         WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND SHOP_ID = :NEW.SHOP_ID;
---     END IF;
--- EXCEPTION
---     WHEN NO_DATA_FOUND THEN
---         -- Handle the case where no corresponding SHOP_PRODUCTS record is found
---         RAISE_APPLICATION_ERROR(-20002, 'Product not found in SHOP_PRODUCTS');
--- END;
--- /
-
-
--- SELECT
---     SUM(pp.QUANTITY) AS TOTAL_SALES, 
---    
--- FROM
---     REGION r
--- JOIN
---     AREAS a ON r.REGION_ID = a.REGION_ID
--- JOIN
---     SHOPS s ON a.AREA_CODE = s.AREA_CODE
--- JOIN
---     PURCHASE p ON s.SHOP_ID = p.SHOP_ID
--- JOIN
---     PURCHASED_PRODUCT pp ON p.PURCHASE_ID = pp.PURCHASE_ID
--- WHERE
---     r.REGION_ID = :regionId
---     AND pp.PRODUCT_ID = :productId
---     AND TO_CHAR(p.PURCHASE_TIME, 'MM') = :purchaseMonth
--- GROUP BY
---     r.REGION_NAME,
---     r.REGION_ID,
---     TO_CHAR(p.PURCHASE_TIME, 'MM') 
--- ORDER BY
---     r.REGION_ID
-
--- SELECT 
-  
-
--- FROM PURCHASED_PRODUCT PP LEFT JOIN PURCHASE P ON PP.PURCHASE_ID = P.PURCHASE_ID 
--- JOIN SHOP S ON P.SHOP_ID = S.SHOP_ID
--- WHERE S.AREA_CODE IN (
---     SELECT AREA_CODE FROM AREAS WHERE REGION_ID = :regionId
--- ) AND PP.PRODUCT_ID = :productId AND TO_CHAR(P.PURCHASE_TIME, 'MM') = :purchaseMonth
-
-SELECT 
 
 
 
+CREATE OR REPLACE TRIGGER update_shop_product_quantity
+BEFORE INSERT ON PURCHASED_PRODUCT
+FOR EACH ROW
+DECLARE
+    v_available_quantity NUMBER;
+    curr_shop_id NUMBER;
+BEGIN
+    -- Get the available quantity in SHOP_PRODUCTS for the specific product and shop
+    SELECT SHOP_ID INTO curr_shop_id FROM PURCHASE WHERE PURCHASE_ID=:NEW.PURCHASE_ID;
 
+    SELECT QUANTITY INTO v_available_quantity
+    FROM SHOP_PRODUCTS
+    WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND SHOP_ID = curr_shop_id;
+
+    -- Check if the purchase quantity exceeds the available quantity
+    IF :NEW.QUANTITY > v_available_quantity THEN
+        -- Raise an exception if the quantity exceeds the available quantity
+        RAISE_APPLICATION_ERROR(-20001, 'Purchase quantity exceeds available quantity');
+    ELSE
+        -- Subtract the purchase quantity from the available quantity
+        UPDATE SHOP_PRODUCTS
+        SET QUANTITY = v_available_quantity - :NEW.QUANTITY
+        WHERE PRODUCT_ID = :NEW.PRODUCT_ID AND SHOP_ID = curr_shop_id;
+    END IF;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        -- Handle the case where no corresponding SHOP_PRODUCTS record is found
+        RAISE_APPLICATION_ERROR(-20002, 'Product not found in SHOP_PRODUCTS');
+END;
+
+
+CREATE OR REPLACE FUNCTION GET_TOTAL_SALES(
+    p_product_id IN NUMBER,
+    p_shop_id IN NUMBER,
+    p_start_time IN TIMESTAMP,
+    p_end_time IN TIMESTAMP
+)
+RETURN NUMBER
+IS
+    v_total_sales NUMBER := 0;
+BEGIN
+    SELECT NVL(SUM(PR.QUANTITY), 0)
+    INTO v_total_sales
+    FROM PURCHASED_PRODUCT PR
+    JOIN PURCHASE P ON PR.PURCHASE_ID = P.PURCHASE_ID
+    JOIN SHOP_PRODUCTS SP ON PR.PRODUCT_ID = SP.PRODUCT_ID
+    WHERE PR.PRODUCT_ID = p_product_id
+        AND SP.SHOP_ID = p_shop_id
+        AND P.PURCHASE_TIME BETWEEN p_start_time AND p_end_time;
+
+    RETURN v_total_sales;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        RETURN NULL;
+END GET_TOTAL_SALES;
+
+
+/

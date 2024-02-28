@@ -137,7 +137,7 @@ router.post('/sendrequests', async (req, res, next) => {
     connection = await oracledb.getConnection(dbConfig);
     const shopId = `(SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id})`;
     let shop_id = (await connection.execute(shopId)).rows[0][0];
-    // const requestDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+   
     
 
     let requestId = (await connection.execute("SELECT SHIPMENT_REQUEST_ID_SEQ.NEXTVAL FROM DUAL")).rows[0][0];

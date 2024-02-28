@@ -1,0 +1,177 @@
+<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Cashier | Search Purchases</title>
+      <!-- <link rel="stylesheet" href="style.css" /> -->
+      <!-- Font Awesome Cdn Link -->
+      <link rel='stylesheet' href='/stylesheets/cashier/header_style.css' />
+      <link rel='stylesheet' href='/stylesheets/cashier/search_record.css' />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+      <%- include("./headers.ejs") %>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="/cashier/dashboard">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="/cashier/cash_memo">Make Purchase</a>
+            <a href="/cashier/search_record" class="active">Search Records</a>
+            <!-- <a href="#">My Account</a>
+            <a href="#">Documnets</a> -->
+    
+            <!-- <div class="links">
+              <span>Quick Link</span>
+              <a href="#">Paypal</a>
+              <a href="#">EasyPay</a>
+              <a href="#">SadaPay</a>
+            </div> -->
+          </div>
+        </nav>
+    
+        <div class="main-body">
+          <h2>Search Records</h2><br><br>
+          <div id="search_options">
+            <div id="search_buttons">
+              <button onclick="toggleSearchView()">Search Options</button>
+              <button onclick="updateSearchResult()">Search</button>
+            </div>
+            <div id="search_content">
+              <div id="searchForm" class="dropdown-content">
+
+                <div id="customer_info_section">
+                  <label for="name_check">
+                    <input type="checkbox" id="name_check">
+                  </label>
+                  <input type="text" id="name" placeholder="Customer Name">
+          
+                  <label for="email_check">
+                    <input type="checkbox" id="email_check">
+                  </label>
+                  <input type="text" id="email" placeholder="Customer Email">
+          
+                  <label for="mobile_check">
+                    <input type="checkbox" id="mobile_check">
+                  </label>
+                  <input type="text" id="mobile" placeholder="Customer Mobile"><br><br>
+                </div>
+        
+                <label for="date_check">
+                  <input type="checkbox" id="date_check"> Purchase Date
+                </label><br>
+
+                <div id="date_search_section">
+                  <div>
+                    <label for="start">From:  </label>
+                    <input type="date" id="start" placeholder="From">
+                  </div>
+                  <div>
+                    <label for="end">To:  </label>
+                    <input type="date" id="end" placeholder="To"><br><br>
+                  </div>
+                </div>
+         
+                <label for="orderId">
+                  <input type="checkbox" id="orderId"> Order Id
+                </label>
+                <input style="margin-left: 10px;" type="text" id="order" placeholder="Order Id">
+            </div>
+          </div>
+          <div id="search_elements">
+            <span>Hello there how are you</span>
+          </div>
+        </div>
+        <br><br>
+        <!-- My Search Results -->
+        <div id="search_result">
+          <table id="result_table">
+            <thead>
+                <tr>
+                  <th>Order No</th>
+                  <th>Customer Name</th>
+                  <th>Customer Email</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Total Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+                <td>Nothing is here</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+
+
+      <div class="popup-container" id="popupContainer">
+        <div class="popup-content" id="general_popup_content">
+          <span><u>Order Info:</u> </span>
+          <div class="info" id="orderPopup">
+            <div class="placeholders">
+              <ul>
+                <li>Purchase Id: </li>
+                <li>Date: </li>
+                <li>Time: </li>
+              </ul>
+            </div>
+            <div class="place-value">
+              <ul class="place-list" id="order_value_list"></ul>
+            </div>
+          </div> <br><br>
+          <span><u>Customer Info:</u> </span>
+          <div class="info" id="customerPopup">
+            <div class="placeholders">
+              <ul>
+                <li>Name: </li>
+                <li>Email: </li>
+                <li>Number: </li>
+              </ul>
+            </div>
+            <div class="place-value">
+              <ul class="place-list" id="customer_value_list"></ul>
+            </div>
+          </div> <br><br>
+          <span>Purchase Info: </span>
+          <div class="product-info" id="productInfo">
+            <table id="products_table">
+              <!-- <caption>Purchase Info:</caption> -->
+              <thead>
+                <tr>
+                  <th>SL</th>
+                  <th>Product Name</th>
+                  <th>Price pp</th>
+                  <th>Quantity</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+          <div id="accessibility">
+            <button type="button" onclick="closePopup()">Close</button>
+            <!-- <button type="button" onclick="confirmPurchase()">Confirm</button> -->
+          </div>
+        </div>
+        <div class="popup-content" id="completion">
+          <span>Successful</span><br>
+          <div>
+            <button type="button" id="failed_back_button" onclick="closePopup()" disabled>Close</button>
+            <!-- <button type="button" onclick="forwarding()">Ok</button> -->
+          </div>
+        </div>
+      </div>
+
+      
+      <script src="/javascripts/searchRecords.js">
+      </script>
+    </body>
+    </html>
+    </span>

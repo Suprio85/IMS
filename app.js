@@ -25,6 +25,7 @@ var shopmanagerRouter = require('./routes/shopmanager');
 var ownerRouter = require('./routes/owner');   
 var productionmanagerRouter = require('./routes/productionmanager');
 var hashRouter = require('./routes/hash');
+var cashierRouter = require('./routes/cashier');
 
 
 var app = express();
@@ -56,6 +57,7 @@ app.use('/shopmanager', shopmanagerRouter);
 app.use('/owner', ownerRouter);
 app.use('/productionmanager', productionmanagerRouter);
 app.use('/hash', hashRouter);
+app.use('/cashier', cashierRouter);
 
 
 

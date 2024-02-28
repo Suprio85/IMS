@@ -1,0 +1,174 @@
+ /* import google fonts */
+/* Main Body Section */
+.main-body{
+  width: 80%;
+  padding: 1rem;
+}
+
+.main-body input{
+    border-radius: 7px;
+    padding: 6px;
+    box-shadow: 0 2px 4px rgab(1, 0, 0, 0.5);
+    width: 250px;
+}
+
+.main-body button{
+    background-color: rgb(158, 157, 157);
+    padding: 10px 15px;
+    text-align: center;
+    display: inline-block;
+    border-radius: 7px;
+}
+
+.main-body form{
+  margin-left: 1rem;
+}
+
+.main-body form .customer label{
+  display: block;
+  font-size: 14px;
+}
+
+.main-body form .customer input{
+  width: 80%;
+}
+
+.main-body span{
+  color: gray;
+  font-size: 12px;
+  margin-left: -1rem;
+}
+
+
+#add_button{
+    margin-left: 70%;
+}
+
+#submit_button{
+    margin-left: 40%;
+}
+
+.popup-container{
+  display: none;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background-color: rgba(128, 128, 128, 0.7);
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+}
+
+.popup-content{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 3px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+  border-radius: 10px;
+  background-color: rgba(225, 225, 225, 1);
+  padding: 20px;
+  width: 70%;
+  max-height: 90%;
+}
+
+#completion{
+  display: none;
+  z-index: 15;
+  text-align: center;
+  height: 40%;
+  padding: 10px 20px;
+  /* display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; */
+}
+#comletion span{
+  margin-top: 5rem; 
+}
+
+#completion div{
+  margin-top: 10rem;
+}
+
+
+.popup-content span {
+  /* max-height: 70%; */
+  font-weight: 700;
+}
+
+.product-info{
+  max-height: 300px;
+  overflow-y: auto;
+  position: relative;
+}
+
+table{
+  background: #fff;
+  padding: 1rem;
+  text-align: left;
+  border-radius: 10px;
+  width: 100%;
+  /* max-height: 250px; */
+}
+thead{
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+}
+
+tfoot{
+  font-weight: 900;
+  /* position: sticky;
+  bottom: ; */
+}
+/* caption {
+  caption-side: ;
+} */
+table td, th{
+  padding: 0.2rem 0.8rem;
+}
+table th{
+  font-size: 15px;
+}
+table td{
+  font-size: 13px;
+  color: rgb(100, 100, 100);
+}
+table tr:hover{
+  background-color: rgba(225, 225, 225, 1);
+}
+
+
+.customer-info{
+  display: flex;
+  justify-content: space-between;
+}
+
+.customer-info .customer-placeholder{
+  width: 20%;
+  /* font-size: 12px; */
+}
+
+.customer-info .place-value{
+  width: 75%;
+}
+
+ul {
+  list-style-type: none;
+}
+
+#accessibility {
+  text-align: right;
+  padding: 10px;
+}
+
+
+#accessibility button , #completion button{
+    background-color: rgb(158, 157, 157);
+    padding: 10px 20px;
+    text-align: center;
+    display: inline-block;
+    border-radius: 7px;
+    font-weight: 900;
+}

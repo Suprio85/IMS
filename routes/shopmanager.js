@@ -9,7 +9,12 @@ const { request } = require('../app');
 
 
 router.get('/', async function (req, res, next) {
-  const username = "suprio";
+  if(req.session.user === undefined){
+    res.redirect('/login');
+    console.log("I did come here right ?");
+    return;
+  }
+  const username = req.session.user.username;
 
   try {
   //     const productId = 123; // Replace with your actual product ID
@@ -45,7 +50,7 @@ router.get('/', async function (req, res, next) {
 
    const connection = await oracledb.getConnection(dbConfig);
 
-   const result = await connection.execute(`SELECT * FROM PRODUCT`);
+   const result = await connection.execute(`SELECT * FROM PRODUCTS`);
    const products = result.rows;
     
 
@@ -54,7 +59,7 @@ router.get('/', async function (req, res, next) {
 
   } catch (error) {
       console.error('Error:', error);
-      res.render('error', { error: 'An error occurred while fetching data.' });
+      res.render('error', { message: 'An error occurred while fetching data.' });
   }
 });
 
@@ -66,13 +71,18 @@ router.get('/profile', function (req, res, next) {
 
 
 router.get('/productquantity', async function (req, res, next) {
+  if(req.session.user === undefined){
+    res.redirect('/login');
+    console.log("I did come here right ?");
+    return;
+  }
   const connection = await oracledb.getConnection(dbConfig);
   // const shop_id =`SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.user_id}`;
   
   // const query = `SELECT p.PRODUCT_ID, p.PRODUCT_NAME,p.IMAGE,P.CATAGOERY_ID, q.QUANTITY FROM PRODUCT p LEFT JOIN SHOP_PRODUCTS q ON p.PRODUCT_ID = q.PRODUCT_ID WHERE p.SHOP_ID = ${shop_id}`;
 
   // const products = await connection.execute(query);
-   const result = await connection.execute(`SELECT * FROM PRODUCT`);
+   const result = await connection.execute(`SELECT * FROM PRODUCTS`);
   await connection.close();
   const products = result.rows;
   res.render('shopmanager/productquantity', { title: 'Product Quantity', products: products });
@@ -91,7 +101,12 @@ router.get('/addproduct', function (req, res, next) {
 
 
 function renderRequestPage(req, res, next) {
-  const username = "suprio";
+  if(req.session.user === undefined){
+    res.redirect('/login');
+    console.log("I did come here right ?");
+    return;
+  }
+  const username = req.session.user.username;
   const requests = req.session.requests || [];
   res.render('shopmanager/Request', { title: 'Request', username: username, requests: requests });
 }
@@ -109,51 +124,58 @@ router.post('/request', function (req, res, next) {
 });
 
 router.post('/sendrequests', async (req, res, next) => {
+  if(req.session.user === undefined){
+    res.redirect('/login');
+    return;
+  }
   const requests = req.body;
   console.log('Requests:', requests);
 
-
+  let connection;
   try {
     // Insert into SHIPMENT_REQUEST
-    // const connection = await oracledb.getConnection(dbConfig);
-    // const shopId = `SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.user_id}`;
+    connection = await oracledb.getConnection(dbConfig);
+    const shopId = `(SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id})`;
+    let shop_id = (await connection.execute(shopId)).rows[0][0];
     // const requestDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    
 
-    // const insertRequestQuery = `
-    //     INSERT INTO SHIPMENT_REQUEST (SHOP_ID, REQUEST_DATE)
-    //     VALUES (:shopId, TO_DATE(:requestDate, 'YYYY-MM-DD HH24:MI:SS'))
-    //     RETURNING REQUEST_ID INTO :requestId`;
-    // const requestResult = await connection.execute(insertRequestQuery, {
-    //     shopId,
-    //     requestDate,
-    //     requestId: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
-    // });
-
-    // const requestId = requestResult.outBinds.requestId[0];
-
+    let requestId = (await connection.execute("SELECT SHIPMENT_REQUEST_ID_SEQ.NEXTVAL FROM DUAL")).rows[0][0];
+    console.log("Request id: ", requestId);
+    console.log("Shop Id: ", shop_id);
+    const insertRequestQuery = `
+        INSERT INTO SHIPMENT_REQUEST 
+        VALUES (:requestId, SYSDATE, 'PENDING', :shop_id)`;
+    const requestResult = await connection.execute(insertRequestQuery, {requestId, shop_id});
+    
     // // Insert into SHIPMENT_REQUEST_PRODUCT for each product in the request
-    // for (const { productId, quantity } of requests) {
-    //     const insertRequestProductQuery = `
-    //         INSERT INTO SHIPMENT_REQUEST_PRODUCT (REQUEST_ID, PRODUCT_ID, QUANTITY)
-    //         VALUES (:requestId, :productId, :quantity)`;
-    //     await connection.execute(insertRequestProductQuery, {
-    //         requestId,
-    //         productId,
-    //         quantity
-    //     });
-    // }
+    for (const {id, amount} of requests) {
+        const insertRequestProductQuery = `
+            INSERT INTO SHIPMENT_REQUEST_PRODUCT (REQUEST_ID, PRODUCT_ID, QUANTITY)
+            VALUES (:requestId, :productId, :quantity)`;
+        await connection.execute(insertRequestProductQuery, {
+            requestId,
+            productId: id,
+            quantity: amount
+        });
+    }
 
     // Clear the requests array in the session
     req.session.requests = [];
 
     console.log(req.session.requests);
+    connection.commit();
     res.status(200).json({ success: true, message: 'Requests sent successfully' });
 } catch (error) {
     console.error('Error saving request:', error);
     // Send an error response
     res.status(500).json({ success: false, message: 'Internal Server Error' });
-    // connection.rollback();
+    if(connection)
+      connection.rollback();
     // connection.close();
+} finally{
+  try{ if(connection) connection.close(); }
+  catch(err){ console.log(err); }
 }
 });
 
@@ -162,43 +184,56 @@ router.post('/sendrequests', async (req, res, next) => {
 
 
 router.get('/sales', async function (req, res, next) {
-   try {
-  //   const shopId =`SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.user_id}` // Assuming you have shop ID in the session
+  if(req.session.user === undefined){
+    res.redirect('/login');
+    return;
+  }
+  try {
+    const shopId =`(SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id})`
 
   //   // Implement database query to fetch purchase data based on the shop ID
-  //   const query = `
-  //       SELECT
-  //           P.PURCHASE_ID,
-  //           PP.PRODUCT_ID,
-  //           P.CUSTOMER_ID,
-  //           PP.PRODUCT_PRICE,
-  //           PP.QUANTITY
-  //       FROM
-  //           PURCHASE P
-  //       JOIN
-  //           PURCHASED_PRODUCT PP ON P.PURCHASE_ID = PP.PURCHASE_ID
-  //       WHERE
-  //           P.SHOP_ID = ${shopId};
-  //   `;
+    const query = `
+        SELECT
+            P.PURCHASE_ID,
+            PP.PRODUCT_ID,
+            P.CUSTOMER_ID,
+            PP.PRODUCT_PRICE,
+            PP.QUANTITY
+        FROM
+            PURCHASE P
+        JOIN
+            PURCHASED_PRODUCT PP ON P.PURCHASE_ID = PP.PURCHASE_ID
+        WHERE
+            P.SHOP_ID = ${shopId}
+    `;
 
-  //   const connection = await oracledb.getConnection(dbConfig);
-  //   const result = await connection.execute(query, { shopId }, { outFormat: oracledb.OUT_FORMAT_OBJECT });
-  //   const purchases = result.rows;
+    const connection = await oracledb.getConnection(dbConfig);
+    // const result = await connection.execute(query, { shopId }, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+    const result = await connection.execute(query);
+    
+    
+    let purchases = [];
+    for(const row of result.rows){
+      let purchase ={ PURCHASE_ID: row[0], PRODUCT_ID: row[1],
+                      CUSTOMER_ID: row[2], PRODUCT_PRICE: row[3],
+                      QUANTITY: row[4] }
+      purchases.push(purchase);
+    }
 
   //   await connection.close();
-  const purchases = [
-    { PURCHASE_ID: 1, PRODUCT_ID: 101, CUSTOMER_ID: 201, PRODUCT_PRICE: 25.99, QUANTITY: 5 },
-    { PURCHASE_ID: 2, PRODUCT_ID: 102, CUSTOMER_ID: 202, PRODUCT_PRICE: 19.95, QUANTITY: 8 },
-    { PURCHASE_ID: 3, PRODUCT_ID: 103, CUSTOMER_ID: 203, PRODUCT_PRICE: 35.50, QUANTITY: 12 },
-    // Add more dummy data as needed
-  ];
+    // const purchases = [
+    //   { PURCHASE_ID: 1, PRODUCT_ID: 101, CUSTOMER_ID: 201, PRODUCT_PRICE: 25.99, QUANTITY: 5 },
+    //   { PURCHASE_ID: 2, PRODUCT_ID: 102, CUSTOMER_ID: 202, PRODUCT_PRICE: 19.95, QUANTITY: 8 },
+    //   { PURCHASE_ID: 3, PRODUCT_ID: 103, CUSTOMER_ID: 203, PRODUCT_PRICE: 35.50, QUANTITY: 12 },
+    //   // Add more dummy data as needed
+    // ];
   
 
 
     res.render('shopmanager/sales', { title: 'Sales', purchases: purchases });
   } catch (error) {
     console.error('Error fetching sales data:', error);
-    res.render('error', { error: 'An error occurred while fetching sales data.' });
+    res.render('error', { message: 'An error occurred while fetching sales data.' });
   }
 });
 

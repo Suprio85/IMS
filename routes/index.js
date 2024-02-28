@@ -30,7 +30,7 @@ router.post('/login', async (req, res, next) => {
     console.log(hashedPassword);
 
     const result = await connection.execute(
-      `SELECT * FROM USER_INFO WHERE username = :username AND password = :password`,
+      `SELECT EMPLOYEE_ID, USERNAME, JOB_ID FROM EMPLOYEES WHERE username = :username AND USER_PASSWORD = :password`,
       { username, password: hashedPassword } // Use the hashed password in the query
     );
 
@@ -39,7 +39,7 @@ router.post('/login', async (req, res, next) => {
       const user = {
         id: result.rows[0][0],
         username: result.rows[0][1],
-        password: result.rows[0][2]
+        job_id: result.rows[0][2]
       };
 
       // Generate a JWT token
@@ -50,7 +50,10 @@ router.post('/login', async (req, res, next) => {
 
       req.session.user = user; // Store user in session
       req.flash('success', 'Successfully logged in');
-      res.redirect('owner');
+      if(user.job_id === 'MD') res.redirect('owner');
+      else if(user.job_id === 'ShM') res.redirect('/shopmanager');
+      else if(user.job_id === 'PM') res.redirect('/productionmanager');
+      else res.redirect('owner');
     } else {
       // Invalid username/password
       req.flash('error', 'Invalid username or password');

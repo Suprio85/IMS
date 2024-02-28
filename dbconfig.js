@@ -1,5 +1,5 @@
 module.exports = {
-    user: 'SP',
+    user: 'imsb',
     password: '123',
     connectString: 'localhost/orcl',
 };

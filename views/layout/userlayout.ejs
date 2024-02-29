@@ -60,19 +60,19 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Product Name</th>
-                    <th>Type</th>
-                    <th>Price</th>
-                    <th>ThreshHold</th>
-                    <th>Amount</th>
+                    <th>Product id</th>
+                    <th>Name</th>
+                    <th>catagory</th>
+                    <th>totalSales</th>
                   </tr>
                 </thead>
                     <tbody>
                         <% for (var i = 0; i < products.length ;i++) { %>
                          <tr>
-                           <td><%= products[i][1] %></td>
-                           <td><%= products[i][2] %></td>
-                           <td><%= products[i][3] %></td>
+                           <td><%= products[i].id %></td>
+                           <td><%= products[i].name %></td>
+                           <td><%= products[i].catagory %></td>
+                            <td><%= products[i].totalSales %></td>
                          </tr> <% }%>
                     </tbody>
               </table>

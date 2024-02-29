@@ -6,25 +6,25 @@ const { request } = require('../app');
 
 router.use(express.urlencoded({ extended: true }));
 
-router.get('/', function (req, res, next) {
-    username = "suprio"
-    products = [
-        {
-            id: 1,
-            name: 'Product 1',
-            price: 100
-        },
-        {
-            id: 2,
-            name: 'Product 2',
-            price: 200
-        },
-        {
-            id: 3,
-            name: 'Product 3',
-            price: 50
-        }
-    ];
+router.get('/', async function (req, res, next) {
+    username = "suprio";
+
+    const connection = await oracledb.getConnection(dbConfig);
+
+    const query = `SELECT * FROM PRODUCTS`;
+    const result = await connection.execute(query);
+
+    let products = [];  
+    for (const row of result.rows) {
+        let product = {
+            id: row[0],
+            name: row[1],
+            price: row[2]
+        };
+        products.push(product);
+    }
+
+    
 
     regions = [
         {
@@ -42,7 +42,7 @@ router.get('/', function (req, res, next) {
 });
 
 
-router.post('/search', function (req, res, next) {
+router.post('/search', async function (req, res, next) {
 
     console.log(req.body);
     const name = req.body.nameInput;
@@ -55,6 +55,8 @@ router.post('/search', function (req, res, next) {
     let productTable = "PRODUCTS";
 
     if (req.body.nameInput || req.body.categoryInput || req.body.priceInput || req.body.productidInput) {
+
+
         productTable = "PRODUCTS WHERE ";
         let conditions = [];
         if (req.body.productidInput) {
@@ -64,28 +66,73 @@ router.post('/search', function (req, res, next) {
 
         else {
             if (req.body.nameInput) {
-                conditions.push("PRODUCT_NAME = :product_name");
+                conditions.push("UPPER(PRODUCT_NAME) LIKE '%' || UPPER(:product_name) || '%'");
                 parameters.product_name = req.body.nameInput;
             }
 
             if (req.body.categoryInput) {
+                const connection = await oracledb.getConnection(dbConfig);
+                const query = `SELECT CATAGORY_ID FROM CATAGORY WHERE UPPER(CATAGORY_NAME) = UPPER('${req.body.categoryInput}')`;
+                console.log(query);
+                const result = await connection.execute(query);
+                
+                console.log(result.rows[0][0]);
+                
+                parameters.category_id = result.rows[0][0];
                 conditions.push("CATAGORY_ID = :category_id");
-                parameters.category_id = req.body.categoryInput;
             }
 
             if (req.body.priceInput) {
-                conditions.push("PRICE = :product_price");
+                conditions.push("PRICE <= :product_price");
                 parameters.product_price = req.body.priceInput;
             }
         }
 
 
         productTable += conditions.join(" AND ");
-        productTable += ")";
+        //productTable += ")";
     }
 
     const query = "SELECT * FROM " + productTable;
     console.log(query);
+
+    const connection = await oracledb.getConnection(dbConfig);
+    let result;
+    try{
+
+       result = await connection.execute(query, parameters);
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+    console.log(result.rows);
+    
+    let products = [];
+
+    for (const row of result.rows) {
+        let product = {
+            id: row[0],
+            name: row[1],
+            price: row[2]
+        };
+        products.push(product);
+    }
+
+    regions = [
+        {
+            id: 1,
+            name: 'Region 1'
+        },
+        {
+            id: 2,
+            name: 'Region 2'
+        },
+        // ... more regions
+    ];
+
+    res.render('owner/userhome', { title: 'Express', username: username, products: products, regions: regions });
+
     
 
 })
@@ -127,7 +174,7 @@ router.post('/', async function (req, res) {
     labelsForLineChart = [];
 
     try {
-       // const connection = await oracledb.getConnection(dbConfig);
+        const connection = await oracledb.getConnection(dbConfig);
 
         
         let currentMonth = new Date(startMonth);
@@ -150,31 +197,31 @@ router.post('/', async function (req, res) {
                     AND TO_CHAR(p.PURCHASE_TIME, 'YYYY-MM') = :purchaseMonth`;
 
           
-            // const binds = {
-            //     productId: productId,
-            //     purchaseMonth: currentMonth.toISOString().slice(0, 7)
-            // };
+            const binds = {
+                productId: productId,
+                purchaseMonth: currentMonth.toISOString().slice(0, 7)
+            };
 
           
             if (regionId != 'General') {
                 query += ' AND r.REGION_ID = :regionId';
-               // binds.regionId = regionId;
+               binds.regionId = regionId;
             }
 
            
             console.log("query := " + query);    
-           // const result = await connection.execute(query, binds, { outFormat: oracledb.OUT_FORMAT_OBJECT });
-           // console.log(result.rows[0]);
+           const result = await connection.execute(query, binds, { outFormat: oracledb.OUT_FORMAT_OBJECT });
+           console.log(result.rows[0]);
 
             
-          //  labelsForLineChart.push(currentMonthString);
-           // dataForLineChart.push(result.rows[0].TOTAL_SALES);
+           labelsForLineChart.push(currentMonthString);
+           dataForLineChart.push(result.rows[0].TOTAL_SALES);
 
             
             currentMonth.setMonth(currentMonth.getMonth() + 1);
         }
 
-       // await connection.close();
+        await connection.close();
         res.json({
             success: true,
             message: 'Data received and processed successfully',

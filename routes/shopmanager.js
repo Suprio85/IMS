@@ -7,7 +7,6 @@ const { request } = require('../app');
 
 
 
-
 router.get('/', async function (req, res, next) {
   if(req.session.user === undefined){
     res.redirect('/login');
@@ -17,41 +16,68 @@ router.get('/', async function (req, res, next) {
   const username = req.session.user.username;
 
   try {
-  //     const productId = 123; // Replace with your actual product ID
-  //     const startTime = new Date('2024-01-01T00:00:00Z');
-  //     const endTime = new Date('2024-02-01T00:00:00Z');
-
-  //     const connection = await oracledb.getConnection(dbConfig);
-  //     const shop_id = `SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.user_id}`;
-  //     const query =
-  //     `SELECT
-  //     PD.PRODUCT_ID,
-  //     PD.PRODUCT_NAME,
-  //     GET_TOTAL_SALES(
-  //         PD.PRODUCT_ID,
-  //         TO_TIMESTAMP(:startTime, 'YYYY-MM-DD HH24:MI:SS'),
-  //         TO_TIMESTAMP(:endTime, 'YYYY-MM-DD HH24:MI:SS')
-  //     ) AS TOTAL_SALES
-  // FROM
-  //     PRODUCTS PD
-  // JOIN
-  //     SHOP_PRODUCTS SP ON PD.PRODUCT_ID = SP.PRODUCT_ID
-  // JOIN
-  //     PURCHASED_PRODUCT PR ON PD.PRODUCT_ID = PR.PRODUCT_ID
-  // JOIN
-  //     PURCHASE P ON PR.PURCHASE_ID = P.PURCHASE_ID
-  // WHERE
-  //     SP.SHOP_ID = (${shop_id});
-  //     AND P.PURCHASE_TIME BETWEEN TRUNC(SYSDATE) AND SYSDATE;
-  
-  // `
-  //     const result = await connection.execute(query, { startTime, endTime });
 
 
-   const connection = await oracledb.getConnection(dbConfig);
+    let startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); 
+    startOfDay = startOfDay.toISOString().slice(0, 19).replace("T", " ");
+    console.log("Start of day: ", startOfDay);
+    
+    let endOfDay = new Date();
+     endOfDay = endOfDay.toISOString().slice(0, 19).replace("T", " ");
+    console.log("End of day: ", endOfDay);
+    
 
-   const result = await connection.execute(`SELECT * FROM PRODUCTS`);
-   const products = result.rows;
+     
+      
+
+      const connection = await oracledb.getConnection(dbConfig);
+      const reslt = await connection.execute(`SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id}`)
+      const shop_id = reslt.rows[0][0];
+
+      console.log("Shop id: ", shop_id);
+      
+      const query =
+      `
+      SELECT DISTINCT
+    PD.PRODUCT_ID,
+    PD.PRODUCT_NAME,
+    GET_TOTAL_SALES(
+        PD.PRODUCT_ID,
+        SP.SHOP_ID,
+        TO_TIMESTAMP('2022-02-28 00:00:00', 'YYYY-MM-DD HH24:MI:SS'),
+        TO_TIMESTAMP('2022-02-28 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+    ) AS TOTAL_SALES,
+    (SELECT CATAGORY_NAME FROM CATAGORY WHERE CATAGORY_ID = PD.CATAGORY_ID) AS CATAGORY_NAME
+FROM
+    PRODUCTS PD
+JOIN
+    SHOP_PRODUCTS SP ON PD.PRODUCT_ID = SP.PRODUCT_ID
+JOIN
+    PURCHASED_PRODUCT PR ON PD.PRODUCT_ID = PR.PRODUCT_ID
+JOIN
+    PURCHASE P ON PR.PURCHASE_ID = P.PURCHASE_ID
+WHERE
+    SP.SHOP_ID = :shop_id
+ORDER BY TOTAL_SALES DESC
+  `
+  const result = await connection.execute(query, {
+    shop_id: shop_id
+  });
+
+      let products = [];
+      for (const row of result.rows) {
+          let product = {
+              id: row[0],
+              name: row[1],
+              totalSales: row[2],
+              catagoery: row[3] 
+
+          };
+          products.push(product);
+      }
+
+      
     
 
       res.render('layout/userlayout', { title: 'Home', username: username, products: products});
@@ -59,7 +85,7 @@ router.get('/', async function (req, res, next) {
 
   } catch (error) {
       console.error('Error:', error);
-      res.render('error', { message: 'An error occurred while fetching data.' });
+      res.status(500).send('Internal Server Error');
   }
 });
 
@@ -237,113 +263,162 @@ router.get('/sales', async function (req, res, next) {
   }
 });
 
-router.get('/shipment', function (req, res, next) {
-  const shipments = [
-    {
-      SHIPMENT_ID: 1,
-      SHIPPING_DATE: '2024-03-01',
-      RECEIVING_DATE: '2024-03-05',
-      SHIPPING_COST: 20.50,
-      DELIVERY_STATUS: 'PENDING',
-      INVENTORY_ID: 101,
-      SHOP_ID: 201,
-    },
-    {
-      SHIPMENT_ID: 2,
-      SHIPPING_DATE: '2024-03-02',
-      RECEIVING_DATE: '2024-03-06',
-      SHIPPING_COST: 15.75,
-      DELIVERY_STATUS: 'SHIPPED',
-      INVENTORY_ID: 102,
-      SHOP_ID: 202,
-    },
-    {
-      SHIPMENT_ID: 3,
-      SHIPPING_DATE: '2024-03-03',
-      RECEIVING_DATE: '2024-03-07',
-      SHIPPING_COST: 30.00,
-      DELIVERY_STATUS: 'DELIVERED',
-      INVENTORY_ID: 103,
-      SHOP_ID: 203,
-    },
-  ];
+
+// router.get('/shipment', async function (req, res, next) {
+//   const shipments = [
+//     {
+//       SHIPMENT_ID: 1,
+//       SHIPPING_DATE: '2024-03-01',
+//       RECEIVING_DATE: '2024-03-05',
+//       SHIPPING_COST: 20.50,
+//       DELIVERY_STATUS: 'PENDING',
+//       INVENTORY_ID: 101,
+//       SHOP_ID: 201,
+//     },
+//     {
+//       SHIPMENT_ID: 2,
+//       SHIPPING_DATE: '2024-03-02',
+//       RECEIVING_DATE: '2024-03-06',
+//       SHIPPING_COST: 15.75,
+//       DELIVERY_STATUS: 'SHIPPED',
+//       INVENTORY_ID: 102,
+//       SHOP_ID: 202,
+//     },
+//     {
+//       SHIPMENT_ID: 3,
+//       SHIPPING_DATE: '2024-03-03',
+//       RECEIVING_DATE: '2024-03-07',
+//       SHIPPING_COST: 30.00,
+//       DELIVERY_STATUS: 'DELIVERED',
+//       INVENTORY_ID: 103,
+//       SHOP_ID: 203,
+//     },
+//   ];
+
+
+//   res.render('shopmanager/shipment', { shipments: shipments });
+// })
+
+router.get('/shipment', async function (req, res, next) {
+
+  let shipments = [];
+
+  const connection = await oracledb.getConnection(dbConfig);
+  const shopId = `(SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id})`;
+  let shop_id = (await connection.execute(shopId)).rows[0][0];
+
+  console.log("Shop id: ", shop_id);
+
+  const query = `SELECT * FROM SHIPMENT WHERE SHOP_ID = ${shop_id}`;
+
+  const result = await connection.execute(query);
+
+  for (const row of result.rows) {
+
+    let shipment = {
+      SHIPMENT_ID: row[0],
+      SHIPPING_DATE: row[1].toISOString().slice(0, 19).replace("T", " "),
+      SHIPPING_COST: row[3],
+      DELIVERY_STATUS: row[4],
+      INVENTORY_ID: row[5]
+    };
+    shipments.push(shipment);
+  }
+
+  console.log(shipments);
+   
 
   res.render('shopmanager/shipment', { shipments: shipments });
 });
 
-router.post('/shipmentproduct', (req, res) => {
-  const { shipmentId } = req.query;
+router.post('/shipmentproduct', async  (req, res) => {
+  console.log("shipmentid")
+  const { shipmentId } = req.body;
   console.log(shipmentId);
 
-  // Call the function to get shipment product details
-  const productDetails = [
-    {
-      "PRODUCT_ID": 1,
-      "QUANTITY": 10,
-      "RETURN_DATE": "2024-02-23",
-      "RETURN_AMOUNT": 5.99
-    },
-    {
-      "PRODUCT_ID": 2,
-      "QUANTITY": 8,
-      "RETURN_DATE": "2024-02-22",
-      "RETURN_AMOUNT": 3.50
-    },
-    {
-      "PRODUCT_ID": 3,
-      "QUANTITY": 15,
-      "RETURN_DATE": null,
-      "RETURN_AMOUNT": null
-    }
-  ];
+  const productDetails = [];
 
+
+  const connection = await oracledb.getConnection(dbConfig);
+  const query = `SELECT * FROM SHIPMENT_PRODUCT WHERE SHIPMENT_ID = ${shipmentId}`;
+
+  const result = await connection.execute(query);
+
+  console.log(result);
+
+  for (const row of result.rows) {
+  let product = {
+    PRODUCT_ID: row[0],
+    QUANTITY: row[1],
+    RETURN_DATE: row[2],
+    RETURN_AMOUNT: row[3]
+  }
+  productDetails.push(product);
+}
   // Send the product details as JSON response
   res.json(productDetails);
+
 });
 
 
 
 router.post('/updateshipmentstatus', async (req, res) => {
   const { shipmentId, status } = req.body;
+  console.log(shipmentId, status);
 
    try {
-  //     const connection = await oracledb.getConnection(dbConfig);
+      const connection = await oracledb.getConnection(dbConfig);
 
-  //     // Update the delivery status in the shipments table
-  //     await connection.execute(
-  //         `UPDATE SHIPMENTS SET DELIVERY_STATUS = :status WHERE SHIPMENT_ID = :shipmentId`,
-  //         { status, shipmentId }
-  //
-  //     );
+      // Update the delivery status in the shipments table
 
-  //     // Fetch the product details for the shipment
-  //     const result = await connection.execute(
-  //         `SELECT * FROM SHIPMENT_PRODUCTS WHERE SHIPMENT_ID = :shipmentId`,
-  //         { shipmentId }
-  //     );
-  //     const products = result.rows;
+      const query = `UPDATE SHIPMENT SET DELIVERY_STATUS = :status WHERE SHIPMENT_ID = :shipmentId`;
 
-  //     // Update the quantity in the shop_product table for each product
-  //     const shop_id = `SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.user_id}`;
-  //     for (const product of products) {
-  //         await connection.execute(
-  //             `UPDATE SHOP_PRODUCTS SET QUANTITY = QUANTITY + :quantity WHERE PRODUCT_ID = :productId AND SHOP_ID = ${shop_id}`,
-  //             { quantity: product.QUANTITY, productId: product.PRODUCT_ID }
-  //       
-  //         );
-  //     }
+      console.log(query);
 
-  //     
+
+      
+      await connection.execute(
+          `UPDATE SHIPMENT SET DELIVERY_STATUS = :status WHERE SHIPMENT_ID = :shipmentId`,
+          { status, shipmentId }
+  
+      );
+
+      // Fetch the product details for the shipment
+      const result = await connection.execute(
+          `SELECT * FROM SHIPMENT_PRODUCT WHERE SHIPMENT_ID = :shipmentId`,
+          { shipmentId }
+      );
+      let products =[];
+      for (const row of result.rows) {
+          let product = {
+              PRODUCT_ID: row[0],
+              QUANTITY: row[1]
+          };
+          products.push(product);
+      }
+
+      console.log(products);
+
+      // Update the quantity in the shop_product table for each product
+      const shopid = `SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id}`;
+
+      let shop_id = (await connection.execute(shopid)).rows[0][0];
+
+      for (const product of products) {
+          await connection.execute(
+              `UPDATE SHOP_PRODUCTS SET QUANTITY = QUANTITY + :quantity WHERE PRODUCT_ID = :productId AND SHOP_ID = ${shop_id}`,
+              { quantity: product.QUANTITY, productId: product.PRODUCT_ID }
+        
+          );
+      }
 
       res.status(200).json({ success: true, message: 'Shipment status updated and quantities updated successfully' });
+      await connection.commit();
   } catch (error) {
       //await connection.rollback();
-      
       console.error('Error updating shipment status and quantities:', error);
       res.status(500).json({ success: false, message: 'Internal Server Error' });
-  } finally {
-     // await connection.close();
-  }
+  } 
 });
 
 

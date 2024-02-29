@@ -29,7 +29,7 @@ async function getAllShops(region_id){
     try{
         connection = await oracledb.getConnection(dbconfig);
         var response = await connection.execute(query, {region_id});
-        for (row in response.rows){
+        for (row of response.rows){
             shops.push({id: row[0], name: row[1]});
         }
     } catch (err){
@@ -43,8 +43,10 @@ router.get('/', async(req, res, next)=>{
     var employee_id = 2001;
     var region_id = 101;
     var username = 'nafis';
-    products = await getAllProducts();
-    shops = await getAllShops(region_id);
+    let products = await getAllProducts();
+    let shops = await getAllShops(region_id);
+    console.log(shops);
+    console.log(products);
     res.status(200).render("rsm/analyze_products", {products, shops, username});
 })
 

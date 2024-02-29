@@ -10,18 +10,6 @@
   padding: 1rem;
 }
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: sans-serif;
-}
-
-body{
-    background-color: aliceblue;
-
-}
-
 .card-container{
     display: inline-block;
     justify-content:center;
@@ -32,7 +20,7 @@ body{
 
 }
 
-.card{
+/* .card{
     width: 325px;
     background-color: #f0f0f0;
     border-radius: 12px;
@@ -49,6 +37,10 @@ body{
 
 }
 
+.card-content{
+    padding: 16px;
+}
+
 .card .card-content h2{
     font-size: 1.5rem;
     font-weight: 500;
@@ -59,7 +51,6 @@ body{
     font-size: 1rem;
     color: #777;
     line-height: 24px;
-    padding: 16px;
 }
 
 .card-content .btn{
@@ -76,7 +67,7 @@ body{
 .card-content .btn:hover{
     background-color: #9c46d2;
     opacity: 0.8;
-}
+} */
 
     /* Add your existing styles here */
 
@@ -145,124 +136,46 @@ button {
 
 /* Product Card Styles */
 /* ... (your existing product card styles) ... */
-
-
-/* .container {
-    margin: 35px auto;
-    padding: 50px; 
-} */
-
-input,
-textarea {
-    display: block;
-    padding: 10px; 
-    margin: 15px auto;
-    width: 60%; 
-    outline: none;
-    border: 2px solid black;
-    border-radius: 18px;
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
 }
 
+body{
+    background-color: aliceblue;
 
-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width :900;
-}
-
-.btn {
-    margin: 10px auto; 
-    display: block;
-    padding: 10px 20px; 
-    background: #302d2d;
-    color: white;
-    font-weight: bold;
-    font-size: 15px;
-    border: 2px solid black;
-    border-radius: 9px;
-    cursor: pointer;
-    outline: none;
-}
-
-.btn:hover {
-    background: white;
-    color: black;
-    font-size: 18px;
-    font-weight: bold;
-    transition: 0.4s;
-}
-
-legend {
-    font-size: 14px;
-    font-weight: bold;
-    color: black;
-}
-
-legend span {
-    font-size: 12px;
-    font-weight: normal;
-    color: black;
-}
-
-fieldset {
-    border: 2px solid black;
-    border-radius: 10px;
-    padding: 20px; 
-    margin: 18px;
-}
-
-
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-}
-
-input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 16px;
-}
-
-button {
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
 }
 
 .card-container{
     margin: 1px;
     display: inline-block;
+    width: 100%;
 
 }
 
 .card{
-    width: 425px;
+    width: 80%;
     background-color: #f0f0f0;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 0 12px rgba(0,0,0,0.2);
     margin: 20px 20px;
     display: inline-flex;
+    justify-content: space-between;
 }
 
 
 .card  img{
-    width: 100%;
+    width: 40%;
     height: 200px;
 
 }
 
  .card-content{
     padding: 16px;
+    text-align: center;
 }
 
 .card .card-content h2{
@@ -271,13 +184,13 @@ button {
     margin-bottom: 8px;
 }
 
- .card-content p{
+.card-content p{
     font-size: 1rem;
     color: #777;
     line-height: 24px;
 }
 
- .card-content .btn{
+.card-content .btn{
     display: inline-block;
     padding: 8px 16px;
     background-color: #333;
@@ -296,15 +209,61 @@ button {
     /* Add your existing styles here */
 
 
-.popup-container {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+/*  import google fonts */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+*{
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  text-decoration: none;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
+/* Main Body Section */
+table{
+  background: #fff;
+  padding: 1rem;
+  text-align: left;
+  border-radius: 10px;
+}
+table td, th{
+  padding: 0.2rem 0.8rem;
+}
+table th{
+  font-size: 15px;
+}
+table td{
+  font-size: 13px;
+  color: rgb(100, 100, 100);
+}
+
+
+
+.search-bar {
+    max-width: 400px;
+    margin: 20px auto;
+}
+
+.search-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    margin: 20px;
+}
+
+
+.search-bar button{
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 42px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 12px;
+}
+/* Add this to your existing CSS or in a separate file */
 
 #closePopup {
     margin-top: 10px;
@@ -323,6 +282,7 @@ button {
     transition: 500ms;
     opacity: 0.8;
 }
+
 .popup-container {
     display: none;
     position: fixed;
@@ -330,6 +290,7 @@ button {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 20;
     background: rgba(0, 0, 0, 0.5);
 }
 
@@ -342,19 +303,17 @@ button {
     border-radius: 49px;
     box-shadow: 4px -3px 15px 7px rgba(0, 0, 0, 0.5);
     overflow: visible;
+    position: relative;
 }
 
 
 #lineChart {
-  /* Set the canvas dimensions to 100% of the parent container */
+    /* Set the canvas dimensions to 100% of the parent container */
     width: 100%;
     height: 100%;
 }
 
 
-.popup-content {
-    position: relative;
-}
 
 #closeAllotPopup {
     position: absolute;
@@ -444,4 +403,5 @@ button {
 button:hover {
     background-color: #45a049;
 }
+
 

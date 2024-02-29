@@ -1,0 +1,123 @@
+<span style="font-family: verdana, geneva, sans-serif"
+  ><!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>RSM | Analysis</title>
+      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+      <link rel="stylesheet" href="/stylesheets/shopmanger/productquantity.css"/>
+      <link rel='stylesheet' href='/stylesheets/rsm/header_style.css' />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+      <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home1.css"/>
+      <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home2.css"/>
+
+    </head>
+    <body>
+      <%- include("./headers.ejs") %>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="#">Add Products</a>
+            <a href="#">Update Products</a>
+            <a href="#">Request For Product</a>
+            <a href="#">Sales</a>
+          </div>
+        </nav>
+        <div class="main-body">
+          <h2>All Products</h2>
+          <form method="post" action="/rsm/search" id="searchForm" class="search-bar">
+            <input type="text" id="nameInput" name="nameInput" placeholder="Search by name"/>
+            <input type="text" id="categoryInput" name="categoryInput" placeholder="Search by category"/>
+            <input type="number" id="priceInput" name="priceInput" placeholder="Search by price"/>
+            <input type="number" id="productidInput" name="productidInput" placeholder="Search by productId"/>
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
+          </form>
+          
+          
+          <% products.forEach(product => { %>
+          <div class="card-container">
+            <div class="card">
+              <img src="/images/laptop.png" alt="<%= product.name %> Image" />
+              <div class="card-content">
+                <h2><%= product.name %></h2>
+                <p>product id : <%= product.id %></p>
+                <p>price: <%= product.price %></p>
+                <button class="btn update-btn" data-action="price" data-productid="<%= product.id %>">
+                  PRODUCT ANALYSIS
+                </button>
+                <button class="btn allot-btn" id="allotProductBtn" data-productid="<%= product.id %>" style="display: block">
+                  Allot Product
+                </button>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+
+          <div id="allotProductPopup" class="popup-container">
+            <div class="popup-content">
+              <button id="closeAllotPopup">&#10006;</button>
+              <h3>
+                Total Quantity in Inventory: <span id="totalQuantity"></span>
+              </h3>
+              <p id="productid">Product ID:</p>
+              `
+              <form id="allotPopupForm">
+                <select id="allotRegionId" name="allotRegionId" required autofocus>
+                  <option value="" disabled selected>Select Shop</option>
+                  <% shops.forEach(shop => { %>
+                  <option value="<%= shop.id %>"><%= shop.name %></option>
+                  <% }); %>
+                </select>
+                <label for="productQuantity">Product Quantity:</label>
+                <input type="number" id="productQuantity" name="productQuantity"
+                       min="1" placeholder="Enter product quantity" required/>
+                <p id="errorMessage" style="color: red"></p>
+                <button type="button" onclick="submitAllotForm()">Allot Product</button>
+              </form>
+            </div>
+          </div>
+
+          <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        </div>
+        <div id="popup" class="popup-container">
+          <div class="popup-content">
+            <button id="closePopup">&#10006;</button>
+            <form id="popupForm">
+              <select id="regionId" name="regionId" required autofocus>
+                <option value="" disabled selected>Select a Shop</option>
+                <option value="General">All Shop</option>
+                <% shops.forEach(shop => { %>
+                <option value="<%= shop.id %>"><%= shop.name %></option>
+                <% }); %>
+              </select>
+              <label for="startMonth">Start Month:</label>
+              <input type="month" id="startMonth" name="startMonth" required />
+
+              <!-- Add a range input for selecting end month -->
+              <label for="endMonth">End Month:</label>
+              <input type="month" id="endMonth" name="endMonth" required />
+              <button type="button" onclick="submitForm()">Submit</button>
+            </form>
+            <div id="messageContainer"></div>
+            <canvas id="lineChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="/javascripts/rsm_analyze.js"></script>
+    </body>
+  </html>
+</span>

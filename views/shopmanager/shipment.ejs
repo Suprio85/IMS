@@ -183,7 +183,7 @@ body::before {
         const result = await response.json();
         console.log(result.message);
 
-        // Optionally, you can update the delivery status in the UI
+
         const deliveryStatusElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .delivery-status`);
         const ReceivingDateElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .receive-date`);
 
@@ -196,7 +196,7 @@ body::before {
         }
     } catch (error) {
         console.error('Error updating delivery status:', error);
-        // Handle error (e.g., show an alert)
+      
     }
 }
   
@@ -213,7 +213,6 @@ body::before {
             row.addEventListener('click', () => {
                  const shipmentId = row.getAttribute('data-shipment-id');
                 selectedShipmentId = shipmentId;   
-                // Call a function to fetch and display product details for the clicked shipmentId
                 displayProductDetails(shipmentId);
             });
         });

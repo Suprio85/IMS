@@ -98,9 +98,18 @@
             <button type="submit"><i class="fas fa-search"></i> Search</button>
           </form>
 
-          <button id="startAllocatingBtn" onclick="toggleAllocateButtons()">
-            Start Allocating
-          </button>
+          <div>
+            <button id="startAllocatingBtn" onclick="toggleAllocateButtons()">
+              Start Allocating
+            </button>
+
+            <button
+              id="confirmRegionBtn"
+              onclick="openRegionConfirmationPopup()"
+            >
+              Confirm Region
+            </button>
+          </div>
 
           <% products.forEach(product => { %>
           <div class="card-container">
@@ -196,18 +205,42 @@
         </div>
       </div>
 
+      <div id="regionConfirmationPopup" class="popup-container">
+        <div class="popup-content">
+          <button id="closeRegionConfirmationPopup">&#10006;</button>
+          <h3>Confirm Region</h3>
+          <table id="regionTable">
+            <tr>
+              <th>Region ID</th>
+              <th>Region Name</th>
+              <th>Confirm</th>
+            </tr>
+          </table>
+        </div>
+      </div>
+
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script>
         let productId;
         async function toggleAllocateButtons() {
+          var startAllocatingBtn = document.getElementById("startAllocatingBtn");
+          if(startAllocatingBtn.textContent == "Stop Allocating"){
+            startAllocatingBtn.textContent = "Start Allocating"
+          }
+          else{
+
+              startAllocatingBtn.textContent = "Stop Allocating"
+          }
+          
           var allocateButtons = document.getElementsByClassName("allot-btn");
 
-          // Toggle the display property of each "Allot Product" button
+         
           for (var i = 0; i < allocateButtons.length; i++) {
             allocateButtons[i].style.display =
               allocateButtons[i].style.display == "block" ? "none" : "block";
           }
 
+          if(startAllocatingBtn.textContent == "Stop Allocating"){
           try {
             const response = await fetch("/zsm/makeold", {
               method: "GET",
@@ -227,6 +260,7 @@
             console.error("Error fetching message:", error);
           }
         }
+    }
         document.addEventListener("DOMContentLoaded", function () {
           // Function to open the pop-up
           function openPopup(productId) {
@@ -250,7 +284,7 @@
             .getElementById("closePopup")
             .addEventListener("click", closePopup);
         });
-
+    
         function submitForm() {
           const selectedRegionId = document.getElementById("regionId").value;
           console.log("in submit form: ");
@@ -452,10 +486,98 @@
                 console.error("Error sending data to the backend:", error);
               });
 
+            document.getElementById("totalQuantity").textContent =
+              totalQuantity - enteredQuantity;
             document.getElementById("allotProductPopup").style.display =
               "block";
+            }
+        }
+        
+        document.getElementById("closeRegionConfirmationPopup").addEventListener("click", closeRegionConfirmationPopup);
+        async function openRegionConfirmationPopup() {
+          document.getElementById("regionConfirmationPopup").style.display =
+            "block";
+
+          try {
+            
+            const response = await fetch(`/zsm/sendregion`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to update delivery status");
+            }
+
+            const result = await response.json();
+            console.log(result.message);
+
+            const regionTable = document.getElementById("regionTable");
+            regionTable.innerText = "";
+            result.regions.forEach((region) => {
+              const row = regionTable.insertRow(-1);
+              const cell1 = row.insertCell(0);
+              const cell2 = row.insertCell(1);
+              const cell3 = row.insertCell(2);
+              cell1.textContent = region.id;
+              cell2.textContent = region.name;
+              const confirmButton = document.createElement("button");
+              confirmButton.textContent = "Confirm";
+              confirmButton.addEventListener("click", () =>
+                handleConfirmButtonClick(confirmButton,region.id, region.name)
+              );
+              cell3.appendChild(confirmButton);
+            });
+
+            const regionConfirmationPopup = document.getElementById(
+              "regionConfirmationPopup"
+            );
+
+            if (result.regions.length > 0) {
+              regionConfirmationPopup.style.display = "block";
+            } else {
+              alert("No regions available");
+            }
+          } catch (error) {
+            console.error("Error :", error);
           }
         }
+
+
+        function closeRegionConfirmationPopup() {
+          document.getElementById("regionConfirmationPopup").style.display =
+            "none";
+        }
+
+       async function handleConfirmButtonClick(button,regionId, regionName) {
+              button.textContent = "Confirmed";
+              button.disabled = true;
+            try {
+                const response = await fetch(`/zsm/confirmregion`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ regionId }),
+                });
+    
+                if (!response.ok) {
+                throw new Error("Failed to confirm region");
+                }
+    
+                const result = await response.json();
+                console.log(result.message);
+                alert(result.message);
+                document.getElementById("regionConfirmationPopup").style.display =
+                "block";
+            } catch (error) {
+                console.error("Error confirming region:", error);
+            }
+    
+    closeRegionConfirmationPopup();
+  }
       </script>
     </body>
   </html>

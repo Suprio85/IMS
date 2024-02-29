@@ -24,8 +24,14 @@
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
       />
-      <link rel="stylesheet" href="../stylesheets/zonalsupplymanager/home1.css" />
-      <link rel="stylesheet" href="../stylesheets/zonalsupplymanager/home2.css" />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/zonalsupplymanager/home1.css"
+      />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/zonalsupplymanager/home2.css"
+      />
 
       <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"> -->
     </head>
@@ -44,20 +50,20 @@
             <a style="display: flex" href="/logout">Logout</a>
           </div>
         </div>
-    </header>
-    <div class="container">   
-          <nav>
-              <div class="side_navbar">
-                <span>Main Menu</span>
-                <a href="#" class="active">Dashboard</a>
-                <a href="/shopmanager/profile">Profile</a>
-                <a href="/shopmanager/addproduct">Add Products</a>
-                <a href="/shopmanager/productquantity">Update Products</a>
-                <a href="/shopmanager/request">Request For Product</a>
-                <a href="/shopmanager/sales">Sales</a>
-              </div>
-            </nav>
-       <div class="main-body">
+      </header>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="/shopmanager/profile">Profile</a>
+            <a href="/shopmanager/addproduct">Add Products</a>
+            <a href="/shopmanager/productquantity">Update Products</a>
+            <a href="/shopmanager/request">Request For Product</a>
+            <a href="/shopmanager/sales">Sales</a>
+          </div>
+        </nav>
+        <div class="main-body">
           <h2>Dashboard</h2>
           <form
             method="post"
@@ -91,6 +97,11 @@
             />
             <button type="submit"><i class="fas fa-search"></i> Search</button>
           </form>
+
+          <button id="startAllocatingBtn" onclick="toggleAllocateButtons()">
+            Start Allocating
+          </button>
+
           <% products.forEach(product => { %>
           <div class="card-container">
             <div class="card">
@@ -106,25 +117,37 @@
                 >
                   PRODUCT ANALYSIS
                 </button>
-                <button class="btn allot-btn" data-productid="<%= product.id %>">
-                    Allot Product
+                <button
+                  class="btn allot-btn"
+                  id="allotProductBtn"
+                  data-productid="<%= product.id %>"
+                  style="display: none"
+                >
+                  Allot Product
                 </button>
               </div>
             </div>
           </div>
           <% }); %>
 
-          
           <div id="allotProductPopup" class="popup-container">
             <div class="popup-content">
               <button id="closeAllotPopup">&#10006;</button>
-              <h3>Total Quantity in Inventory: <span id="totalQuantity"></span></h3>
-              <p id ="productid"> Product ID: </p>`
+              <h3>
+                Total Quantity in Inventory: <span id="totalQuantity"></span>
+              </h3>
+              <p id="productid">Product ID:</p>
+              `
               <form id="allotPopupForm">
-                <select id="allotRegionId" name="allotRegionId" required autofocus>
+                <select
+                  id="allotRegionId"
+                  name="allotRegionId"
+                  required
+                  autofocus
+                >
                   <option value="" disabled selected>Select a Region</option>
                   <% regions.forEach(region => { %>
-                    <option value="<%= region.id %>"><%= region.name %></option>
+                  <option value="<%= region.id %>"><%= region.name %></option>
                   <% }); %>
                 </select>
                 <label for="productQuantity">Product Quantity:</label>
@@ -136,8 +159,10 @@
                   placeholder="Enter product quantity"
                   required
                 />
-                <p id="errorMessage" style="color: red;"></p>
-                <button type="button" onclick="submitAllotForm()">Allot Product</button>
+                <p id="errorMessage" style="color: red"></p>
+                <button type="button" onclick="submitAllotForm()">
+                  Allot Product
+                </button>
               </form>
             </div>
           </div>
@@ -174,11 +199,38 @@
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script>
         let productId;
+        async function toggleAllocateButtons() {
+          var allocateButtons = document.getElementsByClassName("allot-btn");
+
+          // Toggle the display property of each "Allot Product" button
+          for (var i = 0; i < allocateButtons.length; i++) {
+            allocateButtons[i].style.display =
+              allocateButtons[i].style.display == "block" ? "none" : "block";
+          }
+
+          try {
+            const response = await fetch("/zsm/makeold", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Message from server:", data.message);
+            alert(data.message); // You can use alert or update the UI as needed
+          } catch (error) {
+            console.error("Error fetching message:", error);
+          }
+        }
         document.addEventListener("DOMContentLoaded", function () {
           // Function to open the pop-up
           function openPopup(productId) {
             document.getElementById("popup").style.display = "block";
-
           }
 
           // Attach the openPopup function to each product's button
@@ -186,11 +238,10 @@
           buttons.forEach(function (button) {
             button.addEventListener("click", function () {
               // Retrieve the region ID from the button's data-regionid attribute
-               productId = button.getAttribute("data-productid");
+              productId = button.getAttribute("data-productid");
               console.log(productId);
 
               openPopup(productId);
-
             });
           });
 
@@ -205,7 +256,8 @@
           console.log("in submit form: ");
           console.log(selectedRegionId);
           console.log(productId);
-          const selectedStartMonth = document.getElementById("startMonth").value;
+          const selectedStartMonth =
+            document.getElementById("startMonth").value;
           const selectedEndMonth = document.getElementById("endMonth").value;
 
           const requestData = {
@@ -276,115 +328,134 @@
         }
 
         function closePopup() {
-           if(window.lineChartInstance)
-           window.lineChartInstance.destroy();
+          if (window.lineChartInstance) window.lineChartInstance.destroy();
           document.getElementById("popup").style.display = "none";
           document.getElementById("regionId").value = "";
         }
 
         let allotButtons = document.querySelectorAll(".allot-btn");
-  allotButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      productId = button.getAttribute("data-productid");
-      console.log(productId);
+        allotButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            productId = button.getAttribute("data-productid");
+            console.log(productId);
 
-      openAllotPopup(productId);
-    });
-  });
-  document.getElementById("closeAllotPopup").addEventListener("click", closeAllotPopup);
+            openAllotPopup(productId);
+          });
+        });
+        document
+          .getElementById("closeAllotPopup")
+          .addEventListener("click", closeAllotPopup);
 
-  async function openAllotPopup(productId) {
-  try {
-    const response = await fetch("/zsm/totalproduct", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ productId: productId }),
-    });
+        async function openAllotPopup(productId) {
+          try {
+            const response = await fetch("/zsm/totalproduct", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ productId: productId }),
+            });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
-    const data = await response.json();
+            const data = await response.json();
 
-    // Update the total quantity in the modal
-    document.getElementById("totalQuantity").textContent = data.totalQuantity;
-    document.getElementById("productid").textContent = "Product ID: " + productId;
+            // Update the total quantity in the modal
+            document.getElementById("totalQuantity").textContent =
+              data.totalQuantity;
+            document.getElementById("productid").textContent =
+              "Product ID: " + productId;
 
-    document.getElementById("productQuantity").setAttribute("aria-valuemax", data.totalQuantity);
+            document
+              .getElementById("productQuantity")
+              .setAttribute("aria-valuemax", data.totalQuantity);
 
+            // // Display the Allot Product modal
+            document.getElementById("allotProductPopup").style.display =
+              "block";
+            var allocateButtons = document.getElementsByClassName("allot-btn");
+            for (var i = 0; i < allocateButtons.length; i++) {
+              allocateButtons[i].style.display = "block";
+            }
+          } catch (error) {
+            console.error("Error fetching total quantity:", error);
+          }
+        }
 
-    
-    // Display the Allot Product modal
-    document.getElementById("allotProductPopup").style.display = "block";
-  } catch (error) {
-    console.error("Error fetching total quantity:", error);
-  }
-}
+        function closeAllotPopup() {
+          document.getElementById("allotProductPopup").style.display = "none";
+          document.getElementById("allotRegionId").value = "";
+          document.getElementById("productQuantity").value = "";
 
-  function closeAllotPopup() {
-    document.getElementById("allotProductPopup").style.display = "none";
-    document.getElementById("allotRegionId").value = "";
-    document.getElementById("productQuantity").value = "";
-  }
+          var allocateButtons =
+            document.getElementsByClassName("allot-product-btn");
+          for (var i = 0; i < allocateButtons.length; i++) {
+            allocateButtons[i].style.display = "none";
+          }
+        }
 
-  async function submitAllotForm() {
-  const selectedAllotRegionId = document.getElementById("allotRegionId").value;
-  const enteredQuantity = parseInt(document.getElementById("productQuantity").value);
-  const totalQuantity = parseInt(document.getElementById("totalQuantity").textContent);
+        async function submitAllotForm() {
+          const selectedAllotRegionId =
+            document.getElementById("allotRegionId").value;
+          const enteredQuantity = parseInt(
+            document.getElementById("productQuantity").value
+          );
+          const totalQuantity = parseInt(
+            document.getElementById("totalQuantity").textContent
+          );
 
-  const errorMessageElement = document.getElementById("errorMessage");
-  errorMessageElement.textContent = ""; 
+          const errorMessageElement = document.getElementById("errorMessage");
+          errorMessageElement.textContent = "";
 
-  if (enteredQuantity > totalQuantity) {
-    errorMessageElement.textContent = "Entered quantity exceeds total quantity!";
-  } 
-  else if(enteredQuantity <=0 )
-    {
-        errorMessageElement.textContent = "Entered quantity should be greater than 0!";
-    }
- else if (!selectedAllotRegionId) {
-    errorMessageElement.textContent = "Please select a region!";
-  }
+          if (enteredQuantity > totalQuantity) {
+            errorMessageElement.textContent =
+              "Entered quantity exceeds total quantity!";
+          } else if (enteredQuantity <= 0) {
+            errorMessageElement.textContent =
+              "Entered quantity should be greater than 0!";
+          } else if (!selectedAllotRegionId) {
+            errorMessageElement.textContent = "Please select a region!";
+          } else if (!enteredQuantity) {
+            errorMessageElement.textContent = "Please enter a quantity!";
+          } else {
+            console.log(
+              "Allotting product with ID:",
+              productId,
+              "to Region ID:",
+              selectedAllotRegionId,
+              "with quantity:",
+              enteredQuantity
+            );
 
-  else if (!enteredQuantity) {
-    errorMessageElement.textContent = "Please enter a quantity!";
-  }
-  else {
-    console.log("Allotting product with ID:", productId, "to Region ID:", selectedAllotRegionId, "with quantity:", enteredQuantity);
+            const formData = {
+              productId: productId,
+              regionId: selectedAllotRegionId,
+              quantity: enteredQuantity,
+            };
 
+            await fetch("/zsm/totalproductregion", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                // Handle the response from the backend if needed
+                console.log("Backend response:", data);
+                alert(data.message);
+              })
+              .catch((error) => {
+                console.error("Error sending data to the backend:", error);
+              });
 
-    const formData = {
-      productId: productId,
-      regionId: selectedAllotRegionId,
-      quantity: enteredQuantity,
-    };
-
- await fetch("/zsm/totalproductregion", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(
-    formData
-  ),
-})
-  .then((response) => response.json())
-  .then((data) => {
-    // Handle the response from the backend if needed
-    console.log("Backend response:", data);
-    alert(data.message);
-  })
-  .catch((error) => {
-    console.error("Error sending data to the backend:", error);
-  });
-  
-document.getElementById("allotProductPopup").style.display = "block";
-document.getElementById("totalQuantity").textContent = totalQuantity- enteredQuantity;
-}
-}
+            document.getElementById("allotProductPopup").style.display =
+              "block";
+          }
+        }
       </script>
     </body>
   </html>

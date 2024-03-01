@@ -38,6 +38,22 @@ async function getAllShops(region_id){
     return shops;
 }
 
+async function getProductAllotment(product_id){
+    let connection;
+    let amount = 0;
+    let query1 = "SEELCT AMOUNT FROM PRODUCT_ALLOTEMENT WHERE PRODUCT_ID=:product_id AND STATUS='UPDATED'";
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let response = await connection.execute(query1, {product_id});
+        amount = response.rows[0][0] ? response.rows[0][0] : 0;
+        connection.close();
+    } catch(err){
+        console.log(err);
+        if(connection) connection.close();
+    }
+    return amount;
+}
+
 
 router.get('/', async(req, res, next)=>{
     var employee_id = 2001;
@@ -48,6 +64,18 @@ router.get('/', async(req, res, next)=>{
     console.log(shops);
     console.log(products);
     res.status(200).render("rsm/analyze_products", {products, shops, username});
+})
+
+
+router.post("/totalAllotedProduct", async(req, res, next)=>{
+    let productId = req.body.productId;
+    console.log("Getting allotment of", productId);
+    let amount = await getProductAllotment(productId);
+    res.json({totalQuantity: amount});
+})
+
+router.post("/fetch-sale-over-time", async(req, res, next)=>{
+    console.log("Hello");
 })
 
 

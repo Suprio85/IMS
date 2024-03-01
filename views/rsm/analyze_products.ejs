@@ -68,12 +68,12 @@
             <div class="popup-content">
               <button id="closeAllotPopup">&#10006;</button>
               <h3>
-                Total Quantity in Inventory: <span id="totalQuantity"></span>
+                Total Alloted Amount: <span id="totalQuantity"></span>
               </h3>
               <p id="productid">Product ID:</p>
               `
               <form id="allotPopupForm">
-                <select id="allotRegionId" name="allotRegionId" required autofocus>
+                <select id="allotShopId" name="allotShopId" required autofocus>
                   <option value="" disabled selected>Select Shop</option>
                   <% shops.forEach(shop => { %>
                   <option value="<%= shop.id %>"><%= shop.name %></option>
@@ -96,7 +96,7 @@
           <div class="popup-content">
             <button id="closePopup">&#10006;</button>
             <form id="popupForm">
-              <select id="regionId" name="regionId" required autofocus>
+              <select id="shopId" name="shopId" required autofocus>
                 <option value="" disabled selected>Select a Shop</option>
                 <option value="General">All Shop</option>
                 <% shops.forEach(shop => { %>
@@ -109,7 +109,7 @@
               <!-- Add a range input for selecting end month -->
               <label for="endMonth">End Month:</label>
               <input type="month" id="endMonth" name="endMonth" required />
-              <button type="button" onclick="submitForm()">Submit</button>
+              <button type="button" onclick="showGraphFromInfo()">Submit</button>
             </form>
             <div id="messageContainer"></div>
             <canvas id="lineChart" width="400" height="200"></canvas>

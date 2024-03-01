@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let buttons = document.querySelectorAll(".update-btn");
     buttons.forEach(function (button) {
         button.addEventListener("click", function () {
-            // Retrieve the region ID from the button's data-regionid attribute
+            // Retrieve the Product ID from the button's data-product_id attribute
             productId = button.getAttribute("data-productid");
             console.log(productId);
 
@@ -49,23 +49,23 @@ document.addEventListener("DOMContentLoaded", function () {
         .addEventListener("click", closePopup);
 });
 
-function submitForm() {
-    const selectedRegionId = document.getElementById("regionId").value;
+function showGraphFromInfo() {
+    const selectedShopId = document.getElementById("shopId").value;
     console.log("in submit form: ");
-    console.log(selectedRegionId);
+    console.log(selectedShopId);
     console.log(productId);
     const selectedStartMonth =
         document.getElementById("startMonth").value;
     const selectedEndMonth = document.getElementById("endMonth").value;
 
     const requestData = {
-        regionID: selectedRegionId,
+        regionID: selectedShopId,
         productID: productId,
         startMonth: selectedStartMonth,
         endMonth: selectedEndMonth,
     };
 
-    fetch("/owner", {
+    fetch("/rsm/fetch-sale-over-time", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -88,7 +88,7 @@ function submitForm() {
             }
         })
         .catch((error) => {
-            console.error("Error:", error);
+            console.log("Error:", error);
         });
 }
 
@@ -128,7 +128,7 @@ function createLineChart(dataForLineChart, labelsForLineChart) {
 function closePopup() {
     if (window.lineChartInstance) window.lineChartInstance.destroy();
     document.getElementById("popup").style.display = "none";
-    document.getElementById("regionId").value = "";
+    document.getElementById("shopId").value = "";
 }
 
 let allotButtons = document.querySelectorAll(".allot-btn");
@@ -146,7 +146,7 @@ document
 
 async function openAllotPopup(productId) {
     try {
-        const response = await fetch("/zsm/totalproduct", {
+        const response = await fetch("/rsm/totalAllotedProduct", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -161,18 +161,13 @@ async function openAllotPopup(productId) {
         const data = await response.json();
 
         // Update the total quantity in the modal
-        document.getElementById("totalQuantity").textContent =
-            data.totalQuantity;
-        document.getElementById("productid").textContent =
-            "Product ID: " + productId;
+        document.getElementById("totalQuantity").textContent = data.totalQuantity;
+        document.getElementById("productid").textContent = "Product ID: " + productId;
 
-        document
-            .getElementById("productQuantity")
-            .setAttribute("aria-valuemax", data.totalQuantity);
+        document.getElementById("productQuantity").setAttribute("aria-valuemax", data.totalQuantity);
 
         // // Display the Allot Product modal
-        document.getElementById("allotProductPopup").style.display =
-            "block";
+        document.getElementById("allotProductPopup").style.display = "block";
         var allocateButtons = document.getElementsByClassName("allot-btn");
         for (var i = 0; i < allocateButtons.length; i++) {
             allocateButtons[i].style.display = "block";
@@ -184,7 +179,7 @@ async function openAllotPopup(productId) {
 
 function closeAllotPopup() {
     document.getElementById("allotProductPopup").style.display = "none";
-    document.getElementById("allotRegionId").value = "";
+    document.getElementById("allotShopId").value = "";
     document.getElementById("productQuantity").value = "";
 
     var allocateButtons =
@@ -195,14 +190,9 @@ function closeAllotPopup() {
 }
 
 async function submitAllotForm() {
-    const selectedAllotRegionId =
-        document.getElementById("allotRegionId").value;
-    const enteredQuantity = parseInt(
-        document.getElementById("productQuantity").value
-    );
-    const totalQuantity = parseInt(
-        document.getElementById("totalQuantity").textContent
-    );
+    const selectedAllotShopId = document.getElementById("allotShopId").value;
+    const enteredQuantity = parseInt(document.getElementById("productQuantity").value);
+    const totalQuantity = parseInt(document.getElementById("totalQuantity").textContent);
 
     const errorMessageElement = document.getElementById("errorMessage");
     errorMessageElement.textContent = "";
@@ -213,7 +203,7 @@ async function submitAllotForm() {
     } else if (enteredQuantity <= 0) {
         errorMessageElement.textContent =
             "Entered quantity should be greater than 0!";
-    } else if (!selectedAllotRegionId) {
+    } else if (!selectedAllotShopId) {
         errorMessageElement.textContent = "Please select a region!";
     } else if (!enteredQuantity) {
         errorMessageElement.textContent = "Please enter a quantity!";
@@ -221,15 +211,15 @@ async function submitAllotForm() {
         console.log(
             "Allotting product with ID:",
             productId,
-            "to Region ID:",
-            selectedAllotRegionId,
+            "to Shop ID:",
+            selectedAllotShopId,
             "with quantity:",
             enteredQuantity
         );
 
         const formData = {
             productId: productId,
-            regionId: selectedAllotRegionId,
+            shopId: selectedAllotShopId,
             quantity: enteredQuantity,
         };
 

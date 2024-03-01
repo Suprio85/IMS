@@ -55,6 +55,53 @@ async function getProductAllotment(product_id){
 }
 
 
+async function getProductVsTimeInfo(request){
+    let dataForLineChart = [];
+    let labelsForLineChart = [];
+    let query = `
+        WITH months AS (
+            SELECT 
+                TO_CHAR(ADD_MONTHS(TO_DATE(:start_date, 'YYYY-MM'), LEVEL - 1), 'MON,YY') AS month,
+                ADD_MONTHS(TO_DATE(:start_date, 'YYYY-MM'), LEVEL - 1) AS monthDate
+            FROM 
+                DUAL
+            CONNECT BY 
+                LEVEL <= MONTHS_BETWEEN(TO_DATE(:end_date, 'YYYY-MM'), TO_DATE(:start_date, 'YYYY-MM')) + 1
+        )
+        SELECT
+            m.month,
+            NVL(SUM(PP.QUANTITY), 0) AS total_sales
+        FROM
+            months m
+        LEFT JOIN
+            (SELECT PURCHASE_ID, PURCHASE_TIME FROM PURCHASE WHERE SHOP_ID=:shop_id) p ON m.month = TO_CHAR(p.purchase_time, 'MON,YY')
+        LEFT JOIN
+            (SELECT * FROM PURCHASED_PRODUCT WHERE PRODUCT_ID=:product_id) PP ON PP.PURCHASE_ID=p.PURCHASE_ID
+        GROUP BY
+            m.month, m.monthDate
+        ORDER BY
+            m.monthDate
+    `;
+
+    let connection;
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let response = await connection.execute(query,{
+            start_date: request.startMonth, end_date: request.endMonth,
+            product_id: request.productID, shop_id: request.shopId
+        });
+        console.log(response);
+        for (row of response.rows){
+            labelsForLineChart.push(row[0]); dataForLineChart.push(row[1]);
+        }
+    }catch(err){
+        console.log(err);
+    } finally{ if(connection) connection.close(); }
+    return {dataForLineChart, labelsForLineChart};
+}
+
+
+
 router.get('/', async(req, res, next)=>{
     var employee_id = 2001;
     var region_id = 101;
@@ -76,6 +123,11 @@ router.post("/totalAllotedProduct", async(req, res, next)=>{
 
 router.post("/fetch-sale-over-time", async(req, res, next)=>{
     console.log("Hello");
+    let request = req.body;
+    console.log(request);
+    let chartInfo =await getProductVsTimeInfo(request);
+    console.log(chartInfo);
+    res.json({...chartInfo, message: 'Dataset ?', success: true});
 })
 
 

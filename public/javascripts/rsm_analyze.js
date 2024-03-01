@@ -59,7 +59,7 @@ function showGraphFromInfo() {
     const selectedEndMonth = document.getElementById("endMonth").value;
 
     const requestData = {
-        regionID: selectedShopId,
+        shopId: selectedShopId,
         productID: productId,
         startMonth: selectedStartMonth,
         endMonth: selectedEndMonth,

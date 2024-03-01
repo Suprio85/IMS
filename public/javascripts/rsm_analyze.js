@@ -146,7 +146,7 @@ document
 
 async function openAllotPopup(productId) {
     try {
-        const response = await fetch("/rsm/totalAllotedProduct", {
+        const response = await fetch("/rsm/total-alloted-product", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -204,7 +204,7 @@ async function submitAllotForm() {
         errorMessageElement.textContent =
             "Entered quantity should be greater than 0!";
     } else if (!selectedAllotShopId) {
-        errorMessageElement.textContent = "Please select a region!";
+        errorMessageElement.textContent = "Please select a shop!";
     } else if (!enteredQuantity) {
         errorMessageElement.textContent = "Please enter a quantity!";
     } else {
@@ -223,7 +223,7 @@ async function submitAllotForm() {
             quantity: enteredQuantity,
         };
 
-        await fetch("/zsm/totalproductregion", {
+        await fetch("/rsm/allot-product-to-shop", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

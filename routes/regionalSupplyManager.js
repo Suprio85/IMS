@@ -38,13 +38,13 @@ async function getAllShops(region_id){
     return shops;
 }
 
-async function getProductAllotment(product_id){
+async function getProductAllotment(product_id, region_id){
     let connection;
     let amount = 0;
-    let query1 = "SEELCT AMOUNT FROM PRODUCT_ALLOTEMENT WHERE PRODUCT_ID=:product_id AND STATUS='UPDATED'";
+    let query1 = "SELECT AMOUNT FROM PRODUCT_ALLOTEMENT WHERE PRODUCT_ID=:product_id AND REGION_ID=:region_id AND STATUS='UPDATED'";
     try{
         connection = await oracledb.getConnection(dbconfig);
-        let response = await connection.execute(query1, {product_id});
+        let response = await connection.execute(query1, {product_id, region_id});
         amount = response.rows[0][0] ? response.rows[0][0] : 0;
         connection.close();
     } catch(err){
@@ -100,6 +100,13 @@ async function getProductVsTimeInfo(request){
     return {dataForLineChart, labelsForLineChart};
 }
 
+// async function getTotalAllotedAmount(product_id, region_id){
+//     let amount = 0;
+//     let connection;
+//     let query1 = "SELECT AMOUNT FROM PRODUCT_ALLOTEMENT WHERE REGION_ID=:region_id AND PRODUCT_ID=:product_id";
+//     // let query2 = "SELECT NVL(SUM(),0) FROM "
+// }
+
 
 
 router.get('/', async(req, res, next)=>{
@@ -114,10 +121,11 @@ router.get('/', async(req, res, next)=>{
 })
 
 
-router.post("/totalAllotedProduct", async(req, res, next)=>{
+router.post("/total-alloted-product", async(req, res, next)=>{
     let productId = req.body.productId;
+    let region_id = 101;
     console.log("Getting allotment of", productId);
-    let amount = await getProductAllotment(productId);
+    let amount = await getProductAllotment(productId, region_id);
     res.json({totalQuantity: amount});
 })
 
@@ -128,6 +136,16 @@ router.post("/fetch-sale-over-time", async(req, res, next)=>{
     let chartInfo =await getProductVsTimeInfo(request);
     console.log(chartInfo);
     res.json({...chartInfo, message: 'Dataset ?', success: true});
+})
+
+
+router.post("/total-alloted-product", async(req, res, next)=>{
+    console.log("Showing product id", req.body.productId);
+})
+
+
+router.post("/allot-product-to-shop", async(req, res, next)=>{
+    console.log(req.body);
 })
 
 

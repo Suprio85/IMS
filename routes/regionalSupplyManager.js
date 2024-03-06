@@ -82,11 +82,28 @@ async function getProductVsTimeInfo(request){
         ORDER BY
             m.monthDate
     `;
+    
+    let query2 = `
+        SELECT TO_CHAR(MONTH_YEAR, 'MON,YY'), TOTAL_SALE
+        FROM TEMP_MONTHLY_SALE WHERE SHOP_ID = :shop_id
+        AND PRODUCT_ID = :product_id
+        AND MONTH_YEAR <= TO_DATE(:end_date, 'YYYY-MM') AND MONTH_YEAR >= TO_DATE(:start_date, 'YYYY-MM')
+        ORDER BY MONTH_YEAR
+    `;
+
+    let query3 = `
+        SELECT TO_CHAR(MONTH_YEAR, 'MON,YY'), TOTAL_SALE
+        FROM TEMP_MONTHLY_SALE WHERE SHOP_ID = 30001
+        AND PRODUCT_ID = 50001
+        AND MONTH_YEAR <= TO_DATE('2023-12', 'YYYY-MM') AND MONTH_YEAR >= TO_DATE('2022-01', 'YYYY-MM')
+        ORDER BY MONTH_YEAR
+    `;
 
     let connection;
     try{
         connection = await oracledb.getConnection(dbconfig);
-        let response = await connection.execute(query,{
+        // let response = await connection.execute(query3)
+        let response = await connection.execute(query2,{
             start_date: request.startMonth, end_date: request.endMonth,
             product_id: request.productID, shop_id: request.shopId
         });
@@ -132,7 +149,7 @@ router.post("/total-alloted-product", async(req, res, next)=>{
 router.post("/fetch-sale-over-time", async(req, res, next)=>{
     console.log("Hello");
     let request = req.body;
-    console.log(request);
+    console.log("request:", request);
     let chartInfo =await getProductVsTimeInfo(request);
     console.log(chartInfo);
     res.json({...chartInfo, message: 'Dataset ?', success: true});

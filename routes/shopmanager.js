@@ -246,58 +246,12 @@ router.get('/sales', async function (req, res, next) {
       purchases.push(purchase);
     }
 
-  //   await connection.close();
-    // const purchases = [
-    //   { PURCHASE_ID: 1, PRODUCT_ID: 101, CUSTOMER_ID: 201, PRODUCT_PRICE: 25.99, QUANTITY: 5 },
-    //   { PURCHASE_ID: 2, PRODUCT_ID: 102, CUSTOMER_ID: 202, PRODUCT_PRICE: 19.95, QUANTITY: 8 },
-    //   { PURCHASE_ID: 3, PRODUCT_ID: 103, CUSTOMER_ID: 203, PRODUCT_PRICE: 35.50, QUANTITY: 12 },
-    //   // Add more dummy data as needed
-    // ];
-  
-
-
     res.render('shopmanager/sales', { title: 'Sales', purchases: purchases });
   } catch (error) {
     console.error('Error fetching sales data:', error);
     res.render('error', { message: 'An error occurred while fetching sales data.' });
   }
 });
-
-
-// router.get('/shipment', async function (req, res, next) {
-//   const shipments = [
-//     {
-//       SHIPMENT_ID: 1,
-//       SHIPPING_DATE: '2024-03-01',
-//       RECEIVING_DATE: '2024-03-05',
-//       SHIPPING_COST: 20.50,
-//       DELIVERY_STATUS: 'PENDING',
-//       INVENTORY_ID: 101,
-//       SHOP_ID: 201,
-//     },
-//     {
-//       SHIPMENT_ID: 2,
-//       SHIPPING_DATE: '2024-03-02',
-//       RECEIVING_DATE: '2024-03-06',
-//       SHIPPING_COST: 15.75,
-//       DELIVERY_STATUS: 'SHIPPED',
-//       INVENTORY_ID: 102,
-//       SHOP_ID: 202,
-//     },
-//     {
-//       SHIPMENT_ID: 3,
-//       SHIPPING_DATE: '2024-03-03',
-//       RECEIVING_DATE: '2024-03-07',
-//       SHIPPING_COST: 30.00,
-//       DELIVERY_STATUS: 'DELIVERED',
-//       INVENTORY_ID: 103,
-//       SHOP_ID: 203,
-//     },
-//   ];
-
-
-//   res.render('shopmanager/shipment', { shipments: shipments });
-// })
 
 router.get('/shipment', async function (req, res, next) {
 
@@ -348,10 +302,10 @@ router.post('/shipmentproduct', async  (req, res) => {
 
   for (const row of result.rows) {
   let product = {
-    PRODUCT_ID: row[0],
-    QUANTITY: row[1],
-    RETURN_DATE: row[2],
-    RETURN_AMOUNT: row[3]
+    PRODUCT_ID: row[1],
+    QUANTITY: row[2],
+    RETURN_DATE: row[3],
+    RETURN_AMOUNT: row[4]
   }
   productDetails.push(product);
 }
@@ -420,6 +374,24 @@ router.post('/updateshipmentstatus', async (req, res) => {
       res.status(500).json({ success: false, message: 'Internal Server Error' });
   } 
 });
+
+
+router.get("/viewproducts", async function(req, res, next) {
+
+  const connection = await oracledb.getConnection(dbConfig);
+  const shopId = `(SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id})`;
+  let shop_id = (await connection.execute(shopId)).rows[0][0];
+
+  console.log("Shop id: ", shop_id);
+
+  const query = `SELECT PRODUCT_ID,(SELECT PRODUCT_NAME FROM PRODUCTS WHERE PRODUCT_ID = SP.PRODUCT_ID
+    ) AS PRODUCT_NAME, QUANTITY FROM SHOP_PRODUCTS SP WHERE SHOP_ID = ${shop_id}`;
+ 
+  const result = await connection.execute(query);
+  const products = result.rows;
+  console.log(products);
+  res.json({success: true, products: products});
+})
 
 
 

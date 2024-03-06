@@ -56,11 +56,7 @@
           <div class="side_navbar">
             <span>Main Menu</span>
             <a href="#" class="active">Dashboard</a>
-            <a href="/shopmanager/profile">Profile</a>
-            <a href="/shopmanager/addproduct">Add Products</a>
-            <a href="/shopmanager/productquantity">Update Products</a>
-            <a href="/shopmanager/request">Request For Product</a>
-            <a href="/shopmanager/sales">Sales</a>
+            <a href="/profile">Profile</a>
           </div>
         </nav>
         <div class="main-body">
@@ -516,6 +512,7 @@
 
             const regionTable = document.getElementById("regionTable");
             regionTable.innerText = "";
+            regionTable.innerHTML =" <tr> <th>Region ID</th> <th>Region Name</th> <th>Confirmation</th> </tr>"
             result.regions.forEach((region) => {
               const row = regionTable.insertRow(-1);
               const cell1 = row.insertCell(0);

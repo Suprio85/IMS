@@ -24,7 +24,7 @@ router.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
     const connection = await oracledb.getConnection(dbConfig);
 
-    // Hash the password using MD5 in Node.js
+   
     const hashedPassword = crypto.createHash('md5').update(password).digest('hex').toUpperCase();
 
     console.log(hashedPassword);

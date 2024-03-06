@@ -1,0 +1,77 @@
+<span style="font-family: verdana, geneva, sans-serif"
+  ><!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>RSM | Analysis</title>
+      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+      <link rel='stylesheet' href='/stylesheets/rsm/analyzer.css' />
+      <link rel='stylesheet' href='/stylesheets/rsm/header_style.css' />
+      <!-- <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home1.css"/>
+      <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home2.css"/> -->
+
+    </head>
+    <body>
+      <%- include("./headers.ejs") %>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="#">Add Products</a>
+            <a href="#">Update Products</a>
+            <a href="#">Request For Product</a>
+            <a href="#">Sales</a>
+          </div>
+        </nav>
+        <div class="main-body">
+          <h2>All Products</h2>
+          <form method="post" action="/rsm/search" id="searchForm" class="search-bar">
+            <input type="text" id="nameInput" name="nameInput" placeholder="Search by name"/>
+            <input type="text" id="categoryInput" name="categoryInput" placeholder="Search by category"/>
+            <input type="number" id="priceInput" name="priceInput" placeholder="Search by price"/>
+            <input type="number" id="productidInput" name="productidInput" placeholder="Search by productId"/>
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
+          </form>
+          
+          
+          <% shops.forEach(shop => { %>
+          <div class="card-container">
+            <div class="card">
+              <div class="card-content">
+                <p>Request: <%= shop.req_id %></p>
+                <h2><%= shop.name %></h2>
+                <p>Shop Id: <%= shop.id %></p>
+                <p><%= shop.area %></p>
+              </div>
+              <div class="card-content">
+                <button class="btn review-btn" data-action="review" data-requestId="<%= shop.req_id %>"style="display: block">
+                    Review Request</button>
+                <button class="btn shipping-btn" id="makeShipmentButton" data-requestId="<%= shop.req_id %>" style="display: block" disabled>
+                    Make Shipment
+                </button>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+
+          <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script src="/javascripts/rsm_analyze.js"></script>
+    </body>
+  </html>
+</span>

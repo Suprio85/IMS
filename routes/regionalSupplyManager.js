@@ -55,6 +55,32 @@ async function getProductAllotment(product_id, region_id){
 }
 
 
+async function getAllShipRequest(region_id){
+    let connection;
+    let requests = [];
+    let query = "SELECT SH.SHOP_NAME, SR.REQUEST_ID, A.STREET_ADDRESS||', '||A.POSTAL_CODE, SH.SHOP_ID "+
+                "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE STATUS<>'PROCESSED') "+
+                "SR ON SH.SHOP_ID=SR.SHOP_ID "+
+                "JOIN AREAS A ON SH.AREA_CODE=A.AREA_CODE WHERE A.REGION_ID=:region_id";
+    try{
+        connection =await oracledb.getConnection(dbconfig);
+        let result =await connection.execute(query, {region_id});
+        connection.close();
+        result.rows.forEach((request)=>{
+            requests.push({
+                shop_name: request[0],
+                req_id: request[1],
+                shop_area: request[2],
+                shop_id: request[3]
+            });
+        });
+    } catch (err){
+        console.log(err);
+        if(connection) connection.close();
+    }
+    return requests;
+}
+
 async function getProductVsTimeInfo(request){
     let dataForLineChart = [];
     let labelsForLineChart = [];
@@ -135,6 +161,15 @@ router.get('/', async(req, res, next)=>{
     console.log(shops);
     console.log(products);
     res.status(200).render("rsm/analyze_products", {products, shops, username});
+})
+
+
+router.get("/all-requests", async(req, res)=>{
+    var employee_id = 2001;
+    var region_id = 101;
+    var username = 'nafis';
+    let requests = await getAllShipRequest(region_id);
+    res.status(200).send(requests);
 })
 
 

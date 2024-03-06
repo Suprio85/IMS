@@ -44,21 +44,21 @@
           </form>
           
           
-          <% shops.forEach(shop => { %>
+          <% requests.forEach(request => { %>
           <div class="card-container">
             <div class="card">
               <div class="card-content">
-                <p>Request: <%= shop.req_id %></p>
-                <h2><%= shop.name %></h2>
-                <p>Shop Id: <%= shop.id %></p>
-                <p><%= shop.area %></p>
+                <p>Request: <%= request.req_id %></p><br>
+                <h2><%= request.shop_name %></h2>
+                <p>Shop Id: <%= request.shop_id %></p>
+                <p><%= request.shop_area %></p>
               </div>
               <div class="card-content">
                 <button class="btn review-btn" data-action="review" data-requestId="<%= shop.req_id %>"style="display: block">
                     Review Request</button>
-                <button class="btn shipping-btn" id="makeShipmentButton" data-requestId="<%= shop.req_id %>" style="display: block" disabled>
+                <!-- <button class="btn shipping-btn" id="makeShipmentButton" data-requestId="<%= shop.req_id %>" style="display: block" disabled>
                     Make Shipment
-                </button>
+                </button> -->
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@
       </div>
 
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script src="/javascripts/rsm_analyze.js"></script>
+      <script src="/javascripts/rsm_reviews.js"></script>
     </body>
   </html>
 </span>

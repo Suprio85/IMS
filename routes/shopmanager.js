@@ -38,7 +38,7 @@ router.get('/', async function (req, res, next) {
       console.log("Shop id: ", shop_id);
       
       const query =
-      `
+    `
       SELECT DISTINCT
     PD.PRODUCT_ID,
     PD.PRODUCT_NAME,
@@ -76,17 +76,79 @@ ORDER BY TOTAL_SALES DESC
           };
           products.push(product);
       }
-
-      
-    
-
-      res.render('layout/userlayout', { title: 'Home', username: username, products: products});
-
-
+  res.render('layout/userlayout', { title: 'Home', username: username, products: products});
   } catch (error) {
       console.error('Error:', error);
       res.status(500).send('Internal Server Error');
   }
+});
+
+router.post('/', async function (req, res, next) {
+  console.log(req.body);
+  const from = req.body.from;
+  const to = req.body.to;
+
+  console.log(typeof from, typeof to)
+
+  console.log(from, to);
+  const connection = await oracledb.getConnection(dbConfig);
+  const reslt = await connection.execute(`SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id}`)
+  const shop_id = reslt.rows[0][0];
+
+  const query = `
+  SELECT DISTINCT
+    PD.PRODUCT_ID,
+    PD.PRODUCT_NAME,
+    GET_TOTAL_SALES(
+      PD.PRODUCT_ID,
+      SP.SHOP_ID,
+      TO_TIMESTAMP(:from_date, 'YYYY-MM-DD HH24:MI:SS'),
+      TO_TIMESTAMP(:to_date, 'YYYY-MM-DD HH24:MI:SS')
+    ) AS TOTAL_SALES,
+    (SELECT CATAGORY_NAME FROM CATAGORY WHERE CATAGORY_ID = PD.CATAGORY_ID) AS CATAGORY_NAME
+  FROM
+    PRODUCTS PD
+    JOIN SHOP_PRODUCTS SP ON PD.PRODUCT_ID = SP.PRODUCT_ID
+    JOIN PURCHASED_PRODUCT PR ON PD.PRODUCT_ID = PR.PRODUCT_ID
+    JOIN PURCHASE P ON PR.PURCHASE_ID = P.PURCHASE_ID
+  WHERE
+    SP.SHOP_ID = :shop_id
+  ORDER BY TOTAL_SALES DESC`;
+
+const binds = {
+  from_date: from,
+  to_date: to,
+  shop_id: shop_id
+};
+
+console.log(binds);
+
+const options = {
+  outFormat: oracledb.OUT_FORMAT_OBJECT,
+  autoCommit: true,
+};
+
+const result = await connection.execute(query, binds, options);
+console.log(result.rows);
+
+let products = [];
+for (const row of result.rows) {
+    let product = {
+        id: row.PRODUCT_ID,
+        name: row.PRODUCT_NAME,
+        totalSales: row.TOTAL_SALES,
+        catagoery: row.CATAGORY_NAME
+    };
+    products.push(product);
+}
+
+console.log(products);  
+try{
+res.render('layout/userlayout', { title: 'Home', username: username, products: products});
+} catch (error) {
+console.error('Error:', error);
+res.status(500).send('Internal Server Error');
+}
 });
 
 
@@ -103,11 +165,6 @@ router.get('/productquantity', async function (req, res, next) {
     return;
   }
   const connection = await oracledb.getConnection(dbConfig);
-  // const shop_id =`SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.user_id}`;
-  
-  // const query = `SELECT p.PRODUCT_ID, p.PRODUCT_NAME,p.IMAGE,P.CATAGOERY_ID, q.QUANTITY FROM PRODUCT p LEFT JOIN SHOP_PRODUCTS q ON p.PRODUCT_ID = q.PRODUCT_ID WHERE p.SHOP_ID = ${shop_id}`;
-
-  // const products = await connection.execute(query);
    const result = await connection.execute(`SELECT * FROM PRODUCTS`);
   await connection.close();
   const products = result.rows;
@@ -115,8 +172,6 @@ router.get('/productquantity', async function (req, res, next) {
 });
 
 router.post('/productquantity', async function (req, res, next) {
-  //console.log(req.body);
-
   res.status(200).json({ success: true, message: 'Product quantity updated successfully' });
 
 });

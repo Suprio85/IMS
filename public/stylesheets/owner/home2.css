@@ -41,6 +41,10 @@ body{
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
 }
+.main-body {
+  width: 82%;
+  padding: 1rem;
+}
 .search_box i{
   padding: 0.66rem;
   cursor: pointer;
@@ -134,11 +138,6 @@ nav{
   border-left: 2px solid rgb(100, 100, 100);
 }
 
-/* Main Body Section */
-.main-body{
-  width: 70%;
-  padding: 1rem;
-}
 .promo_card{
   width: 100%;
   color: #fff;

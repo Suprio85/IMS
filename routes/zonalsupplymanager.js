@@ -10,6 +10,155 @@ router.use(express.urlencoded({ extended: true }));
 
 username = "suprio";
 
+async function getCatagory() {
+    let category = [];
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const query = `SELECT * FROM CATAGORY`;
+        const result = await connection.execute(query);
+
+        for (const row of result.rows) {
+            let cat = {
+                id: row[0],
+                name: row[1]
+            };
+            category.push(cat);
+        }
+    } catch (error) {
+        console.error('Error executing query:', error);
+        throw error;  
+    }
+
+    return category;
+}
+
+router.post('/search', async function (req, res, next) {
+
+    console.log(req.body);
+    const name = req.body.nameInput;
+    const catagory = req.body.categoryInput;
+    const price = req.body.priceInput;
+    const productid = req.body.productidInput;
+    const priceOrder = req.body.priceOrder;
+    const filter = req.body.filterInput;
+
+    
+    const parameters = {};
+    let productTable = "PRODUCTS";
+    let isWhere = false;
+
+    if (req.body.nameInput || req.body.categoryInput || req.body.priceInput || req.body.productidInput || req.body.priceOrder || req.body.filterInput) {
+
+
+        productTable = "PRODUCTS p LEFT JOIN PURCHASED_PRODUCT pp ON pp.product_id = p.product_id LEFT JOIN CATAGORY C ON P.CATAGORY_ID = C.CATAGORY_ID"
+        let conditions = [];
+        if (req.body.productidInput) {
+            conditions.push(" WHERE P.PRODUCT_ID = :product_id");
+            parameters.product_id = req.body.productidInput;
+        }
+
+        else {
+            if (req.body.nameInput) {
+                if(!isWhere){
+                conditions.push(" WHERE UPPER(P.PRODUCT_NAME) LIKE '%' || UPPER(:product_name) || '%'");
+                isWhere = true;
+                }
+                else
+                {
+                    conditions.push(" UPPER(P.PRODUCT_NAME) LIKE '%' || UPPER(:product_name) || '%'");
+                }
+                parameters.product_name = req.body.nameInput;
+            }
+
+            if (req.body.categoryInput) {
+                if(!isWhere){
+                    conditions.push(" WHERE p.CATAGORY_ID = :category_id");
+                    isWhere = true;
+                }
+                else
+                conditions.push("p.CATAGORY_ID = :category_id");
+                parameters.category_id = req.body.categoryInput;
+            }
+
+            if (req.body.priceInput) {
+                if(!isWhere){
+                    conditions.push(" WHERE P.PRICE <= :product_price");
+                    isWhere = true;
+                }
+                else
+                conditions.push("P.PRICE <= :product_price");
+                parameters.product_price = req.body.priceInput;
+            }
+        }
+
+
+        productTable += conditions.join(" AND ");
+        //productTable += ")";
+    }
+
+    let  query = "SELECT p.PRODUCT_ID, p.PRODUCT_NAME,P.PRICE, SUM(pp.QUANTITY) AS total_quantity FROM " + productTable+" GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME, p.PRICE";
+
+    if(priceOrder){
+        if(priceOrder == 2)
+            query += " ORDER BY P.PRICE ASC";
+        else if(priceOrder ==1)
+           query += " ORDER BY P.PRICE DESC";
+        else if(priceOrder == 3 && filter == ""){
+            query += " ORDER BY total_quantity DESC";
+        }
+    }
+
+    if(filter && priceOrder != 3){
+        query += " ORDER BY total_quantity DESC ";
+        query += " FETCH FIRST "+filter+" ROWS ONLY ";
+    }
+    console.log(query);
+    console.log(parameters);
+
+    const connection = await oracledb.getConnection(dbConfig);
+    let result;
+    try{
+
+       result = await connection.execute(query, parameters);
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+    console.log(result.rows);
+    
+    let products = [];
+
+    for (const row of result.rows) {
+        let product = {
+            id: row[0],
+            name: row[1],
+            price: row[2]
+        };
+        products.push(product);
+    }
+
+    let regions = [];
+    const query2 = `SELECT * FROM REGION`;
+    const result2 = await connection.execute(query2);
+
+    for (const row of result2.rows) {
+        let region = {
+            id: row[0],
+            name: row[1]
+        };
+        regions.push(region);
+    }
+    isWhere = false;
+    let catagories = await getCatagory();
+    res.render('zonalsupplymanager/userhome', { title: 'Express', username: username, products: products, regions: regions, catagories: catagories});
+
+
+})
+
+
+
+
 
 router.get('/', async function (req, res, next) {
     username = "suprio";
@@ -41,11 +190,8 @@ router.get('/', async function (req, res, next) {
         regions.push(region);
     }
 
-
-
-
-
-    res.render('zonalsupplymanager/userhome', { username: username, regions: regions, title: 'Express', products: products });
+    let catagories = await getCatagory();
+    res.render('zonalsupplymanager/userhome', { username: username, regions: regions, title: 'Express', products: products, catagories: catagories });
 
 });
 

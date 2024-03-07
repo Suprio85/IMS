@@ -62,28 +62,39 @@
         <div class="main-body">
           <h2>Dashboard</h2>
           <form
-            method="post"
-            action="/owner/search"
-            id="searchForm"
-            class="search-bar"
+          method="post"
+          action="/zsm/search"
+          id="searchForm"
+          class="search-bar"
           >
-            <input
+          <select id="priceOrder" name="priceOrder">
+            <option value="" selected disabled>Select Order</option>
+              <option value="1">Price High to Low</option>
+              <option value="2">Price Low to High</option>
+              <option value="3">Top Sales</option>
+          </select>
+
+          <select id = "categoryInput" name="categoryInput">
+            <option value="" selected disabled>Select Category</option>
+            <% catagories.forEach(catagory => { %>
+            <option value="<%= catagory.id %>"><%= catagory.name %></option>
+            <% }); %> 
+          </select>
+          <select id ="filterInput" name="filterInput">
+            <option value="" selected disabled>Select Filter</option>
+            <option value="10">Top 10 Products</option>
+          </select>
+          <input
               type="text"
               id="nameInput"
               name="nameInput"
               placeholder="Search by name"
             />
             <input
-              type="text"
-              id="categoryInput"
-              name="categoryInput"
-              placeholder="Search by category"
-            />
-            <input
               type="number"
               id="priceInput"
               name="priceInput"
-              placeholder="Search by price"
+              placeholder="maximum range of price"
             />
             <input
               type="number"
@@ -93,7 +104,6 @@
             />
             <button type="submit"><i class="fas fa-search"></i> Search</button>
           </form>
-
           <div>
             <button id="startAllocatingBtn" onclick="toggleAllocateButtons()">
               Start Allocating
@@ -114,7 +124,7 @@
               <div class="card-content">
                 <h2><%= product.name %></h2>
                 <p>product id : <%= product.id %></p>
-                <p>price: <%= product.price %></p>
+                <p>price: <%= product.price %> Taka</p>
                 <button
                   class="btn update-btn"
                   data-action="price"

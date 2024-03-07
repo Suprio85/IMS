@@ -72,11 +72,17 @@
               <option value="2">Price Low to High</option>
               <option value="3">Top Sales</option>
           </select>
+
           <select id = "categoryInput" name="categoryInput">
             <option value="" selected disabled>Select Category</option>
             <% catagories.forEach(catagory => { %>
             <option value="<%= catagory.id %>"><%= catagory.name %></option>
             <% }); %> 
+          </select>
+          <select id ="filterInput" name="filterInput">
+            <option value="" selected disabled>Select Filter</option>
+            <option value="10">Top 10 Products</option>
+            <option value="5">Top 5 Products</option>
           </select>
           <input
               type="text"
@@ -105,7 +111,7 @@
               <div class="card-content">
                 <h2><%= product.name %></h2>
                 <p>product id : <%= product.id %></p>
-                <p>price: <%= product.price %></p>
+                <p>price: <%= product.price %> Taka</p>
                 <button
                   class="btn update-btn"
                   data-action="price"
@@ -260,6 +266,11 @@
                 // Use dataForLineChart for creating a line chart
                 console.log("before chart");
                 console.log("Data for line chart:", data.dataForLineChart);
+                if(data.dataForLineChart.length <= 0 && data.labelsForLineChart.length <= 0)
+                {
+                  messageContainer.innerHTML = `<p>No Shop In this Region </p>`;
+                }
+                else
                 createLineChart(data.dataForLineChart, data.labelsForLineChart);
               } else {
                 messageContainer.innerHTML = `<p>Error: ${data.message}</p>`;

@@ -3,7 +3,7 @@ const router = express.Router();
 const oracledb = require('oracledb');
 const dbConfig = require('../dbconfig');
 const { request } = require('../app');
-const { get } = require('.');
+
 
 router.use(express.urlencoded({ extended: true }));
 
@@ -76,13 +76,14 @@ router.post('/search', async function (req, res, next) {
     const price = req.body.priceInput;
     const productid = req.body.productidInput;
     const priceOrder = req.body.priceOrder;
+    const filter = req.body.filterInput;
 
     
     const parameters = {};
     let productTable = "PRODUCTS";
     let isWhere = false;
 
-    if (req.body.nameInput || req.body.categoryInput || req.body.priceInput || req.body.productidInput || req.body.priceOrder) {
+    if (req.body.nameInput || req.body.categoryInput || req.body.priceInput || req.body.productidInput || req.body.priceOrder || req.body.filterInput) {
 
 
         productTable = "PRODUCTS p LEFT JOIN PURCHASED_PRODUCT pp ON pp.product_id = p.product_id LEFT JOIN CATAGORY C ON P.CATAGORY_ID = C.CATAGORY_ID"
@@ -138,12 +139,17 @@ router.post('/search', async function (req, res, next) {
             query += " ORDER BY P.PRICE ASC";
         else if(priceOrder ==1)
            query += " ORDER BY P.PRICE DESC";
-        else if(priceOrder == 3){
+        else if(priceOrder == 3 && filter == ""){
             query += " ORDER BY total_quantity DESC";
         }
+    }
 
+    if(filter && priceOrder != 3){
+        query += " ORDER BY total_quantity DESC ";
+        query += " FETCH FIRST "+filter+" ROWS ONLY ";
     }
     console.log(query);
+    console.log(parameters);
 
     const connection = await oracledb.getConnection(dbConfig);
     let result;
@@ -195,6 +201,8 @@ router.post('/', async function (req, res) {
     const startMonth = req.body.startMonth;
     const endMonth = req.body.endMonth;
 
+    console.log(startMonth, endMonth);
+
     if (!startMonth || !endMonth || endMonth < startMonth) {
         return res.status(400).json({ success: false, message: 'Invalid date range' });
     }
@@ -205,53 +213,59 @@ router.post('/', async function (req, res) {
 
     try {
         const connection = await oracledb.getConnection(dbConfig);
+        let query;
+        let binds;
 
-        
-        let currentMonth = new Date(startMonth);
-        const end = new Date(endMonth);
+       if(regionId == "General")
+        {
+            query =
+            `SELECT NVL(SUM(TOTAL_SALE),0)AS TOTAL_SALES , TO_CHAR(MONTH_YEAR, 'MON') AS MONTH
+            FROM TEMP_MONTHLY_SALE
+            WHERE PRODUCT_ID = :productId 
+            AND TO_CHAR(MONTH_YEAR, 'YYYY-MM') BETWEEN :startMonth AND :endMonth
+                    GROUP BY PRODUCT_ID,MONTH_YEAR
+                    ORDER BY MONTH_YEAR`
 
-        while (currentMonth <= end) {
-            const currentMonthString = currentMonth.toLocaleString('default', { month: 'short' });
-            console.log("currentMonthString := ")
-            console.log(currentMonthString);
-
-            
-            let query = `
-                SELECT COALESCE(SUM(pp.QUANTITY), 0) AS TOTAL_SALES
-                FROM REGION r
-                LEFT JOIN AREAS a ON r.REGION_ID = a.REGION_ID
-                LEFT JOIN SHOPS s ON a.AREA_CODE = s.AREA_CODE
-                LEFT JOIN PURCHASE p ON s.SHOP_ID = p.SHOP_ID
-                LEFT JOIN PURCHASED_PRODUCT pp ON p.PURCHASE_ID = pp.PURCHASE_ID
-                    AND pp.PRODUCT_ID = :productId
-                    AND TO_CHAR(p.PURCHASE_TIME, 'YYYY-MM') = :purchaseMonth`;
-
-          
-            const binds = {
+            binds = {
                 productId: productId,
-                purchaseMonth: currentMonth.toISOString().slice(0, 7)
+                startMonth: startMonth,
+                endMonth: endMonth
             };
-
-          
-            if (regionId != 'General') {
-                query += ' AND r.REGION_ID = :regionId';
-               binds.regionId = regionId;
-            }
-
-           
-            console.log("query := " + query);    
-           const result = await connection.execute(query, binds, { outFormat: oracledb.OUT_FORMAT_OBJECT });
-           console.log(result.rows[0]);
-
             
-           labelsForLineChart.push(currentMonthString);
-           dataForLineChart.push(result.rows[0].TOTAL_SALES);
-
-            
-            currentMonth.setMonth(currentMonth.getMonth() + 1);
         }
 
-        await connection.close();
+        else{
+            query =`
+            SELECT NVL(SUM(TOTAL_SALE),0)AS TOTAL_SALES , TO_CHAR(MONTH_YEAR, 'MON') AS MONTH
+         FROM TEMP_MONTHLY_SALE
+         WHERE PRODUCT_ID = :productId
+         AND TO_CHAR(MONTH_YEAR, 'YYYY-MM') BETWEEN :startMonth AND :endMonth
+         		AND SHOP_ID IN(
+				 SELECT S.SHOP_ID
+				 FROM SHOPS S LEFT JOIN AREAS A ON S.AREA_CODE = A.AREA_CODE
+				 WHERE A.REGION_ID = :regionId
+				 )
+				 GROUP BY PRODUCT_ID,MONTH_YEAR
+				 ORDER BY MONTH_YEAR`
+          binds = {
+            productId: productId,
+            startMonth: startMonth,
+            endMonth: endMonth,
+            regionId: regionId
+        }
+    }
+
+       
+
+        const result = await connection.execute(query, binds);
+
+        for (const row of result.rows) {
+            labelsForLineChart.push(row[1]);
+            dataForLineChart.push(row[0]);
+        }
+        console.log(dataForLineChart);
+        console.log(labelsForLineChart);
+        
         res.json({
             success: true,
             message: 'Data received and processed successfully',

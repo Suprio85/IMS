@@ -51,6 +51,13 @@ router.get('/', async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
     console.log(req.body);
+    id = req.session.user.id;
+    const connection = oracledb.getConnection(dbConfig);
+    const query = `UPDATE EMPLOYEES SET FIRST_NAME = '${req.body.firstname}', LAST_NAME='${req.body.lastname}', BANK_ACCOUNT = ${req.body.banknumber} WHERE EMPLOYEE_ID = ${id}`;
+    console.log(query);
+
+    const result = (await connection).execute(query);
+    console.log((await result).rowsAffected? "Updated" : "Not Updated");
 })
 
 

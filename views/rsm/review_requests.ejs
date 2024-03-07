@@ -3,7 +3,7 @@
   <html lang="en">
     <head>
       <meta charset="UTF-8" />
-      <title>RSM | Analysis</title>
+      <title>RSM | Requests</title>
       <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
       <link
         rel="stylesheet"
@@ -47,31 +47,32 @@
           <% requests.forEach(request => { %>
           <div class="card-container">
             <div class="card">
-              <div class="card-content">
-                <p>Request: <%= request.req_id %></p><br>
+              <div class="card-content" style="text-align: left;">
+                <p style="font-size: small;">request ID: <%= request.req_id %></p>
                 <h2><%= request.shop_name %></h2>
                 <p>Shop Id: <%= request.shop_id %></p>
                 <p><%= request.shop_area %></p>
               </div>
               <div class="card-content">
-                <button class="btn review-btn" data-action="review" data-requestId="<%= shop.req_id %>"style="display: block">
-                    Review Request</button>
-                <!-- <button class="btn shipping-btn" id="makeShipmentButton" data-requestId="<%= shop.req_id %>" style="display: block" disabled>
+                <button class="btn review-btn" data-action="review" data-requestId="<%= request.req_id %>"
+                  style="display: block" onclick="openReviewPage(this)">Review Request</button>
+                <!-- <button class="btn shipping-btn" id="makeShipmentButton" data-requestId="<%= requests.req_id %>" style="display: block" disabled>
                     Make Shipment
                 </button> -->
               </div>
             </div>
           </div>
           <% }); %>
-
-          <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         </div>
       </div>
 
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script src="/javascripts/rsm_reviews.js"></script>
+      <script>
+        function openReviewPage(button){
+          console.log(button.getAttribute("data-requestId"));
+          let requestId = button.getAttribute("data-requestId");
+          window.location.href = "/rsm/process-request?requestId=" + encodeURIComponent(requestId);
+        }
+      </script>
     </body>
   </html>
 </span>

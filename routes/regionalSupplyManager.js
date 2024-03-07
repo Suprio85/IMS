@@ -1,6 +1,7 @@
 const express = require("express");
 const dbconfig = require("../dbconfig");
 const oracledb = require("oracledb");
+const { json } = require("body-parser");
 
 var router = express.Router();
 
@@ -58,7 +59,7 @@ async function getProductAllotment(product_id, region_id){
 async function getAllShipRequest(region_id){
     let connection;
     let requests = [];
-    let query = "SELECT SH.SHOP_NAME, SR.REQUEST_ID, A.STREET_ADDRESS||', '||A.POSTAL_CODE, SH.SHOP_ID "+
+    let query = "SELECT SH.SHOP_NAME, SR.REQUEST_ID, A.STREET_ADDRESS||', '||A.POSTAL_CODE||', '||A.CITY, SH.SHOP_ID "+
                 "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE STATUS<>'PROCESSED') "+
                 "SR ON SH.SHOP_ID=SR.SHOP_ID "+
                 "JOIN AREAS A ON SH.AREA_CODE=A.AREA_CODE WHERE A.REGION_ID=:region_id";
@@ -79,6 +80,39 @@ async function getAllShipRequest(region_id){
         if(connection) connection.close();
     }
     return requests;
+}
+
+
+async function getRequestInfo(request_id){
+    let request = {};
+    let products = [];
+    let connection;
+    let query = "SELECT SH.SHOP_NAME, A.STREET_ADDRESS||', '||A.POSTAL_CODE||', '||A.CITY, SH.SHOP_ID "+
+                "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE REQUEST_ID=:request_id) "+
+                "SR ON SH.SHOP_ID=SR.SHOP_ID "+
+                "JOIN AREAS A ON SH.AREA_CODE=A.AREA_CODE";
+    let product_query = "SELECT P.PRODUCT_ID, P.PRODUCT_NAME, P.PRICE, SR.QUANTITY, SR.SUPPLIABLE_AMOUNT "+
+                        "FROM PRODUCTS P JOIN (SELECT * FROM SHIPMENT_REQUEST_PRODUCT WHERE REQUEST_ID=:request_id) SR "+
+                        "ON P.PRODUCT_ID=SR.PRODUCT_ID";
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let result = await connection.execute(query, {request_id});
+        request.shop_name = result.rows[0][0]; request.shop_location = result.rows[0][1]; request.shop_id = result.rows[0][2];
+        request.req_id = request_id;
+        result = await connection.execute(product_query, {request_id});
+        console.log(result.rows);
+        for(let product of result.rows){
+            products.push({
+                id: product[0], name: product[1], price: product[2],
+                quantity: product[3], supp_amount: product[4]
+            });
+            console.log(product);
+        }
+    } catch (err){
+        console.log(err);
+        if(connection) connection.close();
+    }
+    return {request, products};
 }
 
 async function getProductVsTimeInfo(request){
@@ -169,7 +203,16 @@ router.get("/all-requests", async(req, res)=>{
     var region_id = 101;
     var username = 'nafis';
     let requests = await getAllShipRequest(region_id);
-    res.status(200).send(requests);
+    res.status(200).render("rsm/review_requests", {username, requests});
+    // res.status(200).send(requests);
+})
+
+router.get("/process-request", async(req, res)=>{
+    let username = "nafis";
+    let requestId = req.query.requestId;
+    let info = await getRequestInfo(requestId);
+    // res.status(200).send(info);
+    res.status(200).render("rsm/shipment_request", {username, ...info});
 })
 
 
@@ -198,6 +241,7 @@ router.post("/total-alloted-product", async(req, res, next)=>{
 
 router.post("/allot-product-to-shop", async(req, res, next)=>{
     console.log(req.body);
+    res.json({message: "Alloted Successfully"})
 })
 
 

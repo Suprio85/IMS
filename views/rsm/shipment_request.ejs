@@ -1,0 +1,85 @@
+<span style="font-family: verdana, geneva, sans-serif">
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>RSM | Single Shipment Request</title>
+      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+      <!-- <link rel='stylesheet' href='/stylesheets/rsm/analyzer.css' /> -->
+      <link rel='stylesheet' href='/stylesheets/rsm/header_style.css' />
+      <link rel='stylesheet' href='/stylesheets/rsm/shipment_req.css' />
+      <!-- <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home1.css"/>
+      <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home2.css"/> -->
+
+    </head>
+    <body>
+      <%- include("./headers.ejs") %>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="#">Add Products</a>
+            <a href="#">Update Products</a>
+            <a href="#">Request For Product</a>
+            <a href="#">Sales</a>
+          </div>
+        </nav>
+        <div class="main-body">
+          <div class="info">
+            <brf
+            <h2>Shipment Request</h2>
+            <span style="font-size: .9rem;">- Request Id: <%= request.req_id %></span><br>
+            <br>
+            <span style="font-size: .8rem;">- Shop Info:</span>
+            <h3><%= request.shop_name %></h3>
+            <p>Shop Id: <%= request.shop_id %></p>
+            <p>Location: <%= request.shop_location %></p>
+          </div> <br><br>
+          <div class="info">
+            <h3>Requested Products: </h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Price</th>
+                  <th>Requested</th>
+                  <th>Suppliable</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% products.forEach(product =>{ %>
+                  <tr>
+                    <td><%= product.name %></td>
+                    <td><%= product.price %></td>
+                    <td><%- product.quantity %></td>
+                    <td><%- product.supp_amount %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+          
+        </div>
+      </div>
+
+      <script>
+        function openReviewPage(button){
+          console.log(button.getAttribute("data-requestId"));
+          let requestId = button.getAttribute("data-requestId");
+          window.location.href = "/rsm/process-request?requestId=" + encodeURIComponent(requestId);
+        }
+      </script>
+    </body>
+  </html>
+</span>

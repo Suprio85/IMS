@@ -56,9 +56,9 @@
                 <button class="btn update-btn" data-action="price" data-productid="<%= product.id %>">
                   PRODUCT ANALYSIS
                 </button>
-                <button class="btn allot-btn" id="allotProductBtn" data-productid="<%= product.id %>">
+                <!-- <button class="btn allot-btn" id="allotProductBtn" data-productid="<%= product.id %>">
                   Allot Product
-                </button>
+                </button> -->
               </div>
             </div>
           </div>
@@ -68,7 +68,7 @@
             <div class="popup-content">
               <button id="closeAllotPopup">&#10006;</button>
               <h3>
-                Total Alloted Amount: <span id="totalQuantity"></span>
+                Total Allotable Amount: <span id="totalQuantity"></span>
               </h3>
               <p id="productid">Product ID:</p>
               `
@@ -96,20 +96,26 @@
           <div class="popup-content">
             <button id="closePopup">&#10006;</button>
             <form id="popupForm">
-              <select id="shopId" name="shopId" required autofocus>
-                <option value="" disabled selected>Select a Shop</option>
-                <option value="General">All Shop</option>
-                <% shops.forEach(shop => { %>
-                <option value="<%= shop.id %>"><%= shop.name %></option>
-                <% }); %>
-              </select>
-              <label for="startMonth">Start Month:</label>
-              <input type="month" id="startMonth" name="startMonth" required />
+              <div id="date_selector">
+                <select id="shopId" name="shopId" required autofocus>
+                  <option value="" disabled selected>Select a Shop</option>
+                  <% shops.forEach(shop => { %>
+                  <option value="<%= shop.id %>"><%= shop.name %></option>
+                  <% }); %>
+                </select>
+                <label for="startMonth">Start Month:</label>
+                <input type="month" id="startMonth" name="startMonth" required />
 
-              <!-- Add a range input for selecting end month -->
-              <label for="endMonth">End Month:</label>
-              <input type="month" id="endMonth" name="endMonth" required />
-              <button type="button" onclick="showGraphFromInfo()">Submit</button>
+                <!-- Add a range input for selecting end month -->
+                <label for="endMonth">End Month:</label>
+                <input type="month" id="endMonth" name="endMonth" required />
+              </div><br>
+              <div id="graph_buttons">
+                <button type="button" onclick="showGraphFromInfo()">Submit</button>
+                <button type="button" class="btn allot-btn" id="allot_product_button" onclick="openAllotementPopup()">
+                  Allocate
+                </button>
+              </div>
             </form>
             <div id="messageContainer"></div>
             <canvas id="lineChart" width="400" height="150"></canvas>

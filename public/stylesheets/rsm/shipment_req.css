@@ -1,0 +1,35 @@
+/* Main Body Section */
+.main-body{
+  width: 76%;
+  padding: 1rem;
+}
+
+
+table{
+  background: transparent;
+  padding: 1rem;
+  text-align: left;
+  border-radius: 10px;
+  width: 90%;
+}
+
+.recent-records table{
+  width: 90%;
+}
+
+table td, th{
+  padding: 0.2rem 0.8rem;
+}
+table th{
+  font-size: 15px;
+}
+table td{
+  font-size: 13px;
+  color: rgb(50, 50, 50);
+  font-weight: 500;
+}
+
+.info p{
+  font-weight: 250;
+  font-size: .95rem;
+}

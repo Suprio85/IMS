@@ -1,4 +1,6 @@
 let productId;
+
+
 async function toggleAllocateButtons() {
     var allocateButtons = document.getElementsByClassName("allot-btn");
     // Toggle the display property of each "Allot Product" button
@@ -25,6 +27,9 @@ async function toggleAllocateButtons() {
         console.error("Error fetching message:", error);
     }
 }
+
+
+
 document.addEventListener("DOMContentLoaded", function () {
     // Function to open the pop-up
     function openPopup(productId) {
@@ -38,16 +43,17 @@ document.addEventListener("DOMContentLoaded", function () {
             // Retrieve the Product ID from the button's data-product_id attribute
             productId = button.getAttribute("data-productid");
             console.log(productId);
+            document.getElementById("allot_product_button").setAttribute("data-productid", productId);
 
             openPopup(productId);
         });
     });
 
     // Attach the closePopup function to the close button
-    document
-        .getElementById("closePopup")
-        .addEventListener("click", closePopup);
+    document.getElementById("closePopup").addEventListener("click", closePopup);
 });
+
+
 
 function showGraphFromInfo() {
     const selectedShopId = document.getElementById("shopId").value;
@@ -92,6 +98,9 @@ function showGraphFromInfo() {
         });
 }
 
+
+
+
 function getRandomColor() {
     var letters = "0123456789ABCDEF";
     var color = "#";
@@ -100,6 +109,9 @@ function getRandomColor() {
     }
     return color;
 }
+
+
+
 function createLineChart(dataForLineChart, labelsForLineChart) {
     console.log("Data for line chart:", dataForLineChart);
 
@@ -125,24 +137,46 @@ function createLineChart(dataForLineChart, labelsForLineChart) {
     });
 }
 
+
+
+
 function closePopup() {
     if (window.lineChartInstance) window.lineChartInstance.destroy();
     document.getElementById("popup").style.display = "none";
     document.getElementById("shopId").value = "";
 }
 
-let allotButtons = document.querySelectorAll(".allot-btn");
-allotButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-        productId = button.getAttribute("data-productid");
-        console.log(productId);
 
-        openAllotPopup(productId);
-    });
-});
-document
-    .getElementById("closeAllotPopup")
-    .addEventListener("click", closeAllotPopup);
+
+
+// let allotButtons = document.querySelectorAll(".allot-btn");
+// allotButtons.forEach(function (button) {
+//     button.addEventListener("click", function () {
+//         productId = button.getAttribute("data-productid");
+//         console.log(productId);
+
+//         openAllotPopup(productId);
+//     });
+// });
+
+
+function openAllotementPopup(){
+    console.log(productId);
+    let pid = document.getElementById("allot_product_button").getAttribute("data-productid");
+    const selectedShopId = document.getElementById("shopId").value;
+    let shopSelector = document.getElementById("allotShopId");
+    shopSelector.value = selectedShopId;
+    shopSelector.disabled = true;
+    
+    openAllotPopup(pid);
+}
+
+
+
+document.getElementById("closeAllotPopup").addEventListener("click", closeAllotPopup);
+
+
+
 
 async function openAllotPopup(productId) {
     try {
@@ -177,6 +211,8 @@ async function openAllotPopup(productId) {
     }
 }
 
+
+
 function closeAllotPopup() {
     document.getElementById("allotProductPopup").style.display = "none";
     document.getElementById("allotShopId").value = "";
@@ -188,6 +224,9 @@ function closeAllotPopup() {
         allocateButtons[i].style.display = "none";
     }
 }
+
+
+
 
 async function submitAllotForm() {
     const selectedAllotShopId = document.getElementById("allotShopId").value;
@@ -209,12 +248,9 @@ async function submitAllotForm() {
         errorMessageElement.textContent = "Please enter a quantity!";
     } else {
         console.log(
-            "Allotting product with ID:",
-            productId,
-            "to Shop ID:",
-            selectedAllotShopId,
-            "with quantity:",
-            enteredQuantity
+            "Allotting product with ID:", productId,
+            "to Shop ID:", selectedAllotShopId,
+            "with quantity:", enteredQuantity
         );
 
         const formData = {

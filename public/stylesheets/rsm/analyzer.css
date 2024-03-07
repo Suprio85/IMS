@@ -409,3 +409,16 @@ button:hover {
 }
 
 
+#date_selector {
+    display: flex;
+    justify-content: space-between;
+}
+
+#graph_buttons{
+    display: flex;
+    flex-direction: row;
+}
+
+#allotProductPopup{
+    z-index: 25;
+}

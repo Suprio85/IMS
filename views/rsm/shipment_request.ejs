@@ -51,7 +51,7 @@
               <thead>
                 <tr>
                   <th>Product Name</th>
-                  <th>Price</th>
+                  <th>Current Price</th>
                   <th>Requested</th>
                   <th>Suppliable</th>
                 </tr>
@@ -68,6 +68,12 @@
               </tbody>
             </table>
           </div>
+          <br> <br> <br>
+          <div class="navigation-buttons">
+            <button type="button" onclick="goBack()">&#x2190; Back</button>
+            <button type="button">Generate Shipment</button>
+          </div>
+          <br> <br> <br> <br> <br>
 
           
         </div>
@@ -78,6 +84,9 @@
           console.log(button.getAttribute("data-requestId"));
           let requestId = button.getAttribute("data-requestId");
           window.location.href = "/rsm/process-request?requestId=" + encodeURIComponent(requestId);
+        }
+        function goBack(){
+          window.history.back();
         }
       </script>
     </body>

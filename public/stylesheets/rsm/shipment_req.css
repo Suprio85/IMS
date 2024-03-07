@@ -33,3 +33,20 @@ table td{
   font-weight: 250;
   font-size: .95rem;
 }
+
+
+button[type="button"] {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.navigation-buttons{
+  display: flex;
+  justify-content: space-between;
+}

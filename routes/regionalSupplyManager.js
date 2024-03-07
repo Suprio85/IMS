@@ -43,10 +43,19 @@ async function getProductAllotment(product_id, region_id){
     let connection;
     let amount = 0;
     let query1 = "SELECT AMOUNT FROM PRODUCT_ALLOTEMENT WHERE PRODUCT_ID=:product_id AND REGION_ID=:region_id AND STATUS='UPDATED'";
+    let query2 = `
+        SELECT NVL(SUM(SRP.SUPPLIABLE_AMOUNT), 0)
+        FROM (SELECT * FROM AREAS WHERE REGION_ID = :region_id) A
+        JOIN SHOPS S ON S.AREA_CODE=A.AREA_CODE
+        JOIN SHIPMENT_REQUEST SR ON (SR.SHOP_ID=S.SHOP_ID AND SR.STATUS='PROCESSING')
+        JOIN SHIPMENT_REQUEST_PRODUCT SRP ON (SRP.REQUEST_ID=SR.REQUEST_ID AND SRP.PRODUCT_ID=:product_id)
+    `
     try{
         connection = await oracledb.getConnection(dbconfig);
         let response = await connection.execute(query1, {product_id, region_id});
         amount = response.rows[0][0] ? response.rows[0][0] : 0;
+        let usedAmount = (await connection.execute(query2, {product_id, region_id})).rows[0][0];
+        amount -= usedAmount;
         connection.close();
     } catch(err){
         console.log(err);
@@ -113,6 +122,31 @@ async function getRequestInfo(request_id){
         if(connection) connection.close();
     }
     return {request, products};
+}
+
+
+async function updateSuppliableAmount(product_id, shop_id, amount){
+    let requestId = "SELECT REQUEST_ID FROM SHIPMENT_REQUEST WHERE STATUS IN ('PROCESSING', 'PENDING') AND SHOP_ID=:shop_id";
+    let statusUpdateQuery = "UPDATE SHIPMENT_REQUEST SET STATUS='PROCESSING' WHERE STATUS<>'PROCESSING' AND REQUEST_ID=:req_id";
+    let suppAmountQuery = "UPDATE SHIPMENT_REQUEST_PRODUCT SET SUPPLIABLE_AMOUNT=:amount "+
+                          "WHERE PRODUCT_ID=:product_id AND REQUEST_ID=:req_id"
+    let connection;
+    let success = false;
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let req_id = (await connection.execute(requestId, {shop_id})).rows[0][0];
+        await connection.execute(statusUpdateQuery, {req_id});
+        await connection.execute(suppAmountQuery, {req_id, product_id, amount});
+        console.log("Updated successfully,", req_id);
+        connection.commit();
+        success = true;
+    } catch(err){
+        console.log(err);
+        connection.rollback();
+    } finally{
+        if (connection) connection.close();
+    }
+    return success;
 }
 
 async function getProductVsTimeInfo(request){
@@ -241,7 +275,10 @@ router.post("/total-alloted-product", async(req, res, next)=>{
 
 router.post("/allot-product-to-shop", async(req, res, next)=>{
     console.log(req.body);
-    res.json({message: "Alloted Successfully"})
+    let success = await updateSuppliableAmount(req.body.productId, req.body.shopId, req.body.quantity);
+    let message = "Allotement unsuccessful";
+    if(success) message = "Alloted Successfully";
+    res.json({message});
 })
 
 

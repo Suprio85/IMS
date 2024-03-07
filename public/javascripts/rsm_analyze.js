@@ -276,7 +276,6 @@ async function submitAllotForm() {
                 console.error("Error sending data to the backend:", error);
             });
 
-        document.getElementById("allotProductPopup").style.display =
-            "block";
+        document.getElementById("allotProductPopup").style.display = "none";
     }
 }

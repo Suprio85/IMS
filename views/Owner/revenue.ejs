@@ -36,11 +36,10 @@
           <div class="side_navbar">
             <span>Main Menu</span>
             <a href="#" class="active">Dashboard</a>
-            <a href="#">Profile</a>
-            <a href="#">History</a>
-            <a href="#">Application</a>
-            <a href="#">My Account</a>
-            <a href="#">Documnets</a>
+            <a href="/profile">Profile</a>
+            <a href="/owner/addproduct">Add Products</a>
+            <a href="/owner/location">Locations</a>
+            <a href="owner/revenue">Revenue</a>
           </div>
         </nav>
         <div class="main-body">
@@ -72,35 +71,32 @@
                 <h4>Products</h4>
               </div>
 
-              <% if (formSubmitted) { %>
-                <% if (revenues.length > 0) { %>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Product ID</th>
-                        <th>Product Name</th>
-                        <th>Sales</th>
-                        <th>Cost</th>
-                        <th>Quantity</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% revenues.forEach(function(revenue) { %>
-                        <tr>
-                          <td><%= revenue.id %></td>
-                          <td><%= revenue.name %></td>
-                          <td><%= revenue.sales %></td>
-                          <td><%= revenue.cost %></td>
-                          <!-- You may want to remove this column if 'quantity' is not available in 'revenue' objects -->
-                          <td><%= revenue.quantity %></td>
-                        </tr>
-                      <% }); %>
-                    </tbody>
-                  </table>
-                <% } else { %>
-                  <p>No data during that time.</p>
-                <% } %>
-              <% } %>
+              <% if (formSubmitted) { %> <% if (revenues.length > 0) { %>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Sales</th>
+                    <th>Cost</th>
+                    <th>Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% revenues.forEach(function(revenue) { %>
+                  <tr>
+                    <td><%= revenue.id %></td>
+                    <td><%= revenue.name %></td>
+                    <td><%= revenue.sales %></td>
+                    <td><%= revenue.cost %></td>
+                    <td><%= revenue.quantity %></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+              <% } else { %>
+              <p>No data during that time.</p>
+              <% } %> <% } %>
             </div>
           </div>
         </div>

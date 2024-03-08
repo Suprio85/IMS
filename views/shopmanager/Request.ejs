@@ -157,15 +157,15 @@
   </table>
 </div>
 
-  <script>  
-document.addEventListener('DOMContentLoaded', function () {
-  const sidebar = document.querySelector('.sidebar');
-  const requests = <%- JSON.stringify(requests) %>;
+  <script>
 
+ const  requests = <%- JSON.stringify(requests) %>;
+console.log("before lisener");
+document.addEventListener('DOMContentLoaded', function () {
+const sidebar = document.querySelector('.sidebar');
+console.log('Requests:', requests);
   function sendRequests() {
-    // Check if there are requests to send
     if (requests.length > 0) {
-      // Make an AJAX request to your backend endpoint
       console.log('Sending requests:', requests);
       fetch('/shopmanager/sendrequests', {
         method: 'POST',
@@ -176,23 +176,22 @@ document.addEventListener('DOMContentLoaded', function () {
       })
         .then(response => response.json())
         .then(data => {
-          // Check if the response indicates success
           if (data.success) {
             // Hide the sidebar
             sidebar.style.display = 'none';
             console.log('Requests sent successfully:', data.message);
 
-            // Show a success message to the user
+            
             alert('Requests sent successfully!');
           } else {
             console.error('Error sending requests:', data.message);
-            // Show an error message to the user
+          
             alert('Error sending requests: ' + data.message);
           }
         })
         .catch(error => {
           console.error('Error sending requests:', error);
-          // Show an error message to the user
+          // Sh
           alert('Error sending requests: ' + error.message);
         });
     }
@@ -200,13 +199,14 @@ document.addEventListener('DOMContentLoaded', function () {
  
   function cancelRequest(index) {
     
-    requests.splice(index, 1);
-    
+    req = requests.splice(index, 1);
     console.log('Request canceled:', index);
+    console.log('Calcel Request:', req);
+    console.log(req);
+   
     
     updateSidebar();
   }
-
   function updateSidebar() {
     const sidebarContent = document.querySelector('.sidebar');
     sidebarContent.innerHTML = '';
@@ -257,7 +257,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const productTableBody = document.getElementById('productTableBody');
   const closeTableBtn = document.getElementById('closeTable');
 
-  // Add an event listener to the button
   viewProductsBtn.addEventListener('click', function () {
     // Fetch product details from the backend
     fetch('/shopmanager/viewproducts', {
@@ -271,10 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(data => {
       console.log('Product details:', data);
       if (data.success) {
-        // Clear existing table rows
         productTableBody.innerHTML = '';
-
-        // Populate the table with product details
         data.products.forEach(product => {
           const row = document.createElement('tr');
           row.innerHTML = `
@@ -285,18 +281,14 @@ document.addEventListener('DOMContentLoaded', function () {
           `;
           productTableBody.appendChild(row);
         });
-
-        // Show the table view
         productTableView.style.display = 'block';
       } else {
         console.error('Error fetching product details:', data.message);
-        // Show an error message to the user
         alert('Error fetching product details: ' + data.message);
       }
     })
     .catch(error => {
       console.error('Error fetching product details:', error);
-      // Show an error message to the user
       alert('Error fetching product details: ' + error.message);
     });
   });

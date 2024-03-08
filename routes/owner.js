@@ -394,19 +394,20 @@ router.get('/revenue',async  function (req, res, next) {
 //     P.PRODUCT_ID, P.PRODUCT_NAME
 // `;
 
-    const result = await connection.execute(query);
-    console.log(result.rows);
+    //const result = await connection.execute(query);
+    // console.log(result.rows);
+    // let revenues = [];
+    // for (const row of result.rows) {
+    //     let revenue = {
+    //         id: row[0],
+    //         name: row[1],
+    //         sales: row[2],
+    //         cost: row[3],
+    //         quantity: row[4]
+    //     };
+    //     revenues.push(revenue);
+    // }
     let revenues = [];
-    for (const row of result.rows) {
-        let revenue = {
-            id: row[0],
-            name: row[1],
-            sales: row[2],
-            cost: row[3],
-            quantity: row[4]
-        };
-        revenues.push(revenue);
-    }
 
     console.log(revenues);
 

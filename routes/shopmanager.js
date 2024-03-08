@@ -3,6 +3,7 @@ const router = express.Router();
 const oracledb = require('oracledb');
 const dbConfig = require('../dbconfig');
 const { request } = require('../app');
+const { parse } = require('dotenv');
 
 
 
@@ -210,6 +211,8 @@ router.post('/sendrequests', async (req, res, next) => {
     return;
   }
   const requests = req.body;
+  let ispending = false;  
+  let pending_req_id ;
   console.log('Requests:', requests);
 
   let connection;
@@ -218,38 +221,87 @@ router.post('/sendrequests', async (req, res, next) => {
     connection = await oracledb.getConnection(dbConfig);
     const shopId = `(SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id})`;
     let shop_id = (await connection.execute(shopId)).rows[0][0];
-   
-    
 
-    let requestId = (await connection.execute("SELECT SHIPMENT_REQUEST_ID_SEQ.NEXTVAL FROM DUAL")).rows[0][0];
-    console.log("Request id: ", requestId);
-    console.log("Shop Id: ", shop_id);
-    const insertRequestQuery = `
-        INSERT INTO SHIPMENT_REQUEST 
-        VALUES (:requestId, SYSDATE, 'PENDING', :shop_id)`;
-    const requestResult = await connection.execute(insertRequestQuery, {requestId, shop_id});
-    
-    // // Insert into SHIPMENT_REQUEST_PRODUCT for each product in the request
-    for (const {id, amount} of requests) {
-        const insertRequestProductQuery = `
-            INSERT INTO SHIPMENT_REQUEST_PRODUCT (REQUEST_ID, PRODUCT_ID, QUANTITY)
-            VALUES (:requestId, :productId, :quantity)`;
-        await connection.execute(insertRequestProductQuery, {
-            requestId,
-            productId: id,
-            quantity: amount
-        });
+    const status_query = 'SELECT STATUS,REQUEST_ID FROM SHIPMENT_REQUEST WHERE SHOP_ID = :shop_id';
+
+    const status_result = await connection.execute(status_query, { shop_id });
+
+    for (const row of status_result.rows) {
+      if (row[0] === 'PENDING') {
+        ispending = true;
+        pending_req_id = row[1];
+        break;
+      }
     }
 
-    // Clear the requests array in the session
-    req.session.requests = [];
+    if(ispending){
+      console.log("Pending request id: ", pending_req_id);
+      const product_query = 'SELECT PRODUCT_ID,QUANTITY FROM SHIPMENT_REQUEST_PRODUCT WHERE REQUEST_ID = :pending_req_id';
 
-    console.log(req.session.requests);
-    connection.commit();
-    res.status(200).json({ success: true, message: 'Requests sent successfully' });
-} catch (error) {
+      const product_result = await connection.execute(product_query, { pending_req_id });
+
+     console.log("Product result: ", product_result.rows);
+      for(let {id,amount} of requests){
+        let found = false;
+        for(const row of product_result.rows){
+          console.log("rows and ids are")
+          console.log(row[0],id);
+
+          if(row[0] == id){
+            found = true;
+             amount += row[1];
+        
+             const update_query = 'UPDATE SHIPMENT_REQUEST_PRODUCT SET QUANTITY = :amount WHERE REQUEST_ID = :pending_req_id AND PRODUCT_ID = :id';
+              await connection.execute(update_query, {
+                pending_req_id : parseInt(pending_req_id),
+                id : parseInt(id),
+                amount : parseInt(amount)
+               });
+               console.log(id,amount,pending_req_id);
+              break;
+            }
+          }
+          if(!found){
+            console.log("Inserting new product");
+            const insert_query = `INSERT INTO SHIPMENT_REQUEST_PRODUCT (REQUEST_ID, PRODUCT_ID, QUANTITY)
+            VALUES (:pending_req_id, :id, :amount)`;
+            await connection.execute(insert_query, {
+              pending_req_id : parseInt(pending_req_id),
+              id : parseInt(id),
+              amount : parseInt(amount)
+             });
+          }
+        } 
+      }
+      else{
+      let requestId = (await connection.execute("SELECT SHIPMENT_REQUEST_ID_SEQ.NEXTVAL FROM DUAL")).rows[0][0];
+      console.log("Request id: ", requestId);
+      console.log("Shop Id: ", shop_id);
+      const insertRequestQuery = `
+          INSERT INTO SHIPMENT_REQUEST 
+          VALUES (:requestId, SYSDATE, 'PENDING', :shop_id)`;
+      const requestResult = await connection.execute(insertRequestQuery, {requestId, shop_id});
+      
+      // // Insert into SHIPMENT_REQUEST_PRODUCT for each product in the request
+      for (const {id, amount} of requests) {
+          const insertRequestProductQuery = `
+              INSERT INTO SHIPMENT_REQUEST_PRODUCT (REQUEST_ID, PRODUCT_ID, QUANTITY)
+              VALUES (:requestId, :productId, :quantity)`;
+          await connection.execute(insertRequestProductQuery, {
+              requestId,
+              productId: id,
+              quantity: amount
+          });
+      }
+    }
+      req.session.requests = [];
+  
+      console.log(req.session.requests);
+      connection.commit();
+      res.status(200).json({ success: true, message: 'Requests sent successfully' })
+    }catch (error) {
     console.error('Error saving request:', error);
-    // Send an error response
+    req.session.requests = [];
     res.status(500).json({ success: false, message: 'Internal Server Error' });
     if(connection)
       connection.rollback();

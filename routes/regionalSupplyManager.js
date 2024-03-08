@@ -92,6 +92,29 @@ async function getAllShipRequest(region_id){
 }
 
 
+async function getAllInventories(){
+    let inventories = [];
+    let connection;
+    let inventoryQuery = "SELECT I.INVENTORY_ID, I.INVENTORY_NAME, (SELECT A.STREET_ADDRESS||', '||A.POSTAL_CODE||', '||A.CITY "+
+                         "FROM AREAS A WHERE A.AREA_CODE=I.AREA_CODE) " +
+                         "FROM INVENTORY I";
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let response = await connection.execute(inventoryQuery);
+        response.rows.forEach(row=>{
+            inventories.push({
+                id: row[0], name: row[1], area: row[2]
+            });
+        })
+    } catch(err){
+        console.log(err);
+    } finally{
+        connection.close();
+    }
+    return inventories;
+}
+
+
 async function getRequestInfo(request_id){
     let request = {};
     let products = [];
@@ -245,8 +268,10 @@ router.get("/process-request", async(req, res)=>{
     let username = "nafis";
     let requestId = req.query.requestId;
     let info = await getRequestInfo(requestId);
+    let inventories = await getAllInventories();
     // res.status(200).send(info);
-    res.status(200).render("rsm/shipment_request", {username, ...info});
+    let shipments = [{id:1002,}, {id:1003,}];
+    res.status(200).render("rsm/shipment_request", {username, ...info, inventories, shipments});
 })
 
 
@@ -279,6 +304,12 @@ router.post("/allot-product-to-shop", async(req, res, next)=>{
     let message = "Allotement unsuccessful";
     if(success) message = "Alloted Successfully";
     res.json({message});
+})
+
+router.post("/supply-shipment", async(req, res)=>{
+    console.log("Hello High By By");
+    console.log(req.body);
+    res.json({message: "It worked"});
 })
 
 

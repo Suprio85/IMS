@@ -25,12 +25,10 @@
         <nav>
           <div class="side_navbar">
             <span>Main Menu</span>
-            <a href="#" class="active">Dashboard</a>
+            <a href="#">Dashboard</a>
             <a href="#">Profile</a>
-            <a href="#">Add Products</a>
-            <a href="#">Update Products</a>
-            <a href="#">Request For Product</a>
-            <a href="#">Sales</a>
+            <a href="/rsm/all-requests" class="active">Show Request</a>
+            <a href="/rsm">Allocate Products</a>
           </div>
         </nav>
         <div class="main-body">
@@ -70,9 +68,9 @@
         function openReviewPage(button){
           console.log(button.getAttribute("data-requestId"));
           let requestId = button.getAttribute("data-requestId");
-          window.location.href = "/rsm/process-request?requestId=" + encodeURIComponent(requestId);
-        }
-      </script>
-    </body>
-  </html>
+        window.location.href = "/rsm/process-request?requestId=" + encodeURIComponent(requestId);
+      }
+    </script>
+  </body>
+</html>
 </span>

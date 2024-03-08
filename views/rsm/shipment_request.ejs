@@ -26,12 +26,10 @@
         <nav>
           <div class="side_navbar">
             <span>Main Menu</span>
-            <a href="#" class="active">Dashboard</a>
+            <a href="#">Dashboard</a>
             <a href="#">Profile</a>
-            <a href="#">Add Products</a>
-            <a href="#">Update Products</a>
-            <a href="#">Request For Product</a>
-            <a href="#">Sales</a>
+            <a href="/rsm/all-requests">Show Request</a>
+            <a href="/rsm">Allocate Products</a>
           </div>
         </nav>
         <div class="main-body">
@@ -75,20 +73,48 @@
           </div>
           <br> <br> <br> <br> <br>
 
+          <div class="generating-shipment">
+            Unresolved Shipments:
+            <div class="all-shipments">
+              <% shipments.forEach(shipment =>{ %>
+                <div class="card-container">
+                  <div class="card">
+                    <div class="card-content">
+                      <h4>Shipment Id: <%= shipment.id %></h4>
+                    </div>
+                    <div class="card-content">
+                      <button class="btn update-btn" data-reqId="<%= request.req_id %>" data-shipmentId="<%= shipment.id %>"
+                        onclick="supplyShipment(this)">Supply</button>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+            <br><br>
+            <h4>Choose Inventory for Shipment :-</h4>
+            <div id="inventories">
+              <% inventories.forEach(inventory =>{ %>
+              <div class="card-container">
+                <div class="card">
+                  <div class="card-content">
+                    <h2><%= inventory.name %></h2>
+                    <p>Inventory Id: <%= inventory.id %></p>
+                    <p><%= inventory.area %></p>
+                  </div>
+                  <div class="card-content">
+                    <button class="btn update-btn" data-reqId="<%= request.req_id %>" data-inventoryId="<%= inventory.id %>">
+                      Create Shipment
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <% }); %>
+            </div>
+          </div>
           
         </div>
       </div>
-
-      <script>
-        function openReviewPage(button){
-          console.log(button.getAttribute("data-requestId"));
-          let requestId = button.getAttribute("data-requestId");
-          window.location.href = "/rsm/process-request?requestId=" + encodeURIComponent(requestId);
-        }
-        function goBack(){
-          window.history.back();
-        }
-      </script>
+      <script src="/javascripts/shipping_scripts.js"></script>
     </body>
   </html>
 </span>

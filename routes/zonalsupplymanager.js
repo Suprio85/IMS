@@ -8,7 +8,7 @@ const { request } = require('../app');
 
 router.use(express.urlencoded({ extended: true }));
 
-username = "suprio";
+
 
 async function getCatagory() {
     let category = [];
@@ -33,7 +33,8 @@ async function getCatagory() {
 }
 
 router.post('/search', async function (req, res, next) {
-
+    
+    username = req.session.user.username;
     console.log(req.body);
     const name = req.body.nameInput;
     const catagory = req.body.categoryInput;
@@ -42,10 +43,13 @@ router.post('/search', async function (req, res, next) {
     const priceOrder = req.body.priceOrder;
     const filter = req.body.filterInput;
 
+
+
     
     const parameters = {};
     let productTable = "PRODUCTS";
     let isWhere = false;
+    let isOrder = false;
 
     if (req.body.nameInput || req.body.categoryInput || req.body.priceInput || req.body.productidInput || req.body.priceOrder || req.body.filterInput) {
 
@@ -96,24 +100,36 @@ router.post('/search', async function (req, res, next) {
         //productTable += ")";
     }
 
-    let  query = "SELECT p.PRODUCT_ID, p.PRODUCT_NAME,P.PRICE, SUM(pp.QUANTITY) AS total_quantity FROM " + productTable+" GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME, p.PRICE";
+    let  query = "SELECT p.PRODUCT_ID, p.PRODUCT_NAME,P.PRICE,p.IMAGE, SUM(pp.QUANTITY) AS total_quantity FROM " + productTable+" GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME, p.PRICE, p.IMAGE";
 
-    if(priceOrder){
-        if(priceOrder == 2)
-            query += " ORDER BY P.PRICE ASC";
-        else if(priceOrder ==1)
-           query += " ORDER BY P.PRICE DESC";
-        else if(priceOrder == 3 && filter == ""){
-            query += " ORDER BY total_quantity DESC";
+    if (priceOrder) {
+        if (priceOrder == 2)
+           {
+               query += " ORDER BY P.PRICE ASC";
+                isOrder = true;
+           }
+        else if (priceOrder == 1){
+            query += " ORDER BY P.PRICE DESC";
+            isOrder = true;
+
         }
     }
 
-    if(filter && priceOrder != 3){
-        query += " ORDER BY total_quantity DESC ";
-        query += " FETCH FIRST "+filter+" ROWS ONLY ";
+    if (filter) {
+        if(!isOrder)
+        query += " ORDER BY TOTAL_QUANTITY DESC";
+        else
+        query += " ,TOTAL_QUANTITY DESC";
+
+        if (filter == 10) {
+            query += " FETCH FIRST 10 ROWS ONLY";
+        }
+
+        else if(filter == 5){
+            query += " FETCH FIRST 5 ROWS ONLY";
+        }
+        
     }
-    console.log(query);
-    console.log(parameters);
 
     const connection = await oracledb.getConnection(dbConfig);
     let result;
@@ -133,7 +149,8 @@ router.post('/search', async function (req, res, next) {
         let product = {
             id: row[0],
             name: row[1],
-            price: row[2]
+            price: row[2],
+            image: row[3],
         };
         products.push(product);
     }
@@ -150,6 +167,7 @@ router.post('/search', async function (req, res, next) {
         regions.push(region);
     }
     isWhere = false;
+    isOrder = false;
     let catagories = await getCatagory();
     res.render('zonalsupplymanager/userhome', { title: 'Express', username: username, products: products, regions: regions, catagories: catagories});
 
@@ -161,7 +179,7 @@ router.post('/search', async function (req, res, next) {
 
 
 router.get('/', async function (req, res, next) {
-    username = "suprio";
+    username = req.session.user.username;
 
     const connection = await oracledb.getConnection(dbConfig);
 
@@ -173,7 +191,8 @@ router.get('/', async function (req, res, next) {
         let product = {
             id: row[0],
             name: row[1],
-            price: row[2]
+            price: row[2],
+            image: row[4]
         };
         products.push(product);
     }

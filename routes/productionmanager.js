@@ -3,8 +3,7 @@ const router = express.Router();
 const oracledb = require('oracledb');
 const dbConfig = require('../dbconfig');
 const { request } = require('../app');
-const { connect } = require('./products');
-const { session } = require('passport');
+
 
 //username = req.session.user.username;
 username2 = "suprio"

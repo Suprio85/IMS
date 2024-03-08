@@ -35,7 +35,7 @@ router.get('/', async function(req, res, next) {
         // const query =`SELECT P.*, C.CATAGORY_NAME FROM PRODUCTS P LEFT JOIN CATAGORY C ON P.CATAGORY_ID = C.CATAGORY_ID`;
         // const result = await connection.execute(query);
         // const products = result.rows;
-        const  query = `SELECT P.PRODUCT_ID, P.PRODUCT_NAME,P.PRICE,P.WARRANTY_YEARS,P.STATUS, C.CATAGORY_NAME
+        const  query = `SELECT P.PRODUCT_ID, P.PRODUCT_NAME,P.PRICE,P.WARRANTY_YEARS,P.STATUS,P.IMAGE, C.CATAGORY_NAME
                         FROM PRODUCTS P LEFT JOIN CATAGORY C ON P.CATAGORY_ID = C.CATAGORY_ID`;
 
 
@@ -48,7 +48,8 @@ router.get('/', async function(req, res, next) {
                 price: row[2],
                 waranty : row[3],
                 status : row[4] == "continued" ? "Available" : "Not Available",
-                catagory : row[5]
+                image : row[5],
+                catagory : row[6]
             };
             products.push(product);
         }
@@ -82,6 +83,7 @@ router.post('/search', async function (req, res, next) {
     const parameters = {};
     let productTable = "PRODUCTS";
     let isWhere = false;
+    let isOrder = false;
 
     if (req.body.nameInput || req.body.categoryInput || req.body.priceInput || req.body.productidInput || req.body.priceOrder || req.body.filterInput) {
 
@@ -132,26 +134,35 @@ router.post('/search', async function (req, res, next) {
         //productTable += ")";
     }
 
-    let  query = "SELECT p.PRODUCT_ID, p.PRODUCT_NAME,P.PRICE,p.WARRANTY_YEARS,p.STATUS,C.CATAGORY_NAME, SUM(pp.QUANTITY) AS total_quantity FROM " + productTable+" GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME, p.PRICE,p.WARRANTY_YEARS,p.STATUS,C.CATAGORY_NAME";
+    let  query = "SELECT p.PRODUCT_ID, p.PRODUCT_NAME,P.PRICE,p.WARRANTY_YEARS,p.STATUS,p.IMAGE,C.CATAGORY_NAME, SUM(pp.QUANTITY) AS total_quantity FROM " + productTable+" GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME, p.PRICE,p.WARRANTY_YEARS,p.STATUS,C.CATAGORY_NAME, p.IMAGE";
 
-    if(priceOrder){
-        if(priceOrder == 2)
-            query += " ORDER BY P.PRICE ASC";
-        else if(priceOrder ==1)
-           query += " ORDER BY P.PRICE DESC";
-        else if(priceOrder == 3 && filter == ""){
-            query += " ORDER BY total_quantity DESC";
-        }
-        else if(priceOrder == 3 && filter !=""){
-            query += " ORDER BY total_quantity DESC";
-            query += " FETCH FIRST "+filter+" ROWS ONLY";
-        }
+    if (priceOrder) {
+        if (priceOrder == 2)
+           {
+               query += " ORDER BY P.PRICE ASC";
+                isOrder = true;
+           }
+        else if (priceOrder == 1){
+            query += " ORDER BY P.PRICE DESC";
+            isOrder = true;
 
+        }
     }
 
-    if(filter && priceOrder != 3){
-        query += " ORDER BY total_quantity DESC ";
-        query += " FETCH FIRST "+filter+" ROWS ONLY ";
+    if (filter) {
+        if(!isOrder)
+        query += " ORDER BY TOTAL_QUANTITY DESC";
+        else
+        query += " ,TOTAL_QUANTITY DESC";
+
+        if (filter == 10) {
+            query += " FETCH FIRST 10 ROWS ONLY";
+        }
+
+        else if(filter == 5){
+            query += " FETCH FIRST 5 ROWS ONLY";
+        }
+        
     }
     console.log(query);
    
@@ -172,13 +183,15 @@ router.post('/search', async function (req, res, next) {
             price: row[2],
             waranty : row[3],
             status : row[4] == "continued" ? "Available" : "Not Available",
-            catagory : row[5]
+            catagory : row[6],
+            image : row[5],
 
         }
         products.push(product);
     }
 
     isWhere = false;
+    isOrder = false;
     let catagories = await getCatagory();
     console.log(catagories);
     

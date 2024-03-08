@@ -1,0 +1,76 @@
+<span style="font-family: verdana, geneva, sans-serif"
+  ><!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>RSM | Requests</title>
+      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+      <link rel='stylesheet' href='/stylesheets/rsm/analyzer.css' />
+      <link rel='stylesheet' href='/stylesheets/rsm/header_style.css' />
+      <!-- <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home1.css"/>
+      <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home2.css"/> -->
+
+    </head>
+    <body>
+      <%- include("./headers.ejs") %>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="/rsm/all-requests" class="active">Show Request</a>
+            <a href="/rsm">Allocate Products</a>
+          </div>
+        </nav>
+        <div class="main-body">
+          <h2>All Products</h2>
+          <form method="post" action="/rsm/search" id="searchForm" class="search-bar">
+            <input type="text" id="nameInput" name="nameInput" placeholder="Search by name"/>
+            <input type="text" id="categoryInput" name="categoryInput" placeholder="Search by category"/>
+            <input type="number" id="priceInput" name="priceInput" placeholder="Search by price"/>
+            <input type="number" id="productidInput" name="productidInput" placeholder="Search by productId"/>
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
+          </form>
+          
+          
+          <% requests.forEach(request => { %>
+          <div class="card-container">
+            <div class="card">
+              <div class="card-content" style="text-align: left;">
+                <p style="font-size: small;">request ID: <%= request.req_id %></p>
+                <h2><%= request.shop_name %></h2>
+                <p>Shop Id: <%= request.shop_id %></p>
+                <p><%= request.shop_area %></p>
+              </div>
+              <div class="card-content">
+                <button class="btn review-btn" data-action="review" data-requestId="<%= request.req_id %>"
+                  style="display: block" onclick="openReviewPage(this)">Review Request</button>
+                <!-- <button class="btn shipping-btn" id="makeShipmentButton" data-requestId="<%= requests.req_id %>" style="display: block" disabled>
+                    Make Shipment
+                </button> -->
+              </div>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+
+      <script>
+        function openReviewPage(button){
+          console.log(button.getAttribute("data-requestId"));
+          let requestId = button.getAttribute("data-requestId");
+        window.location.href = "/rsm/process-request?requestId=" + encodeURIComponent(requestId);
+      }
+    </script>
+  </body>
+</html>
+</span>

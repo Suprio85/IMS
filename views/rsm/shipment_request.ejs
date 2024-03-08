@@ -1,0 +1,121 @@
+<span style="font-family: verdana, geneva, sans-serif">
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>RSM | Single Shipment Request</title>
+      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+      <!-- <link rel='stylesheet' href='/stylesheets/rsm/analyzer.css' /> -->
+      <link rel='stylesheet' href='/stylesheets/rsm/header_style.css' />
+      <link rel='stylesheet' href='/stylesheets/rsm/shipment_req.css' />
+      <!-- <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home1.css"/>
+      <link rel="stylesheet" href="/stylesheets/zonalsupplymanager/home2.css"/> -->
+
+    </head>
+    <body>
+      <%- include("./headers.ejs") %>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#">Dashboard</a>
+            <a href="#">Profile</a>
+            <a href="/rsm/all-requests">Show Request</a>
+            <a href="/rsm">Allocate Products</a>
+          </div>
+        </nav>
+        <div class="main-body">
+          <div class="info">
+            <brf
+            <h2>Shipment Request</h2>
+            <span style="font-size: .9rem;">- Request Id: <%= request.req_id %></span><br>
+            <br>
+            <span style="font-size: .8rem;">- Shop Info:</span>
+            <h3><%= request.shop_name %></h3>
+            <p>Shop Id: <%= request.shop_id %></p>
+            <p>Location: <%= request.shop_location %></p>
+          </div> <br><br>
+          <div class="info">
+            <h3>Requested Products: </h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Current Price</th>
+                  <th>Requested</th>
+                  <th>Suppliable</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% products.forEach(product =>{ %>
+                  <tr>
+                    <td><%= product.name %></td>
+                    <td><%= product.price %></td>
+                    <td><%- product.quantity %></td>
+                    <td><%- product.supp_amount %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <br> <br> <br>
+          <div class="navigation-buttons">
+            <button type="button" onclick="goBack()">&#x2190; Back</button>
+            <button type="button">Generate Shipment</button>
+          </div>
+          <br> <br> <br> <br> <br>
+
+          <div class="generating-shipment">
+            Unresolved Shipments:
+            <div class="all-shipments">
+              <% shipments.forEach(shipment =>{ %>
+                <div class="card-container">
+                  <div class="card">
+                    <div class="card-content">
+                      <h4>Shipment Id: <%= shipment.id %></h4>
+                    </div>
+                    <div class="card-content">
+                      <button class="btn update-btn" data-reqId="<%= request.req_id %>" data-shipmentId="<%= shipment.id %>"
+                        onclick="supplyShipment(this)">Supply</button>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+            <br><br>
+            <h4>Choose Inventory for Shipment :-</h4>
+            <div id="inventories">
+              <% inventories.forEach(inventory =>{ %>
+              <div class="card-container">
+                <div class="card">
+                  <div class="card-content">
+                    <h2><%= inventory.name %></h2>
+                    <p>Inventory Id: <%= inventory.id %></p>
+                    <p><%= inventory.area %></p>
+                  </div>
+                  <div class="card-content">
+                    <button class="btn update-btn" data-reqId="<%= request.req_id %>" data-inventoryId="<%= inventory.id %>"
+                      onclick="createNewShipment(this)">
+                      Create Shipment
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <% }); %>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <script src="/javascripts/shipping_scripts.js"></script>
+    </body>
+  </html>
+</span>

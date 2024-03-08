@@ -28,6 +28,7 @@ var hashRouter = require('./routes/hash');
 var cashierRouter = require('./routes/cashier');
 var  zsmRouter = require('./routes/zonalsupplymanager');
 var profileRouter = require('./routes/profile');   
+var rsmRouter = require("./routes/regionalSupplyManager");
 
 
 var app = express();
@@ -62,6 +63,7 @@ app.use('/hash', hashRouter);
 app.use('/cashier', cashierRouter);
 app.use('/zsm', zsmRouter);
 app.use('/profile', profileRouter);
+app.use('/rsm', rsmRouter);
 
 
 

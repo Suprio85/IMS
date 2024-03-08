@@ -1,0 +1,119 @@
+/* Main Body Section */
+.main-body{
+  width: 76%;
+  padding: 1rem;
+}
+
+
+table{
+  background: transparent;
+  padding: 1rem;
+  text-align: left;
+  border-radius: 10px;
+  width: 90%;
+}
+
+.recent-records table{
+  width: 90%;
+}
+
+table td, th{
+  padding: 0.2rem 0.8rem;
+}
+table th{
+  font-size: 15px;
+}
+table td{
+  font-size: 13px;
+  color: rgb(50, 50, 50);
+  font-weight: 500;
+}
+
+.info p{
+  font-weight: 250;
+  font-size: .95rem;
+}
+
+
+button[type="button"] {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.navigation-buttons{
+  display: flex;
+  justify-content: space-between;
+}
+
+
+.card-container{
+    margin: 1px;
+    display: inline-block;
+    width: 100%;
+
+}
+
+.card{
+    width: 80%;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    margin: 20px 20px;
+    display: inline-flex;
+    justify-content: space-between;
+}
+
+
+.card  img{
+    width: 40%;
+    height: 200px;
+
+}
+
+.card-content{
+    padding: 16px;
+    /* text-align: center; */
+}
+
+.card .card-content h2{
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.card-content p{
+    font-size: 1rem;
+    color: #777;
+    line-height: 24px;
+}
+
+.card-content .btn{
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-top: 16px;
+    transition: 0.3s;
+}
+
+.card-content .btn:hover{
+    background-color: #9c46d2;
+    opacity: 0.8;
+}
+
+/* .all-shipment .card-container .card{
+  width: 60%;
+} */
+
+.all-shipments {
+  width: 60%;
+}

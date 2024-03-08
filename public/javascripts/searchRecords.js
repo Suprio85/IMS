@@ -14,28 +14,28 @@ function toggleSearchView(){
 function updateRequirements(){
     var reqDiv = document.getElementById("search_elements");
     reqDiv.innerHTML = "";
-    var checks = ["orderId", "name_check", "email_check", "mobile_check", "date_check", "date_check"]
-    var values = ["order", "name", "email", "mobile", "start", "end"];
+    var checks = ["productId", "name_check", "email_check", "mobile_check", "date_check", "date_check"]
+    var values = ["product", "name", "email", "mobile", "start", "end"];
     for (var i=0; i<checks.length; i++){
         if(document.getElementById(checks[i]).checked){
             var span = document.createElement("span");
             span.classList.add("rounded-span");
             span.innerHTML = values[i] + ": " + document.getElementById(values[i]).value;
             reqDiv.appendChild(span);
-            if(checks[i] === "orderId") break;
+            // if(checks[i] === "orderId") break;
         }
     }
 }
 
 
 async function fetchOrderInfo(){
-    var checks = ["orderId", "name_check", "email_check", "mobile_check", "date_check", "date_check"]
-    var values = ["order", "name", "email", "mobile", "start", "end"];
+    var checks = ["productId", "name_check", "email_check", "mobile_check", "date_check", "date_check"]
+    var values = ["product", "name", "email", "mobile", "start", "end"];
     var request = {};
     for (var i=0; i<checks.length; i++){
         if(document.getElementById(checks[i]).checked){
             request[values[i]] = document.getElementById(values[i]).value;
-            if(checks[i] === "orderId") break;
+            // if(checks[i] === "orderId") break;
         }
         else{
             request[values[i]] = null;

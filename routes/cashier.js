@@ -70,7 +70,7 @@ function generateCustomerQuery(requirements){
 
 
 async function getOrderInfoFromQuery(requirements, shop_id){
-    var values = ["order", "name", "email", "mobile", "start", "end"];
+    var values = ["product", "name", "email", "mobile", "start", "end"];
     console.log("Requirements: "); console.log(requirements);
     var parameters = {};
     let [customer, param] = generateCustomerQuery(requirements);
@@ -85,11 +85,11 @@ async function getOrderInfoFromQuery(requirements, shop_id){
         parameters.d_start = requirements.start + " 00:00"; parameters.d_end = requirements.end + " 00:00";
     }
 
-    purchase = requirements.order === null ? purchase: 
-                   "(SELECT * FROM PURCHASE WHERE PURCHASE_ID = :purchase_id AND SHOP_ID = :shop_id)"
-    if(requirements.order != null){
-        customer = "CUSTOMERS";
-        parameters.purchase_id = requirements.order;
+    purchase = requirements.product === null ? purchase: 
+                   "(SELECT * FROM PURCHASE WHERE SHOP_ID = :shop_id AND "+
+                   "PURCHASE_ID=ANY(SELECT PURCHASE_ID FROM PURCHASED_PRODUCT WHERE PRODUCT_ID=:product_id))"
+    if(requirements.product != null){
+        parameters.product_id = requirements.product;
     }
 
     var query = "SELECT P.PURCHASE_ID, C.CUSTOMER_NAME, C.EMAIL, TO_CHAR(P.PURCHASE_TIME, 'DD-MM-YYYY'), TO_CHAR(P.PURCHASE_TIME, 'HH:MI PM'), SUM(PR.PRODUCT_PRICE) "+
@@ -98,12 +98,13 @@ async function getOrderInfoFromQuery(requirements, shop_id){
                 "GROUP BY P.PURCHASE_ID, C.CUSTOMER_NAME, C.EMAIL, P.PURCHASE_TIME"+
                 " ORDER BY P.PURCHASE_ID DESC";
     console.log(query);
-    console.log(parameters);
+    console.log("bindings: ",parameters);
     try{
         var connection = await oracledb.getConnection(dbconfig);
         var result = await connection.execute(query, {...parameters, shop_id: shop_id});
         // console.log(result);
         await connection.close();
+        console.log(result.rows);
         return result.rows;
     }
     catch(err){

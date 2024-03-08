@@ -294,14 +294,14 @@ router.post('/sendrequests', async (req, res, next) => {
           });
       }
     }
-      req.session.requests = [];
+      //req.session.requests = [];
   
       console.log(req.session.requests);
       connection.commit();
       res.status(200).json({ success: true, message: 'Requests sent successfully' })
     }catch (error) {
     console.error('Error saving request:', error);
-    req.session.requests = [];
+   // req.session.requests = [];
     res.status(500).json({ success: false, message: 'Internal Server Error' });
     if(connection)
       connection.rollback();

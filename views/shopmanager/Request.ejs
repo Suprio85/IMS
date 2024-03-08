@@ -158,12 +158,32 @@
 </div>
 
   <script>
-
- const  requests = <%- JSON.stringify(requests) %>;
+    let requests = [];
+    console.log("before lisener");
+   
 console.log("before lisener");
 document.addEventListener('DOMContentLoaded', function () {
-const sidebar = document.querySelector('.sidebar');
+
+  const addBtn = document.getElementById('add-btn');
+  const productIdInput = document.getElementById('productId');
+  const amountInput = document.getElementById('amount');
+  const sidebar = document.querySelector('.sidebar');
+
+  addBtn.addEventListener('click', function (event) {
+    event.preventDefault();
+    const id = productIdInput.value;
+    const amount = amountInput.value;
+    if (id && amount) {
+      requests.push({ id, amount });
+      updateSidebar();
+      productIdInput.value = '';
+      amountInput.value = '';
+    }
+  });
+
 console.log('Requests:', requests);
+
+
   function sendRequests() {
     if (requests.length > 0) {
       console.log('Sending requests:', requests);
@@ -180,9 +200,8 @@ console.log('Requests:', requests);
             // Hide the sidebar
             sidebar.style.display = 'none';
             console.log('Requests sent successfully:', data.message);
-
-            
             alert('Requests sent successfully!');
+            window.location.reload();
           } else {
             console.error('Error sending requests:', data.message);
           
@@ -203,9 +222,8 @@ console.log('Requests:', requests);
     console.log('Request canceled:', index);
     console.log('Calcel Request:', req);
     console.log(req);
-   
-    
     updateSidebar();
+    location.reload();
   }
   function updateSidebar() {
     const sidebarContent = document.querySelector('.sidebar');
@@ -223,6 +241,7 @@ console.log('Requests:', requests);
       infoDiv.classList.add('info');
 
       const nameHeading = document.createElement('h5');
+      
       nameHeading.textContent = 'ProductID: ' + request.id;
       infoDiv.appendChild(nameHeading);
 

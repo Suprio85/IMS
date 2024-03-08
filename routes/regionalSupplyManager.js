@@ -132,7 +132,6 @@ async function getRequestInfo(request_id){
         request.shop_name = result.rows[0][0]; request.shop_location = result.rows[0][1]; request.shop_id = result.rows[0][2];
         request.req_id = request_id;
         result = await connection.execute(product_query, {request_id});
-        console.log(result.rows);
         for(let product of result.rows){
             products.push({
                 id: product[0], name: product[1], price: product[2],
@@ -234,6 +233,42 @@ async function getProductVsTimeInfo(request){
     return {dataForLineChart, labelsForLineChart};
 }
 
+async function createNewShipment(request_id, inventory_id, region_id){
+    let connection;
+    let worked = false;
+    let query=`
+        BEGIN
+        CREATE_NEW_SHIPMENT(:request_id, :inventory_id, :region_id);
+        END;`;
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let response = await connection.execute(query, {request_id, inventory_id, region_id});
+        connection.commit();
+        worked = true;
+    } catch (err){
+        console.log(err);
+        if(connection) connection.rollback();
+    } finally { if(connection) connection.close(); }
+    return worked;
+}
+
+async function getAllPendingShipments(shop_id){
+    let shipments = [];
+    let connection;
+    // let query=;
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let response = await connection.execute("SELECT SHIPMENT_ID FROM SHIPMENT WHERE SHOP_ID=:shop_id AND DELIVERY_STATUS='PENDING'", {shop_id});
+        response.rows.forEach(row => {
+            shipments.push({id: row[0]});
+        });
+    } catch(err) {
+        console.log(err);
+    } finally{
+        if (connection) connection.close();
+    }
+    return shipments;
+}
 // async function getTotalAllotedAmount(product_id, region_id){
 //     let amount = 0;
 //     let connection;
@@ -243,6 +278,8 @@ async function getProductVsTimeInfo(request){
 
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.get('/', async(req, res, next)=>{
     var employee_id = 2001;
     var region_id = 101;
@@ -269,8 +306,8 @@ router.get("/process-request", async(req, res)=>{
     let requestId = req.query.requestId;
     let info = await getRequestInfo(requestId);
     let inventories = await getAllInventories();
+    let shipments = await getAllPendingShipments(info.request.shop_id);
     // res.status(200).send(info);
-    let shipments = [{id:1002,}, {id:1003,}];
     res.status(200).render("rsm/shipment_request", {username, ...info, inventories, shipments});
 })
 
@@ -310,6 +347,16 @@ router.post("/supply-shipment", async(req, res)=>{
     console.log("Hello High By By");
     console.log(req.body);
     res.json({message: "It worked"});
+})
+
+
+router.post("/create-new-shipment", async(req, res)=>{
+    let region_id= 101;
+    console.log(req.body);
+    let message = "It didn't work";
+    let worked = await createNewShipment(req.body.request_id, req.body.inventory_id, region_id);
+    if (worked) message = "New Shipment created";
+    res.json({message});
 })
 
 

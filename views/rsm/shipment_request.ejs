@@ -102,7 +102,8 @@
                     <p><%= inventory.area %></p>
                   </div>
                   <div class="card-content">
-                    <button class="btn update-btn" data-reqId="<%= request.req_id %>" data-inventoryId="<%= inventory.id %>">
+                    <button class="btn update-btn" data-reqId="<%= request.req_id %>" data-inventoryId="<%= inventory.id %>"
+                      onclick="createNewShipment(this)">
                       Create Shipment
                     </button>
                   </div>

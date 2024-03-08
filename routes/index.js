@@ -24,7 +24,7 @@ router.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
     const connection = await oracledb.getConnection(dbConfig);
 
-    // Hash the password using MD5 in Node.js
+   
     const hashedPassword = crypto.createHash('md5').update(password).digest('hex').toUpperCase();
 
     console.log(hashedPassword);
@@ -50,11 +50,12 @@ router.post('/login', async (req, res, next) => {
 
       req.session.user = user; // Store user in session
       req.flash('success', 'Successfully logged in');
-      if(user.job_id === 'MD') res.redirect('owner');
+      if(user.job_id === 'MD') res.redirect('/owner');
       else if(user.job_id === 'ShM') res.redirect('/shopmanager');
       else if(user.job_id === 'PM') res.redirect('/productionmanager');
       else if(user.job_id === 'CASHIER') res.redirect('/cashier');
-      else res.redirect('owner');
+      else if(user.job_id==='ZSM')  res.redirect('/zsm');
+      else res.redirect('/owner');
     } else {
       // Invalid username/password
       req.flash('error', 'Invalid username or password');

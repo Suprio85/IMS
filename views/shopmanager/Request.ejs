@@ -14,7 +14,60 @@
     integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
+    
   />
+  <style>
+    #productTableView {
+      margin-top: 20px;
+    }
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 16px;
+      text-align: left;
+      table-layout: fixed;
+    }
+  
+    th, td {
+      border: 1px solid #ddd;
+      padding: 15px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  
+    th {
+      background-color: #000000;
+      color: #fff;
+    }
+  
+    tr {
+      transition: background-color 0.3s;
+    }
+  
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+  
+  /* Existing styles... */
+
+  #closeTable {
+    cursor: pointer;
+    font-size: 24px;
+    color: #0b0202;
+  }
+
+  #closeTable:hover {
+    color: #000000;
+    font-size: 26px;
+    transition: 5ms;
+  }
+  
+</style>
+
+  </style>
 
   
 </head>
@@ -53,25 +106,26 @@
                 id="productId"
                 placeholder="Enter Product ID"
                 required
-              />
-              <input
+                />
+                <input
                 type="number"
                 name="amount"
                 id="amount"
                 placeholder="Enter Product Amount"
                 required
                 min="1"
-              />
-            </fieldset>
+                />
+              </fieldset>
             <button id="add-btn" class="btn">Add Request</button>
           </form>
+          <button id="viewProductsBtn" class="btn">View Products</button>
         </div>
       </div>
     </div>
     <div class="sidebar">
       <h4>All Requests</h4>
       <% requests.forEach((request,index) => { %>
-      <div class="balance">
+        <div class="balance">
         <i class="fas fa-dollar icon"></i>
         <div class="info">
           <h5>ProductID : <%= request.id %></h5>
@@ -82,19 +136,56 @@
         </div>
       </div>
       <% }); %> <% if (requests.length > 0) { %>
-      <button id="send-btn" class="btn">Send Request</button>
-      <% } %>
+        <button id="send-btn" class="btn">Send Request</button>
+        <% } %>
+      </div>
     </div>
-  </div>
-  <script>  
+<div id="productTableView" style="display: none;">
+  <div id="closeTable">&#10006;</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Product ID</th>
+        <th>Product Name</th>
+        <th>Available Quantity</th>
+        <!-- Add more columns as needed -->
+      </tr>
+    </thead>
+    <tbody id="productTableBody">
+      <!-- Populate this section with product details dynamically using JavaScript -->
+    </tbody>
+  </table>
+</div>
+
+  <script>
+    let requests = [];
+    console.log("before lisener");
+   
+console.log("before lisener");
 document.addEventListener('DOMContentLoaded', function () {
+
+  const addBtn = document.getElementById('add-btn');
+  const productIdInput = document.getElementById('productId');
+  const amountInput = document.getElementById('amount');
   const sidebar = document.querySelector('.sidebar');
-  const requests = <%- JSON.stringify(requests) %>;
+
+  addBtn.addEventListener('click', function (event) {
+    event.preventDefault();
+    const id = productIdInput.value;
+    const amount = amountInput.value;
+    if (id && amount) {
+      requests.push({ id, amount });
+      updateSidebar();
+      productIdInput.value = '';
+      amountInput.value = '';
+    }
+  });
+
+console.log('Requests:', requests);
+
 
   function sendRequests() {
-    // Check if there are requests to send
     if (requests.length > 0) {
-      // Make an AJAX request to your backend endpoint
       console.log('Sending requests:', requests);
       fetch('/shopmanager/sendrequests', {
         method: 'POST',
@@ -105,37 +196,35 @@ document.addEventListener('DOMContentLoaded', function () {
       })
         .then(response => response.json())
         .then(data => {
-          // Check if the response indicates success
           if (data.success) {
             // Hide the sidebar
             sidebar.style.display = 'none';
             console.log('Requests sent successfully:', data.message);
-
-            // Show a success message to the user
             alert('Requests sent successfully!');
+            window.location.reload();
           } else {
             console.error('Error sending requests:', data.message);
-            // Show an error message to the user
+          
             alert('Error sending requests: ' + data.message);
           }
         })
         .catch(error => {
           console.error('Error sending requests:', error);
-          // Show an error message to the user
+          // Sh
           alert('Error sending requests: ' + error.message);
         });
     }
   }
-
+ 
   function cancelRequest(index) {
     
-    requests.splice(index, 1);
-    
+    req = requests.splice(index, 1);
     console.log('Request canceled:', index);
-    
+    console.log('Calcel Request:', req);
+    console.log(req);
     updateSidebar();
+    location.reload();
   }
-
   function updateSidebar() {
     const sidebarContent = document.querySelector('.sidebar');
     sidebarContent.innerHTML = '';
@@ -152,6 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
       infoDiv.classList.add('info');
 
       const nameHeading = document.createElement('h5');
+      
       nameHeading.textContent = 'ProductID: ' + request.id;
       infoDiv.appendChild(nameHeading);
 
@@ -179,8 +269,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
   }
-
   updateSidebar();
+
+  const viewProductsBtn = document.getElementById('viewProductsBtn');
+  const productTableView = document.getElementById('productTableView');
+  const productTableBody = document.getElementById('productTableBody');
+  const closeTableBtn = document.getElementById('closeTable');
+
+  viewProductsBtn.addEventListener('click', function () {
+    // Fetch product details from the backend
+    fetch('/shopmanager/viewproducts', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any additional headers as needed
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Product details:', data);
+      if (data.success) {
+        productTableBody.innerHTML = '';
+        data.products.forEach(product => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${product[0]}</td>
+            <td>${product[1]}</td>
+            <td>${product[2]}</td>
+            <!-- Add more columns as needed -->
+          `;
+          productTableBody.appendChild(row);
+        });
+        productTableView.style.display = 'block';
+      } else {
+        console.error('Error fetching product details:', data.message);
+        alert('Error fetching product details: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching product details:', error);
+      alert('Error fetching product details: ' + error.message);
+    });
+  });
+
+  closeTableBtn.addEventListener('click', function () {
+    productTableView.style.display = 'none';
+  });
+  
+
 });
 </script>
 

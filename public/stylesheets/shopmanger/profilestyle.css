@@ -8,7 +8,7 @@
 
 
 body{
-    background: #030331;
+    background:#fae4e4;
     margin-top:20px;
 }
 .card {
@@ -26,4 +26,21 @@ body{
 }
 .me-2 {
     margin-right: .5rem!important;
+}
+
+.col-lg-8 {
+    flex: 0 0 auto;
+    width: 125.666667%;
+}
+
+.parent-container {
+    display: flex;
+    /* justify-content: center; Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.col-lg-4 {
+    flex: 0 0 auto;
+    width: 33.33333333%;
+    margin: auto;
 }

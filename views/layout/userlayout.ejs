@@ -28,108 +28,46 @@
           <div class="side_navbar">
             <span>Main Menu</span>
             <a href="#" class="active">Dashboard</a>
-            <a href="/shopmanager/profile">Profile</a>
-            <a href="/shopmanager/addproduct">Add Products</a>
+            <a href="/profile">Profile</a>
+            <a href="/shopmanager/shipment">Shipment</a>
             <a href="/shopmanager/productquantity">Update Products</a>
             <a href="/shopmanager/request">Request For Product</a>
             <a href="/shopmanager/sales">Sales</a>
-    
-            <div class="links">
-              <span>Quick Link</span>
-              <a href="#">Paypal</a>
-              <a href="#">EasyPay</a>
-              <a href="#">SadaPay</a>
-            </div>
           </div>
         </nav>
     
         <div class="main-body">
           <h2>Dashboard</h2>
-          <!-- <div class="promo_card">
-            <h1>Welcome to EasyPay</h1>
-            <span>Lorem ipsum dolor sit amet.</span>
-            <button>Learn More</button>
-          </div> -->
-    
           <div class="history_lists">
             <div class="list1">
               <div class="row">
-                <h4>Products</h4>
-                <a href="#">See all</a>
+                <h4>Products Sales From </h4>
+                <form action="/shopmanager" method="post">
+                  <input type="date" name="from" id="from">
+                  <h4> To </h4>
+                  <input type="date" name="to" id="to">
+                <button class="btn" type="submit">Search</button>
+                </form>
               </div>
               <table>
                 <thead>
                   <tr>
-                    <th>Product Name</th>
-                    <th>Type</th>
-                    <th>Price</th>
-                    <th>ThreshHold</th>
-                    <th>Amount</th>
+                    <th>Product id</th>
+                    <th>Name</th>
+                    <th>catagory</th>
+                    <th>totalSales</th>
                   </tr>
                 </thead>
                     <tbody>
                         <% for (var i = 0; i < products.length ;i++) { %>
                          <tr>
-                           <td><%= products[i][1] %></td>
-                           <td><%= products[i][2] %></td>
-                           <td><%= products[i][3] %></td>
+                           <td><%= products[i].id %></td>
+                           <td><%= products[i].name %></td>
+                           <td><%= products[i].catagory %></td>
+                            <td><%= products[i].totalSales %></td>
+                            <td><%=products[i].catagory%></td>
                          </tr> <% }%>
                     </tbody>
-              </table>
-            </div>
-    
-            <div class="list2">
-              <div class="row">
-                <h4>Documnets</h4>
-                <a href="#">Upload</a>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Uplaoded</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>CNIC</td>
-                    <td>PDF</td>
-                    <td>20</td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>Passport</td>
-                    <td>PDF</td>
-                    <td>12</td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>Licence</td>
-                    <td>PDF</td>
-                    <td>9</td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>Pic</td>
-                    <td>Jpg</td>
-                    <td>22</td>
-                  </tr> 
-                  <tr>
-                    <td>5</td>
-                    <td>CNIC</td>
-                    <td>Jpg</td>
-                    <td>22</td>
-                  </tr> 
-                  <tr>
-                    <td>6</td>
-                    <td>Docx</td>
-                    <td>Word</td>
-                    <td>22</td>
-                  </tr> 
-                </tbody>
               </table>
             </div>
           </div>

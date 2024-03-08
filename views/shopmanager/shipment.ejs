@@ -5,24 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shipment Details</title>
     <link rel="stylesheet" href="path/to/your/css/style.css">
-    <!-- Include any additional stylesheets or scripts you may need -->
 </head>
 <style>
    body {
     padding: 20px;
-    background-color: #f8f9fa; /* Light gray background color */
+    background-color: #f8f9fa; 
 }
 
 h2 {
-    color: #007bff; /* Blue header text color */
+    color: #007bff; 
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background-color: #fff; /* White table background color */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for a subtle lift */
+    background-color: #fff; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
 
 th, td {
@@ -36,8 +35,8 @@ th {
 }
 
 tr:hover {
-    background-color: #e2e6ea; /* Light blue background on hover */
-}
+    background-color: #e2e6ea;
+} 
 
 .accept-btn {
     padding: 8px 16px;
@@ -52,9 +51,9 @@ tr:hover {
     background-color: #218838;
 }
 
-.
 
-/* Additional styles for the body background */
+
+
 body::before {
     content: '';
     position: fixed;
@@ -63,7 +62,6 @@ body::before {
     width: 100%;
     height: 100%;
     z-index: -1;
-    /* Gradient background */
 }
 
 .close {
@@ -81,7 +79,7 @@ body::before {
 }
 
 .modal {
-    display: none; /* Hide the modal by default */
+    display: none; 
     position: fixed;
     z-index: 1;
     left: 0;
@@ -162,46 +160,43 @@ body::before {
             <!-- ... -->
         </table>
     </div>
+</div>
 
 <!-- JavaScript code for handling actions -->
 <script>
-     function updateDeliveryStatus(shipmentId) {
-            fetch(`/shopmanager/updateshipmentstatus`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ shipmentId, status: 'DELIVERED' })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to update delivery status');
-                }
-                return response.json();
-            })
-            .then(result => {
-                // Show a success message or update the UI as needed
-                console.log(result.message);
+     async function updateDeliveryStatus(shipmentId) {
+    try {
+        const response = await fetch(`/shopmanager/updateshipmentstatus`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ shipmentId, status: 'DELIVERED' })
+        });
 
-                // Optionally, you can update the delivery status in the UI
-            const deliveryStatusElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .delivery-status`);
-            const ReceivingDateElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .receive-date`);
-            
-                if (deliveryStatusElement) {
-                    deliveryStatusElement.textContent = 'DELIVERED';
-                }
-
-                if (ReceivingDateElement) {
-                    ReceivingDateElement.textContent = new Date().toISOString().split('T')[0];
-                }
-
-            
-            })
-            .catch(error => {
-                console.error('Error updating delivery status:', error);
-                // Handle error (e.g., show an alert)
-            });
+        if (!response.ok) {
+            throw new Error('Failed to update delivery status');
         }
+
+        const result = await response.json();
+        console.log(result.message);
+
+
+        const deliveryStatusElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .delivery-status`);
+        const ReceivingDateElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .receive-date`);
+
+        if (deliveryStatusElement) {
+            deliveryStatusElement.textContent = 'DELIVERED';
+        }
+
+        if (ReceivingDateElement) {
+            ReceivingDateElement.textContent = new Date().toISOString().split('T')[0];
+        }
+    } catch (error) {
+        console.error('Error updating delivery status:', error);
+      
+    }
+}
   
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -216,7 +211,6 @@ body::before {
             row.addEventListener('click', () => {
                  const shipmentId = row.getAttribute('data-shipment-id');
                 selectedShipmentId = shipmentId;   
-                // Call a function to fetch and display product details for the clicked shipmentId
                 displayProductDetails(shipmentId);
             });
         });
@@ -237,49 +231,50 @@ body::before {
         });
 
         // Function to fetch and display product details
-        function displayProductDetails(shipmentId) {
-            fetch(`/shopmanager/shipmentproduct`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // Add any additional headers if needed
-                },
-                body: JSON.stringify({ shipmentId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch product details');
-                }
-                return response.json();
-            })
-            .then(productDetails => {
-                // Build HTML for product details table
-                const productDetailsTable = document.getElementById('productDetailsTable');
-                productDetailsTable.innerHTML = `
-                    <tr>
-                        <th>Product ID</th>
-                        <th>Quantity</th>
-                        <th>Return Date</th>
-                        <th>Return Amount</th>
-                    </tr>
-                    ${productDetails.map(product => `
-                        <tr>
-                            <td>${product.PRODUCT_ID}</td>
-                            <td>${product.QUANTITY}</td>
-                            <td>${product.RETURN_DATE || 'N/A'}</td>
-                            <td>${product.RETURN_AMOUNT || 'N/A'}</td>
-                        </tr>
-                    `).join('')}
-                `;
+        async function displayProductDetails(shipmentId) {
+    try {
+        const response = await fetch(`/shopmanager/shipmentproduct`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add any additional headers if needed
+            },
+            body: JSON.stringify({ shipmentId })
+        });
 
-                // Show the modal
-                productDetailsModal.style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error fetching product details:', error);
-                // Handle error (e.g., show an alert)
-            });
+        if (!response.ok) {
+            throw new Error('Failed to fetch product details');
         }
+
+        const productDetails = await response.json();
+
+        // Build HTML for product details table
+        const productDetailsTable = document.getElementById('productDetailsTable');
+        productDetailsTable.innerHTML = `
+            <tr>
+                <th>Product ID</th>
+                <th>Quantity</th>
+                <th>Return Date</th>
+                <th>Return Amount</th>
+            </tr>
+            ${productDetails.map(product => `
+                <tr>
+                    <td>${product.PRODUCT_ID}</td>
+                    <td>${product.QUANTITY}</td>
+                    <td>${product.RETURN_DATE || 'N/A'}</td>
+                    <td>${product.RETURN_AMOUNT || 'N/A'}</td>
+                </tr>
+            `).join('')}
+        `;
+
+        // Show the modal
+        const productDetailsModal = document.getElementById('productDetailsModal');
+        productDetailsModal.style.display = 'block';
+    } catch (error) {
+        console.error('Error fetching product details:', error);
+        // Handle error (e.g., show an alert)
+    }
+}
 
     });
 </script>

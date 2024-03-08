@@ -17,6 +17,7 @@ body{
   align-items: center;
   justify-content: space-between;
   height: 60px;
+  width: -webkit-fill-available;
   padding: 20px;
   background: #fff;
 }

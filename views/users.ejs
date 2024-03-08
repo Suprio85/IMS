@@ -5,23 +5,301 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Product Show</title>
-    <link rel="stylesheet" href="/stylesheets/productshow.css" />
+    <!-- <link rel="stylesheet" href="/stylesheets/productshow.css" /> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="/stylesheets/userstyle.css"/>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .search-bar {
+            margin: 20px auto;
+            width: 100%;
+            padding: 15px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .search-bar select,
+        .search-bar input {
+            margin-bottom: 10px;
+        }
+
+        .search-bar button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+
+        .card-container {
+            width: 300px;
+            margin: 15px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .card p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 150%;
+            height: 150%;
+        }
+
+        .modal-header {
+            background-color: #3498db;
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h5 {
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            border-radius: 0 0 10px 10px;
+        }
+
+    .modal-body  img{
+    width: auto;
+    height: 200px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+
+    
+    </style>
 </head>
 
 <body>
+    <header class="header">
+        <div class="logo">
+          <a href="/">Home</a>
+          <a href="/login">Login </a>
+          <a href="/products">Products</a>
+
+
+        </div>
+    
+        <div class="header-icons">
+          <i class="fas fa-bell"></i>
+          <div class="account">
+          </div>
+        </div>
+      </header>
+    <div class="container">
+        <div class="search-bar">
+            <form method="post" action="/users/search" id="searchForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-control" id="priceOrder" name="priceOrder">
+                            <option value="" selected disabled>Select Order</option>
+                            <option value="1">Price High to Low</option>
+                            <option value="2">Price Low to High</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="categoryInput" name="categoryInput">
+                            <option value="" selected disabled>Select Category</option>
+                            <% catagories.forEach(catagory => { %>
+                            <option value="<%= catagory.id %>"><%= catagory.name %></option>
+                            <% }); %> 
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="filterInput" name="filterInput">
+                            <option value="" selected disabled>Select Filter</option>
+                            <option value="1">Top Sales</option>
+                            <option value="10">Top 10 Products</option>
+                            <option value="5">Top 5 Products</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="nameInput" name="nameInput" placeholder="Search by name" />
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" id="priceInput" name="priceInput" placeholder="Maximum range of price" />
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" id="productidInput" name="productidInput" placeholder="Search by productId" />
+                </div>
+                <button type="submit" class=" btn-primary"><i class="fas fa-search"></i> Search</button>
+            </form>
+        </div>
+    </div>
+
     <% products.forEach(product => { %>
         <div class="card-container">
             <div class="card">
                 <img src="/images/laptop.png" alt="<%= product.name %> Image" />
                 <div class="card-content">
-                    <h2><%= product[0] %></h2>
-                    <p><%= product[1] %></p>
-                    <p><%= product[2] %></p>
-                    <a class="btn" href="/">Read More</a>
+                    <h2>Name  : <%= product.name %></h2>
+                    <p> Price : <%= product.price %> Taka</p>
+                    <p> Status:<%= product.status %></p>
+                    <p> catagory: <%= product.catagory %></p>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#productModal<%= product.id %>" data-id = "<%=product.id %>">
+                        Details
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="productModal<%= product.id %>" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <img src="/images/laptop.png" alt="<%= product.name %> Image" />
+                                    <p><strong>Name:</strong> <%= product.name %></p>
+                                    <p><strong>Price:</strong> <%= product.price %> Taka</p>
+                                    <p><strong>Status:</strong> <%= product.status %></p>
+                                    <p><strong>Category:</strong> <%= product.catagory %></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     <% }); %>
+
+    <!-- Bootstrap JS and other scripts (Make sure you include jQuery and Popper.js before Bootstrap JS) -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $('.btn').click(function () {
+    var modalId = $(this).attr('data-target');
+    var productId = $(this).attr('data-id');
+    console.log(modalId);
+    console.log(productId);
+
+    $(modalId).modal('show');
+    fetch('/users/shops', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+         productId : productId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const shops = data.shops;
+        const modalBody = $(modalId).find('.modal-body');
+        modalBody.append('<h5>Availble Shops</h5>');
+        shops.forEach(shop => {
+            modalBody.append(`
+                <hr>
+                <p><strong>Shop ID:</strong> ${shop.id}</p>
+                <p><strong>Shop Name:</strong> ${shop.name}</p>
+                <p><strong>Phone Number:</strong> ${shop.phone}</p>
+                <hr>
+            `);
+        });
+        if (data.product) {
+            const product = data.product;
+            modalBody.append(`
+                <p><strong>Product Name:</strong> ${product.name}</p>
+                <p><strong>Product Price:</strong> ${product.price} Taka</p>
+                <p><strong>Product Status:</strong> ${product.status}</p>
+                <p><strong>Product Category:</strong> ${product.category}</p>
+            `);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+            $('.close').click(function () {
+                var modalId = $(this).closest('.modal').attr('id');
+                $('#' + modalId).modal('hide');
+            });
+
+            $('.modal').click(function (event) {
+                if ($(event.target).hasClass('modal')) {
+                    $(this).modal('hide');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

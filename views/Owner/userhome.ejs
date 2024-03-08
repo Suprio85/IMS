@@ -1,5 +1,4 @@
-<span style="font-family: verdana, geneva, sans-serif"
-  ><!DOCTYPE html>
+<span style="font-family: verdana, geneva, sans-serif">
   <html lang="en">
     <head>
       <meta charset="UTF-8" />
@@ -40,7 +39,7 @@
         <div class="header-icons">
           <i class="fas fa-bell"></i>
           <div class="account">
-            <img src="./pic/img.jpg" alt="" />
+            <img src="./pic/img.jpg" alt="./pic/img.jpg" />
             <h4><%= username %></h4>
             <a style="display: flex" href="/logout">Logout</a>
           </div>
@@ -51,39 +50,50 @@
           <div class="side_navbar">
             <span>Main Menu</span>
             <a href="#" class="active">Dashboard</a>
-            <a href="/">Profile</a>
+            <a href="/profile">Profile</a>
             <a href="/owner/addproduct">Add Products</a>
             <a href="/owner/location">Locations</a>
-            <a href="/">Request For Product</a>
-            <a href="/">Sales</a>
+            <a href="owner/revenue">Revenue</a>
           </div>
         </nav>
 
         <div class="main-body">
           <h2>Dashboard</h2>
           <form
-            method="post"
-            action="/owner/search"
-            id="searchForm"
-            class="search-bar"
+          method="post"
+          action="/owner/search"
+          id="searchForm"
+          class="search-bar"
           >
-            <input
+          <select id="priceOrder" name="priceOrder">
+            <option value="" selected disabled>Select Order</option>
+              <option value="1">Price High to Low</option>
+              <option value="2">Price Low to High</option>
+          </select>
+
+          <select id = "categoryInput" name="categoryInput">
+            <option value="" selected disabled>Select Category</option>
+            <% catagories.forEach(catagory => { %>
+            <option value="<%= catagory.id %>"><%= catagory.name %></option>
+            <% }); %> 
+          </select>
+          <select id ="filterInput" name="filterInput">
+            <option value="" selected disabled>Select Filter</option>
+            <option value="1">Top Sales</option>
+            <option value="10">Top 10 Products</option>
+            <option value="5">Top 5 Products</option>
+          </select>
+          <input
               type="text"
               id="nameInput"
               name="nameInput"
               placeholder="Search by name"
             />
             <input
-              type="text"
-              id="categoryInput"
-              name="categoryInput"
-              placeholder="Search by category"
-            />
-            <input
               type="number"
               id="priceInput"
               name="priceInput"
-              placeholder="Search by price"
+              placeholder="maximum range of price"
             />
             <input
               type="number"
@@ -100,13 +110,21 @@
               <div class="card-content">
                 <h2><%= product.name %></h2>
                 <p>product id : <%= product.id %></p>
-                <p>price: <%= product.price %></p>
+                <p>price: <%= product.price %> Taka</p>
                 <button
                   class="btn update-btn"
                   data-action="price"
                   data-productid="<%= product.id %>"
                 >
                   PRODUCT ANALYSIS
+                </button>
+                <button
+                  id="regionAnalysisBtn"
+                  class="btn analysis-btn"
+                  data-action="region-analysis"
+                  data-rproductid="<%= product.id %>"
+                >
+                  PRODUCT ANALYSIS OVER REGION
                 </button>
               </div>
             </div>
@@ -139,34 +157,76 @@
             <canvas id="lineChart" width="400" height="200"></canvas>
           </div>
         </div>
+        <!-- -------------------------------------------------------------------------------------- -->
+        <div id="regionPopup" class="popup-container">
+          <div class="popup-content">
+            <button id="closeRegionPopup">&#10006;</button>
+            <form id="regionPopupForm">
+              <label for="startMonthRegionPopup">Start Month:</label>
+              <input
+                type="month"
+                id="startMonthRegionPopup"
+                name="startMonthRegionPopup"
+                required
+              />
+
+              <!-- Add a range input for selecting end month -->
+              <label for="endMonthRegionPopup">End Month:</label>
+              <input
+                type="month"
+                id="endMonthRegionPopup"
+                name="endMonthRegionPopup"
+                required
+              />
+              <button type="button" onclick="submitRegionForm()">Submit</button>
+            </form>
+            <div id="regionMessageContainer"></div>
+            <canvas id="regionBarChart" width="400" height="200"></canvas>
+          </div>
+        </div>
       </div>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script>
         let productId;
+
+        function closeRegionPopup(productId) {
+          document.getElementById("regionPopup").style.display = "none";
+        }
         document.addEventListener("DOMContentLoaded", function () {
           // Function to open the pop-up
           function openPopup(productId) {
             document.getElementById("popup").style.display = "block";
-
           }
-
-          // Attach the openPopup function to each product's button
           let buttons = document.querySelectorAll(".update-btn");
           buttons.forEach(function (button) {
             button.addEventListener("click", function () {
-              // Retrieve the region ID from the button's data-regionid attribute
-               productId = button.getAttribute("data-productid");
+              productId = button.getAttribute("data-productid");
               console.log(productId);
 
               openPopup(productId);
+            });
+          });
+          document.getElementById("closePopup").addEventListener("click", closePopup);
 
+          // Function to open the pop-up
+          function openRegionPopup(productId) {
+            document.getElementById("regionPopup").style.display = "block";
+            if (window.barChartInstance) window.barChartInstance.destroy();
+
+          }
+          let regionButtons = document.querySelectorAll(".analysis-btn");
+
+          regionButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+              productId = button.getAttribute("data-rproductid");
+              console.log(productId);
+              openRegionPopup(productId);
             });
           });
 
-          // Attach the closePopup function to the close button
           document
-            .getElementById("closePopup")
-            .addEventListener("click", closePopup);
+            .getElementById("closeRegionPopup")
+            .addEventListener("click", closeRegionPopup);
         });
 
         function submitForm() {
@@ -174,7 +234,8 @@
           console.log("in submit form: ");
           console.log(selectedRegionId);
           console.log(productId);
-          const selectedStartMonth = document.getElementById("startMonth").value;
+          const selectedStartMonth =
+            document.getElementById("startMonth").value;
           const selectedEndMonth = document.getElementById("endMonth").value;
 
           const requestData = {
@@ -204,6 +265,11 @@
                 // Use dataForLineChart for creating a line chart
                 console.log("before chart");
                 console.log("Data for line chart:", data.dataForLineChart);
+                if(data.dataForLineChart.length <= 0 && data.labelsForLineChart.length <= 0)
+                {
+                  messageContainer.innerHTML = `<p>No Shop In this Region </p>`;
+                }
+                else
                 createLineChart(data.dataForLineChart, data.labelsForLineChart);
               } else {
                 messageContainer.innerHTML = `<p>Error: ${data.message}</p>`;
@@ -213,6 +279,56 @@
               console.error("Error:", error);
             });
         }
+
+        function submitRegionForm() {
+          const selectedStartMonth = document.getElementById(
+            "startMonthRegionPopup"
+          ).value;
+          const selectedEndMonth = document.getElementById(
+            "endMonthRegionPopup"
+          ).value;
+
+          
+
+          const requestData = {
+            productID: productId,
+            startMonth: selectedStartMonth,
+            endMonth: selectedEndMonth,
+          };
+
+          console.log("Request data:", requestData);
+
+          fetch("/owner/region", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Handle the response data as needed
+              console.log("Response from server:", data);
+
+              // Display a message or perform additional actions on the front end
+              const messageContainer = document.getElementById(
+                "regionMessageContainer"
+              );
+              if (data.success) {
+                messageContainer.innerHTML = `<p>${data.message}</p>`;
+                // Use dataForLineChart for creating a line chart
+                console.log("before chart");
+                console.log("Data for line chart:", data.dataForLineChart);
+                createBarChart(data.dataForLineChart, data.labelsForLineChart);
+              } else {
+                messageContainer.innerHTML = `<p>Error: ${data.message}</p>`;
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+
         //generating random colors
         function getRandomColor() {
           var letters = "0123456789ABCDEF";
@@ -222,6 +338,42 @@
           }
           return color;
         }
+        function createBarChart(dataForBarChart, labelsForBarChart) {
+          console.log("Data for line chart:", dataForBarChart);
+
+          // Get the canvas and context
+          const canvas = document.getElementById("regionBarChart");
+          const ctx = canvas.getContext("2d");
+
+          if (window.barChartInstance) {
+            window.barChartInstance.destroy();
+          }
+
+          // Create a new bar chart instance
+          window.barChartInstance = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: labelsForBarChart,
+              datasets: [
+                {
+                  label: "Bar Chart",
+                  data: dataForBarChart,
+                  backgroundColor: getRandomColor(), 
+                  borderColor: getRandomColor(),
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        }
+
         function createLineChart(dataForLineChart, labelsForLineChart) {
           console.log("Data for line chart:", dataForLineChart);
 
@@ -253,8 +405,7 @@
         }
 
         function closePopup() {
-           if(window.lineChartInstance)
-           window.lineChartInstance.destroy();
+          if (window.lineChartInstance) window.lineChartInstance.destroy();
           document.getElementById("popup").style.display = "none";
           document.getElementById("regionId").value = "";
         }

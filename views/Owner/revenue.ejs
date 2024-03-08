@@ -1,0 +1,106 @@
+<span style="font-family: verdana, geneva, sans-serif"
+  ><!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Admin Dashboard | By Code Info</title>
+      <link rel="stylesheet" href="style.css" />
+      <!-- Font Awesome Cdn Link -->
+      <link rel="stylesheet" href="/stylesheets/userstyle.css" />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+    </head>
+    <body>
+      <header class="header">
+        <div class="logo">
+          <a href="/">Home</a>
+          <div class="search_box"></div>
+        </div>
+
+        <div class="header-icons">
+          <i class="fas fa-bell"></i>
+          <div class="account">
+            <img src="./pic/img.jpg" alt="" />
+            <h4><%= username %></h4>
+            <a style="display: flex" href="/logout">Logout</a>
+          </div>
+        </div>
+      </header>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="/profile">Profile</a>
+            <a href="/owner/addproduct">Add Products</a>
+            <a href="/owner/location">Locations</a>
+            <a href="owner/revenue">Revenue</a>
+          </div>
+        </nav>
+        <div class="main-body">
+          <h2>Dashboard</h2>
+          <div class="history_lists">
+            <div class="list1">
+              <form action="/owner/revenue" method="post" id="contact">
+                <fieldset>
+                  <legend>Enter date Range</legend>
+                  <input
+                    type="date"
+                    name="start"
+                    id="start"
+                    placeholder="Enter start date"
+                    required
+                  />
+                  <to> to </to>
+                  <input
+                    type="date"
+                    name="end"
+                    id="end"
+                    placeholder="Enter end date"
+                    required
+                  />
+                </fieldset>
+                <button class="btn">Submit</button>
+              </form>
+              <div class="row">
+                <h4>Products</h4>
+              </div>
+
+              <% if (formSubmitted) { %> <% if (revenues.length > 0) { %>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Sales</th>
+                    <th>Cost</th>
+                    <th>Quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% revenues.forEach(function(revenue) { %>
+                  <tr>
+                    <td><%= revenue.id %></td>
+                    <td><%= revenue.name %></td>
+                    <td><%= revenue.sales %></td>
+                    <td><%= revenue.cost %></td>
+                    <td><%= revenue.quantity %></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+              <% } else { %>
+              <p>No data during that time.</p>
+              <% } %> <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+  </html>
+</span>

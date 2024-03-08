@@ -26,6 +26,8 @@ var ownerRouter = require('./routes/owner');
 var productionmanagerRouter = require('./routes/productionmanager');
 var hashRouter = require('./routes/hash');
 var cashierRouter = require('./routes/cashier');
+var  zsmRouter = require('./routes/zonalsupplymanager');
+var profileRouter = require('./routes/profile');   
 
 
 var app = express();
@@ -58,6 +60,8 @@ app.use('/owner', ownerRouter);
 app.use('/productionmanager', productionmanagerRouter);
 app.use('/hash', hashRouter);
 app.use('/cashier', cashierRouter);
+app.use('/zsm', zsmRouter);
+app.use('/profile', profileRouter);
 
 
 

@@ -1,0 +1,591 @@
+<span style="font-family: verdana, geneva, sans-serif"
+  ><!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <title></title>
+      <!-- <link rel='stylesheet' href='/stylesheets/userstyle.css' /> -->
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+      />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/shopmanger/productquantity.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/zonalsupplymanager/home1.css"
+      />
+      <link
+        rel="stylesheet"
+        href="../stylesheets/zonalsupplymanager/home2.css"
+      />
+
+      <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"> -->
+    </head>
+    <body>
+      <header class="header">
+        <div class="logo">
+          <a href="/">Home</a>
+          <a href="/login">Login </a>
+          <a href="/products">Products</a>
+        </div>
+        <div class="header-icons">
+          <i class="fas fa-bell"></i>
+          <div class="account">
+            <img src="./pic/img.jpg" alt="" />
+            <h4><%= username %></h4>
+            <a style="display: flex" href="/logout">Logout</a>
+          </div>
+        </div>
+      </header>
+      <div class="container">
+        <nav>
+          <div class="side_navbar">
+            <span>Main Menu</span>
+            <a href="#" class="active">Dashboard</a>
+            <a href="/profile">Profile</a>
+          </div>
+        </nav>
+        <div class="main-body">
+          <h2>Dashboard</h2>
+          <form
+          method="post"
+          action="/zsm/search"
+          id="searchForm"
+          class="search-bar"
+          >
+          <select id="priceOrder" name="priceOrder">
+            <option value="" selected disabled>Select Order</option>
+              <option value="1">Price High to Low</option>
+              <option value="2">Price Low to High</option>
+          </select>
+
+          <select id = "categoryInput" name="categoryInput">
+            <option value="" selected disabled>Select Category</option>
+            <% catagories.forEach(catagory => { %>
+            <option value="<%= catagory.id %>"><%= catagory.name %></option>
+            <% }); %> 
+          </select>
+          <select id ="filterInput" name="filterInput">
+            <option value="" selected disabled>Select Filter</option>
+            <option value="1">Top Sales</option>
+            <option value="10">Top 10 Products</option>
+          </select>
+          <input
+              type="text"
+              id="nameInput"
+              name="nameInput"
+              placeholder="Search by name"
+            />
+            <input
+              type="number"
+              id="priceInput"
+              name="priceInput"
+              placeholder="maximum range of price"
+            />
+            <input
+              type="number"
+              id="productidInput"
+              name="productidInput"
+              placeholder="Search by productId"
+            />
+            <button type="submit"><i class="fas fa-search"></i> Search</button>
+          </form>
+          <div>
+            <button id="startAllocatingBtn" onclick="toggleAllocateButtons()">
+              Start Allocating
+            </button>
+
+            <button
+              id="confirmRegionBtn"
+              onclick="openRegionConfirmationPopup()"
+            >
+              Confirm Region
+            </button>
+          </div>
+
+          <% products.forEach(product => { %>
+          <div class="card-container">
+            <div class="card">
+              <img src="/images/laptop.png" alt="<%= product.name %> Image" />
+              <div class="card-content">
+                <h2><%= product.name %></h2>
+                <p>product id : <%= product.id %></p>
+                <p>price: <%= product.price %> Taka</p>
+                <button
+                  class="btn update-btn"
+                  data-action="price"
+                  data-productid="<%= product.id %>"
+                >
+                  PRODUCT ANALYSIS
+                </button>
+                <button
+                  class="btn allot-btn"
+                  id="allotProductBtn"
+                  data-productid="<%= product.id %>"
+                  style="display: none"
+                >
+                  Allot Product
+                </button>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+
+          <div id="allotProductPopup" class="popup-container">
+            <div class="popup-content">
+              <button id="closeAllotPopup">&#10006;</button>
+              <h3>
+                Total Quantity in Inventory: <span id="totalQuantity"></span>
+              </h3>
+              <p id="productid">Product ID:</p>
+              `
+              <form id="allotPopupForm">
+                <select
+                  id="allotRegionId"
+                  name="allotRegionId"
+                  required
+                  autofocus
+                >
+                  <option value="" disabled selected>Select a Region</option>
+                  <% regions.forEach(region => { %>
+                  <option value="<%= region.id %>"><%= region.name %></option>
+                  <% }); %>
+                </select>
+                <label for="productQuantity">Product Quantity:</label>
+                <input
+                  type="number"
+                  id="productQuantity"
+                  name="productQuantity"
+                  min="1"
+                  placeholder="Enter product quantity"
+                  required
+                />
+                <p id="errorMessage" style="color: red"></p>
+                <button type="button" onclick="submitAllotForm()">
+                  Allot Product
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        </div>
+        <div id="popup" class="popup-container">
+          <div class="popup-content">
+            <button id="closePopup">&#10006;</button>
+            <form id="popupForm">
+              <select id="regionId" name="regionId" required autofocus>
+                <option value="" disabled selected>Select a Region</option>
+                <option value="General">All Region</option>
+                <% regions.forEach(region => { %>
+                <option value="<%= region.id %>"><%= region.name %></option>
+                <% }); %>
+              </select>
+              <label for="startMonth">Start Month:</label>
+              <input type="month" id="startMonth" name="startMonth" required />
+
+              <!-- Add a range input for selecting end month -->
+              <label for="endMonth">End Month:</label>
+              <input type="month" id="endMonth" name="endMonth" required />
+              <button type="button" onclick="submitForm()">Submit</button>
+            </form>
+            <div id="messageContainer"></div>
+            <canvas id="lineChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div id="regionConfirmationPopup" class="popup-container">
+        <div class="popup-content">
+          <button id="closeRegionConfirmationPopup">&#10006;</button>
+          <h3>Confirm Region</h3>
+          <table id="regionTable">
+            <tr>
+              <th>Region ID</th>
+              <th>Region Name</th>
+              <th>Confirm</th>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+        let productId;
+        async function toggleAllocateButtons() {
+          var startAllocatingBtn = document.getElementById("startAllocatingBtn");
+          if(startAllocatingBtn.textContent == "Stop Allocating"){
+            startAllocatingBtn.textContent = "Start Allocating"
+          }
+          else{
+
+              startAllocatingBtn.textContent = "Stop Allocating"
+          }
+          
+          var allocateButtons = document.getElementsByClassName("allot-btn");
+
+         
+          for (var i = 0; i < allocateButtons.length; i++) {
+            allocateButtons[i].style.display =
+              allocateButtons[i].style.display == "block" ? "none" : "block";
+          }
+
+          if(startAllocatingBtn.textContent == "Stop Allocating"){
+          try {
+            const response = await fetch("/zsm/makeold", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Message from server:", data.message);
+            alert(data.message); // You can use alert or update the UI as needed
+          } catch (error) {
+            console.error("Error fetching message:", error);
+          }
+        }
+    }
+        document.addEventListener("DOMContentLoaded", function () {
+          // Function to open the pop-up
+          function openPopup(productId) {
+            document.getElementById("popup").style.display = "block";
+          }
+
+          // Attach the openPopup function to each product's button
+          let buttons = document.querySelectorAll(".update-btn");
+          buttons.forEach(function (button) {
+            button.addEventListener("click", function () {
+              // Retrieve the region ID from the button's data-regionid attribute
+              productId = button.getAttribute("data-productid");
+              console.log(productId);
+
+              openPopup(productId);
+            });
+          });
+
+          // Attach the closePopup function to the close button
+          document
+            .getElementById("closePopup")
+            .addEventListener("click", closePopup);
+        });
+    
+        function submitForm() {
+          const selectedRegionId = document.getElementById("regionId").value;
+          console.log("in submit form: ");
+          console.log(selectedRegionId);
+          console.log(productId);
+          const selectedStartMonth =
+            document.getElementById("startMonth").value;
+          const selectedEndMonth = document.getElementById("endMonth").value;
+
+          const requestData = {
+            regionID: selectedRegionId,
+            productID: productId,
+            startMonth: selectedStartMonth,
+            endMonth: selectedEndMonth,
+          };
+
+          fetch("/owner", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log("Response from server:", data);
+
+              const messageContainer =
+                document.getElementById("messageContainer");
+              if (data.success) {
+                messageContainer.innerHTML = `<p>${data.message}</p>`;
+                console.log("before chart");
+                console.log("Data for line chart:", data.dataForLineChart);
+                createLineChart(data.dataForLineChart, data.labelsForLineChart);
+              } else {
+                messageContainer.innerHTML = `<p>Error: ${data.message}</p>`;
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+
+        function getRandomColor() {
+          var letters = "0123456789ABCDEF";
+          var color = "#";
+          for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+        }
+        function createLineChart(dataForLineChart, labelsForLineChart) {
+          console.log("Data for line chart:", dataForLineChart);
+
+          const canvas = document.getElementById("lineChart");
+          const ctx = canvas.getContext("2d");
+          if (window.lineChartInstance) {
+            window.lineChartInstance.destroy();
+          }
+          window.lineChartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: labelsForLineChart,
+              datasets: [
+                {
+                  label: "Line Chart",
+                  data: dataForLineChart,
+                  borderColor: getRandomColor(),
+                  borderWidth: 4,
+                  fill: false,
+                },
+              ],
+            },
+          });
+        }
+
+        function closePopup() {
+          if (window.lineChartInstance) window.lineChartInstance.destroy();
+          document.getElementById("popup").style.display = "none";
+          document.getElementById("regionId").value = "";
+        }
+
+        let allotButtons = document.querySelectorAll(".allot-btn");
+        allotButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            productId = button.getAttribute("data-productid");
+            console.log(productId);
+
+            openAllotPopup(productId);
+          });
+        });
+        document
+          .getElementById("closeAllotPopup")
+          .addEventListener("click", closeAllotPopup);
+
+        async function openAllotPopup(productId) {
+          try {
+            const response = await fetch("/zsm/totalproduct", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ productId: productId }),
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Update the total quantity in the modal
+            document.getElementById("totalQuantity").textContent =
+              data.totalQuantity;
+            document.getElementById("productid").textContent =
+              "Product ID: " + productId;
+
+            document
+              .getElementById("productQuantity")
+              .setAttribute("aria-valuemax", data.totalQuantity);
+
+            // // Display the Allot Product modal
+            document.getElementById("allotProductPopup").style.display =
+              "block";
+            var allocateButtons = document.getElementsByClassName("allot-btn");
+            for (var i = 0; i < allocateButtons.length; i++) {
+              allocateButtons[i].style.display = "block";
+            }
+          } catch (error) {
+            console.error("Error fetching total quantity:", error);
+          }
+        }
+
+        function closeAllotPopup() {
+          document.getElementById("allotProductPopup").style.display = "none";
+          document.getElementById("allotRegionId").value = "";
+          document.getElementById("productQuantity").value = "";
+
+          var allocateButtons =
+            document.getElementsByClassName("allot-product-btn");
+          for (var i = 0; i < allocateButtons.length; i++) {
+            allocateButtons[i].style.display = "none";
+          }
+        }
+
+        async function submitAllotForm() {
+          const selectedAllotRegionId =
+            document.getElementById("allotRegionId").value;
+          const enteredQuantity = parseInt(
+            document.getElementById("productQuantity").value
+          );
+          const totalQuantity = parseInt(
+            document.getElementById("totalQuantity").textContent
+          );
+
+          const errorMessageElement = document.getElementById("errorMessage");
+          errorMessageElement.textContent = "";
+
+          if (enteredQuantity > totalQuantity) {
+            errorMessageElement.textContent =
+              "Entered quantity exceeds total quantity!";
+          } else if (enteredQuantity <= 0) {
+            errorMessageElement.textContent =
+              "Entered quantity should be greater than 0!";
+          } else if (!selectedAllotRegionId) {
+            errorMessageElement.textContent = "Please select a region!";
+          } else if (!enteredQuantity) {
+            errorMessageElement.textContent = "Please enter a quantity!";
+          } else {
+            console.log(
+              "Allotting product with ID:",
+              productId,
+              "to Region ID:",
+              selectedAllotRegionId,
+              "with quantity:",
+              enteredQuantity
+            );
+
+            const formData = {
+              productId: productId,
+              regionId: selectedAllotRegionId,
+              quantity: enteredQuantity,
+            };
+
+            await fetch("/zsm/totalproductregion", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                // Handle the response from the backend if needed
+                console.log("Backend response:", data);
+                alert(data.message);
+              })
+              .catch((error) => {
+                console.error("Error sending data to the backend:", error);
+              });
+
+            document.getElementById("totalQuantity").textContent =
+              totalQuantity - enteredQuantity;
+            document.getElementById("allotProductPopup").style.display =
+              "block";
+            }
+        }
+        
+        document.getElementById("closeRegionConfirmationPopup").addEventListener("click", closeRegionConfirmationPopup);
+        async function openRegionConfirmationPopup() {
+          document.getElementById("regionConfirmationPopup").style.display =
+            "block";
+
+          try {
+            
+            const response = await fetch(`/zsm/sendregion`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to update delivery status");
+            }
+
+            const result = await response.json();
+            console.log(result.message);
+
+            const regionTable = document.getElementById("regionTable");
+            regionTable.innerText = "";
+            regionTable.innerHTML =" <tr> <th>Region ID</th> <th>Region Name</th> <th>Confirmation</th> </tr>"
+            result.regions.forEach((region) => {
+              const row = regionTable.insertRow(-1);
+              const cell1 = row.insertCell(0);
+              const cell2 = row.insertCell(1);
+              const cell3 = row.insertCell(2);
+              cell1.textContent = region.id;
+              cell2.textContent = region.name;
+              const confirmButton = document.createElement("button");
+              confirmButton.textContent = "Confirm";
+              confirmButton.addEventListener("click", () =>
+                handleConfirmButtonClick(confirmButton,region.id, region.name)
+              );
+              cell3.appendChild(confirmButton);
+            });
+
+            const regionConfirmationPopup = document.getElementById(
+              "regionConfirmationPopup"
+            );
+
+            if (result.regions.length > 0) {
+              regionConfirmationPopup.style.display = "block";
+            } else {
+              alert("No regions available");
+            }
+          } catch (error) {
+            console.error("Error :", error);
+          }
+        }
+
+
+        function closeRegionConfirmationPopup() {
+          document.getElementById("regionConfirmationPopup").style.display =
+            "none";
+        }
+
+       async function handleConfirmButtonClick(button,regionId, regionName) {
+              button.textContent = "Confirmed";
+              button.disabled = true;
+            try {
+                const response = await fetch(`/zsm/confirmregion`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ regionId }),
+                });
+    
+                if (!response.ok) {
+                throw new Error("Failed to confirm region");
+                }
+    
+                const result = await response.json();
+                console.log(result.message);
+                alert(result.message);
+                document.getElementById("regionConfirmationPopup").style.display =
+                "block";
+            } catch (error) {
+                console.error("Error confirming region:", error);
+            }
+    
+    closeRegionConfirmationPopup();
+  }
+      </script>
+    </body>
+  </html>
+</span>

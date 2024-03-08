@@ -20,7 +20,7 @@ async function supplyShipment(button){
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({req_id: ship_id})
+        body: JSON.stringify({shipment_id: ship_id})
     });
     if (!respone.ok){
         throw new Error("Something happened in backend");

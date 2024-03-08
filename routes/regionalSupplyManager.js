@@ -275,6 +275,25 @@ async function getAllPendingShipments(shop_id){
 //     let query1 = "SELECT AMOUNT FROM PRODUCT_ALLOTEMENT WHERE REGION_ID=:region_id AND PRODUCT_ID=:product_id";
 //     // let query2 = "SELECT NVL(SUM(),0) FROM "
 // }
+// 
+
+async function supplyTheShipment(shipment_id){
+    let connection;
+    let supplied = false;
+    let query = "UPDATE SHIPMENT SET DELIVERY_STATUS='SHIPPED' WHERE SHIPMENT_ID=:shipment_id";
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        let response = await connection.execute(query, {shipment_id});
+        connection.commit();
+        supplied = true;
+    } catch(err) {
+        console.log(err);
+        if(connection) connection.rollback();
+    } finally{
+        if (connection) connection.close();
+    }
+    return supplied;
+}
 
 
 
@@ -344,9 +363,11 @@ router.post("/allot-product-to-shop", async(req, res, next)=>{
 })
 
 router.post("/supply-shipment", async(req, res)=>{
-    console.log("Hello High By By");
+    let message = "Shipment failed";
     console.log(req.body);
-    res.json({message: "It worked"});
+    let success = await supplyTheShipment(req.body.shipment_id);
+    if(success) message = "Shipment is done";
+    res.json({message});
 })
 
 

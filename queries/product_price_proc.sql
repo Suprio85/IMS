@@ -21,7 +21,7 @@ BEGIN
         v_prev_stock := v_prev_stock-PP.TOTAL_NEW;
         SELECT PRICE INTO v_current_price FROM PRODUCTS WHERE PRODUCT_ID=PP.PID;
         v_new_price := (v_prev_stock * v_current_price + PP.TOTAL_COST) / (v_prev_stock+PP.TOTAL_NEW);
-        v_new_price := ROUND(v_new_price, 2) + 1;
+        v_new_price := (TRUNC(v_new_price/10, 0))*10 - FLOOR(DBMS_RANDOM.VALUE(0, 2));
         UPDATE PRODUCTS SET PRICE = v_new_price WHERE PRODUCT_ID = PP.PID;
     END LOOP;
         

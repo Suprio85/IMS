@@ -1,7 +1,6 @@
 const express = require("express");
 const dbconfig = require("../dbconfig");
 const oracledb = require("oracledb");
-const { json } = require("body-parser");
 
 var router = express.Router();
 
@@ -238,13 +237,14 @@ async function createNewShipment(request_id, inventory_id, region_id){
     let worked = false;
     let query=`
         BEGIN
-        CREATE_NEW_SHIPMENT(:request_id, :inventory_id, :region_id);
+            CREATE_NEW_SHIPMENT(:request_id, :inventory_id, :region_id, :success);
         END;`;
     try{
         connection = await oracledb.getConnection(dbconfig);
-        let response = await connection.execute(query, {request_id, inventory_id, region_id});
+        let response = await connection.execute(query, {request_id, inventory_id,
+                                        region_id, success: {dir: oracledb.BIND_OUT, type: oracledb.NUMBER}});
         connection.commit();
-        worked = true;
+        worked = response.outBinds.success;
     } catch (err){
         console.log(err);
         if(connection) connection.rollback();

@@ -346,6 +346,18 @@ async function setRequestStatus(req_id, status){
 }
 
 
+async function getRID(eid){
+    try{
+        let con = oracledb.getConnection(dbconfig);
+        let res = await (await con).execute("select region_id from region where  SUPPLY_MANAGER_ID=:eid", {eid});
+        console.log(res);
+        return res.rows[0][0];
+    }
+    catch(err){
+        console.log(err);
+        return 0;
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -353,6 +365,10 @@ router.get('/', async(req, res, next)=>{
     var employee_id = 2001;
     var region_id = 101;
     var username = 'nafis';
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
+    region_id =await getRID(employee_id);
+    req.session.user.rid = region_id;
     let products = await getAllProducts();
     let shops = await getAllShops(region_id);
     console.log(shops);
@@ -363,15 +379,19 @@ router.get('/', async(req, res, next)=>{
 
 router.get("/all-requests", async(req, res)=>{
     var employee_id = 2001;
-    var region_id = 101;
-    var username = 'nafis';
+    var region_id = req.session.user.rid;
+    var username;
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
     let requests = await getAllShipRequest(region_id);
     res.status(200).render("rsm/review_requests", {username, requests});
     // res.status(200).send(requests);
 })
 
 router.get("/process-request", async(req, res)=>{
-    let username = "nafis";
+    let username;
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
     let requestId = req.query.requestId;
     let info = await getRequestInfo(requestId);
     let inventories = await getAllInventories();
@@ -387,7 +407,9 @@ router.get("/process-request", async(req, res)=>{
 router.post("/total-alloted-product", async(req, res, next)=>{
     let productId = req.body.productId;
     let shop_id = req.body.shop_id
-    let region_id = 101;
+    var region_id = req.session.user.rid;
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
     console.log("Getting allotment of", productId);
     let result = await getProductAllotment(productId, region_id, shop_id);
     console.log("Founded result", result);
@@ -406,8 +428,10 @@ router.post("/fetch-sale-over-time", async(req, res, next)=>{
 
 
 router.post("/allot-product-to-shop", async(req, res, next)=>{
-    let region_id = 101;
+    var region_id = req.session.user.rid;
     console.log(req.body);
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
     let success = await updateSuppliableAmount(req.body.productId, req.body.shopId, req.body.quantity, region_id);
     let message = "Allotement unsuccessful";
     if(success === 1) message = "Alloted Successfully";
@@ -416,6 +440,8 @@ router.post("/allot-product-to-shop", async(req, res, next)=>{
 })
 
 router.post("/supply-shipment", async(req, res)=>{
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
     let message = "Shipment failed";
     console.log(req.body);
     let success = await supplyTheShipment(req.body.shipment_id);
@@ -425,7 +451,9 @@ router.post("/supply-shipment", async(req, res)=>{
 
 
 router.post("/create-new-shipment", async(req, res)=>{
-    let region_id= 101;
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
+    var region_id = req.session.user.rid;
     console.log(req.body);
     let message = "It didn't work";
     message = await createNewShipment(req.body.request_id, req.body.inventory_id, region_id);
@@ -434,6 +462,8 @@ router.post("/create-new-shipment", async(req, res)=>{
 
 
 router.post("/complete-shipment-request", async(req, res)=>{
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
     console.log(req.body);
     let message = "Failed to Complete the shipment";
     let flag = await setRequestStatus(req.body.request_id, "PROCESSED");
@@ -442,6 +472,8 @@ router.post("/complete-shipment-request", async(req, res)=>{
 })
 
 router.post("/close-shipment-request", async(req, res)=>{
+    username = req.session.user.username;
+    employee_id = req.session.user.id;
     console.log(req.body);
     let message = "Failed to Closed the shipment";
     let flag = await setRequestStatus(req.body.request_id, "CLOSED");

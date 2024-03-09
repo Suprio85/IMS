@@ -422,3 +422,9 @@ button:hover {
 #allotProductPopup{
     z-index: 25;
 }
+
+
+#reccommendedRange{
+    display: flex;
+    justify-content: space-between;
+}

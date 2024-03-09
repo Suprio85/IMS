@@ -34,7 +34,7 @@
         </nav>
         <div class="main-body">
           <h2>All Products</h2>
-          <form method="post" action="/rsm/search" id="searchForm" class="search-bar">
+          <form method="post" action="/rsm/search" id="searchForm" class="search-bar" style="display: none;">
             <input type="text" id="nameInput" name="nameInput" placeholder="Search by name"/>
             <input type="text" id="categoryInput" name="categoryInput" placeholder="Search by category"/>
             <input type="number" id="priceInput" name="priceInput" placeholder="Search by price"/>
@@ -83,6 +83,13 @@
                 <p id="errorMessage" style="color: red"></p>
                 <button type="button" onclick="submitAllotForm()">Allot Product</button>
               </form>
+              <div>
+                <div id="recomendedRange">
+                  <p>Recommeneded Range:</p><i id="rec_rangeL"></i> -to- <i id="rec_rangeR"></i><br>
+                </div>
+                <p id="recommendation">Recomended: </p>
+                <p id="requestedAmount"></p>
+              </div>
             </div>
           </div>
 

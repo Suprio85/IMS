@@ -38,9 +38,11 @@ async function getAllShops(region_id){
     return shops;
 }
 
-async function getProductAllotment(product_id, region_id){
+async function getProductAllotment(product_id, region_id, shop_id){
     let connection;
     let amount = 0;
+    let recommended_amount = 0;
+    let request_amount = 0;
     let query1 = "SELECT (AMOUNT-USED_AMOUNT) FROM PRODUCT_ALLOTEMENT WHERE PRODUCT_ID=:product_id AND REGION_ID=:region_id AND STATUS='UPDATED'";
     let query2 = `
         SELECT NVL(SUM(SRP.SUPPLIABLE_AMOUNT), 0)
@@ -49,18 +51,31 @@ async function getProductAllotment(product_id, region_id){
         JOIN SHIPMENT_REQUEST SR ON (SR.SHOP_ID=S.SHOP_ID AND SR.STATUS='PROCESSING')
         JOIN SHIPMENT_REQUEST_PRODUCT SRP ON (SRP.REQUEST_ID=SR.REQUEST_ID AND SRP.PRODUCT_ID=:product_id)
     `
+    let reqQuery = "SELECT NVL(QUANTITY, 0) FROM SHIPMENT_REQUEST_PRODUCT WHERE PRODUCT_ID=:product_id"+
+                    " AND REQUEST_ID = (SELECT REQUEST_ID FROM SHIPMENT_REQUEST WHERE SHOP_ID=:shop_id "+
+                    "AND STATUS IN ('PROCESSING', 'PROCESSED'))";
+    let recommend = "SELECT AMOUNT FROM CONTINUES_PRODUCT_RECOMMENDATION WHERE SHOP_ID=:shopId AND PRODUCT_ID=:productId";
+
     try{
         connection = await oracledb.getConnection(dbconfig);
         let response = await connection.execute(query1, {product_id, region_id});
         amount = response.rows[0][0] ? response.rows[0][0] : 0;
+
         let usedAmount = (await connection.execute(query2, {product_id, region_id})).rows[0][0];
         amount -= usedAmount;
+
+        let requested = (await connection.execute(reqQuery, {product_id, shop_id})).rows;
+        if (requested.length === 1) request_amount = requested[0][0];
+
+        let res = await connection.execute(recommend, {productId: product_id, shopId: shop_id});
+        recommended_amount = res.rows[0][0];
+
         connection.close();
     } catch(err){
         console.log(err);
         if(connection) connection.close();
     }
-    return amount;
+    return {amount, recommended_amount, request_amount};
 }
 
 
@@ -371,10 +386,12 @@ router.get("/process-request", async(req, res)=>{
 
 router.post("/total-alloted-product", async(req, res, next)=>{
     let productId = req.body.productId;
+    let shop_id = req.body.shop_id
     let region_id = 101;
     console.log("Getting allotment of", productId);
-    let amount = await getProductAllotment(productId, region_id);
-    res.json({totalQuantity: amount});
+    let result = await getProductAllotment(productId, region_id, shop_id);
+    console.log("Founded result", result);
+    res.json({totalQuantity: result.amount, r_amount: result.recommended_amount, req_amount: result.request_amount});
 })
 
 router.post("/fetch-sale-over-time", async(req, res, next)=>{

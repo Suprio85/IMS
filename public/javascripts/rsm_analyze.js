@@ -168,7 +168,7 @@ function openAllotementPopup(){
     shopSelector.value = selectedShopId;
     shopSelector.disabled = true;
     
-    openAllotPopup(pid);
+    openAllotPopup(pid, selectedShopId);
 }
 
 
@@ -178,14 +178,14 @@ document.getElementById("closeAllotPopup").addEventListener("click", closeAllotP
 
 
 
-async function openAllotPopup(productId) {
+async function openAllotPopup(productId, shop_id) {
     try {
         const response = await fetch("/rsm/total-alloted-product", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ productId: productId }),
+            body: JSON.stringify({productId, shop_id}),
         });
 
         if (!response.ok) {
@@ -197,6 +197,11 @@ async function openAllotPopup(productId) {
         // Update the total quantity in the modal
         document.getElementById("totalQuantity").textContent = data.totalQuantity;
         document.getElementById("productid").textContent = "Product ID: " + productId;
+        
+        document.getElementById("rec_rangeL").textContent = Math.floor(data.r_amount * 0.7);
+        document.getElementById("rec_rangeR").textContent = Math.ceil(data.r_amount * 1.2);
+        document.getElementById("recommendation").textContent ="Recommended:    "+ data.r_amount;
+        document.getElementById("requestedAmount").textContent ="Requested:    "+ data.req_amount;
 
         document.getElementById("productQuantity").setAttribute("aria-valuemax", data.totalQuantity);
 
@@ -232,6 +237,8 @@ async function submitAllotForm() {
     const selectedAllotShopId = document.getElementById("allotShopId").value;
     const enteredQuantity = parseInt(document.getElementById("productQuantity").value);
     const totalQuantity = parseInt(document.getElementById("totalQuantity").textContent);
+    const lrange = parseInt(document.getElementById("rec_rangeL").textContent);
+    const rrange = parseInt(document.getElementById("rec_rangeR").textContent);
 
     const errorMessageElement = document.getElementById("errorMessage");
     errorMessageElement.textContent = "";
@@ -239,6 +246,12 @@ async function submitAllotForm() {
     if (enteredQuantity > totalQuantity) {
         errorMessageElement.textContent =
             "Entered quantity exceeds total quantity!";
+    } else if(enteredQuantity < lrange && lrange > totalQuantity){
+        errorMessageElement.textContent =
+            "Entered quantity can't bw Lower than recommended range";
+    } else if(enteredQuantity > lrange){
+        errorMessageElement.textContent =
+            "Entered quantity can't bw Higher than recommended range";
     } else if (enteredQuantity <= 0) {
         errorMessageElement.textContent =
             "Entered quantity should be greater than 0!";

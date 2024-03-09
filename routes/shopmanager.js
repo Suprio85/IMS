@@ -46,8 +46,8 @@ router.get('/', async function (req, res, next) {
     GET_TOTAL_SALES(
         PD.PRODUCT_ID,
         SP.SHOP_ID,
-        TO_TIMESTAMP('2022-02-28 00:00:00', 'YYYY-MM-DD HH24:MI:SS'),
-        TO_TIMESTAMP('2022-02-28 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+        TO_TIMESTAMP(:startOfDay, 'YYYY-MM-DD HH24:MI:SS'),
+        TO_TIMESTAMP(:endOfDay, 'YYYY-MM-DD HH24:MI:SS')
     ) AS TOTAL_SALES,
     (SELECT CATAGORY_NAME FROM CATAGORY WHERE CATAGORY_ID = PD.CATAGORY_ID) AS CATAGORY_NAME
 FROM
@@ -63,7 +63,9 @@ WHERE
 ORDER BY TOTAL_SALES DESC
   `
   const result = await connection.execute(query, {
-    shop_id: shop_id
+    shop_id: shop_id,
+    startOfDay: startOfDay,
+    endOfDay: endOfDay
   });
 
       let products = [];
@@ -72,7 +74,7 @@ ORDER BY TOTAL_SALES DESC
               id: row[0],
               name: row[1],
               totalSales: row[2],
-              catagoery: row[3] 
+              catagory: row[3] 
 
           };
           products.push(product);
@@ -138,7 +140,7 @@ for (const row of result.rows) {
         id: row.PRODUCT_ID,
         name: row.PRODUCT_NAME,
         totalSales: row.TOTAL_SALES,
-        catagoery: row.CATAGORY_NAME
+        catagory: row.CATAGORY_NAME
     };
     products.push(product);
 }
@@ -370,9 +372,11 @@ router.get('/shipment', async function (req, res, next) {
 
   console.log("Shop id: ", shop_id);
 
-  const query = `SELECT * FROM SHIPMENT WHERE SHOP_ID = ${shop_id}`;
+  const query = `SELECT * FROM SHIPMENT WHERE SHOP_ID = ${shop_id} AND (DELIVERY_STATUS = 'PENDING' OR DELIVERY_STATUS = 'SHIPPED') ORDER BY SHIPPING_DATE DESC`;
 
   const result = await connection.execute(query);
+  
+  if(result.rows.length != 0){
 
   for (const row of result.rows) {
 
@@ -385,6 +389,7 @@ router.get('/shipment', async function (req, res, next) {
     };
     shipments.push(shipment);
   }
+}
 
   console.log(shipments);
    
@@ -393,7 +398,7 @@ router.get('/shipment', async function (req, res, next) {
 });
 
 router.post('/shipmentproduct', async  (req, res) => {
-  console.log("shipmentid")
+  console.log("shipmentid := ")
   const { shipmentId } = req.body;
   console.log(shipmentId);
 
@@ -401,22 +406,26 @@ router.post('/shipmentproduct', async  (req, res) => {
 
 
   const connection = await oracledb.getConnection(dbConfig);
-  const query = `SELECT * FROM SHIPMENT_PRODUCT WHERE SHIPMENT_ID = ${shipmentId}`;
+  const query = `SELECT P.PRODUCT_ID, SP.QUANTITY, SP.RETURN_DATE, SP.RETURN_AMOUNT, P.PRODUCT_NAME
+                  FROM SHIPMENT_PRODUCT SP 
+                 LEFT JOIN PRODUCTS P ON SP.PRODUCT_ID = P.PRODUCT_ID
+                 WHERE SHIPMENT_ID = ${shipmentId}`;
 
   const result = await connection.execute(query);
 
-  console.log(result);
+  
 
   for (const row of result.rows) {
   let product = {
-    PRODUCT_ID: row[1],
-    QUANTITY: row[2],
-    RETURN_DATE: row[3],
-    RETURN_AMOUNT: row[4]
+    PRODUCT_ID: row[0],
+    QUANTITY: row[1],
+    RETURN_DATE: row[2],
+    RETURN_AMOUNT: row[3],
+    PRODUCT_NAME: row[4]
   }
   productDetails.push(product);
 }
-  // Send the product details as JSON response
+
   res.json(productDetails);
 
 });
@@ -424,7 +433,9 @@ router.post('/shipmentproduct', async  (req, res) => {
 
 
 router.post('/updateshipmentstatus', async (req, res) => {
+  console.log("Inside update shipment status");
   const { shipmentId, status } = req.body;
+  console.log("shipmentid and status := ")
   console.log(shipmentId, status);
 
    try {
@@ -452,8 +463,8 @@ router.post('/updateshipmentstatus', async (req, res) => {
       let products =[];
       for (const row of result.rows) {
           let product = {
-              PRODUCT_ID: row[0],
-              QUANTITY: row[1]
+              PRODUCT_ID: row[1],
+              QUANTITY: row[2]
           };
           products.push(product);
       }
@@ -464,12 +475,12 @@ router.post('/updateshipmentstatus', async (req, res) => {
       const shopid = `SELECT SHOP_ID FROM SHOP_MANAGER WHERE EMPLOYEE_ID = ${req.session.user.id}`;
 
       let shop_id = (await connection.execute(shopid)).rows[0][0];
+      console.log("Shop id in the update:=   ", shop_id);
 
       for (const product of products) {
           await connection.execute(
               `UPDATE SHOP_PRODUCTS SET QUANTITY = QUANTITY + :quantity WHERE PRODUCT_ID = :productId AND SHOP_ID = ${shop_id}`,
-              { quantity: product.QUANTITY, productId: product.PRODUCT_ID }
-        
+              { quantity: parseInt(product.QUANTITY), productId: product.PRODUCT_ID }
           );
       }
 

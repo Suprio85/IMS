@@ -1,286 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shipment Details</title>
-    <link rel="stylesheet" href="path/to/your/css/style.css">
-</head>
-<style>
-   body {
-    padding: 20px;
-    background-color: #f8f9fa; 
-}
+    <link rel="stylesheet" href="path/to/your/css/style.css" />
+  </head>
+  <style>
+    body {
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
 
-h2 {
-    color: #007bff; 
-}
+    h2 {
+      color: #007bff;
+    }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
 
-th {
-    background-color: #f2f2f2;
-}
+    th {
+      background-color: #f2f2f2;
+    }
 
-tr:hover {
-    background-color: #e2e6ea;
-} 
+    tr:hover {
+      background-color: #e2e6ea;
+    }
 
-.accept-btn {
-    padding: 8px 16px;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-}
+    .accept-btn {
+      padding: 8px 16px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
 
-.accept-btn:hover {
-    background-color: #218838;
-}
+    .accept-btn:hover {
+      background-color: #218838;
+    }
 
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
 
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
 
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
 
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-}
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4); /* Add a semi-transparent overlay */
+    }
 
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
+    /* Style for the modal content */
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
+    /* Style for the close button */
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
 
-.modal {
-    display: none; 
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.4); /* Add a semi-transparent overlay */
-}
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+  <body>
+    <h1>Shipment Details</h1>
 
-/* Style for the modal content */
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Style for the close button */
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-
-</style>
-<body>
-
-<h1>Shipment Details</h1>
-
-<table border="1">
-    <thead>
+    <table border="1">
+      <thead>
         <tr>
-            <th>Shipment ID</th>
-            <th>Shipping Date</th>
-            <th>Receiving Date</th>
-            <th>Shipping Cost</th>
-            <th>Delivery Status</th>
-            <th>Inventory ID</th>
+          <th>Shipment ID</th>
+          <th>Shipping Date</th>
+          <th>Receiving Date</th>
+          <th>Shipping Cost</th>
+          <th>Delivery Status</th>
+          <th>Inventory ID</th>
         </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
         <% shipments.forEach(shipment => { %>
-            <tr class="shipment-row" data-shipment-id="<%= shipment.SHIPMENT_ID %>">
-                <td><%= shipment.SHIPMENT_ID %></td>
-                <td><%= shipment.SHIPPING_DATE %></td>
-                <td class="receive-date">N/A</td>
-                <td><%= shipment.SHIPPING_COST %></td>
-                <td class="delivery-status"><%= shipment.DELIVERY_STATUS %></td>
-                <td><%= shipment.INVENTORY_ID %></td>
-            </tr>
-            <tr data-shipment-id-btn="<%= shipment.SHIPMENT_ID %>">
-                <td>
-                    <button class="accept-btn" onclick="updateDeliveryStatus(<%= shipment.SHIPMENT_ID %>)">Accept</button>
-                </td>
-            </tr>
+        <tr class="shipment-row" data-shipment-id="<%= shipment.SHIPMENT_ID %>">
+          <td><%= shipment.SHIPMENT_ID %></td>
+          <td><%= shipment.SHIPPING_DATE %></td>
+          <td class="receive-date">N/A</td>
+          <td><%= shipment.SHIPPING_COST %></td>
+          <td class="delivery-status"><%= shipment.DELIVERY_STATUS %></td>
+          <td><%= shipment.INVENTORY_ID %></td>
+        </tr>
+        <tr data-shipment-id-btn="<%= shipment.SHIPMENT_ID %>">
+          <td>
+            <button
+              class="accept-btn"
+              onclick="updateDeliveryStatus(<%= shipment.SHIPMENT_ID %>)"
+            >
+              Accept
+            </button>
+          </td>
+        </tr>
         <% }); %>
-    </tbody>
-</table>
+      </tbody>
+    </table>
 
-<div id="productDetailsModal" class="modal">
-    <div class="modal-content">
+    <div id="productDetailsModal" class="modal">
+      <div class="modal-content">
         <span id="closeProductDetailsModal" class="close">&times;</span>
         <h2>Product Details</h2>
         <table id="productDetailsTable">
-            <!-- ... -->
+          <!-- ... -->
         </table>
+      </div>
     </div>
-</div>
 
-<!-- JavaScript code for handling actions -->
-<script>
-     async function updateDeliveryStatus(shipmentId) {
-    try {
-        const response = await fetch(`/shopmanager/updateshipmentstatus`, {
-            method: 'POST',
+    <script>
+      async function updateDeliveryStatus(shipmentId) {
+        try {
+        console.log(shipmentId);
+          const response = await fetch(`/shopmanager/updateshipmentstatus`, {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ shipmentId, status: 'DELIVERED' })
-        });
+            body: JSON.stringify({ shipmentId, status: "DELIVERED" }),
+          });
 
-        if (!response.ok) {
-            throw new Error('Failed to update delivery status');
+          if (!response.ok) {
+            throw new Error("Failed to update delivery status");
+          }
+
+          const result = await response.json();
+          console.log(result.message);
+
+          const deliveryStatusElement = document.querySelector(
+            `.shipment-row[data-shipment-id="${shipmentId}"] .delivery-status`
+          );
+          const ReceivingDateElement = document.querySelector(
+              `.shipment-row[data-shipment-id="${shipmentId}"] .receive-date`
+          );
+
+          if (deliveryStatusElement) {
+            deliveryStatusElement.textContent = "DELIVERED";
+          }
+
+          if (ReceivingDateElement) {
+            ReceivingDateElement.textContent = new Date()
+              .toISOString()
+              .split("T")[0];
+            }
+        } catch (error) {
+            console.error("Error updating delivery status:", error);
         }
-
-        const result = await response.json();
-        console.log(result.message);
-
-
-        const deliveryStatusElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .delivery-status`);
-        const ReceivingDateElement = document.querySelector(`.shipment-row[data-shipment-id="${shipmentId}"] .receive-date`);
-
-        if (deliveryStatusElement) {
-            deliveryStatusElement.textContent = 'DELIVERED';
-        }
-
-        if (ReceivingDateElement) {
-            ReceivingDateElement.textContent = new Date().toISOString().split('T')[0];
-        }
-    } catch (error) {
-        console.error('Error updating delivery status:', error);
-      
     }
-}
-  
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const shipmentRows = document.querySelectorAll('.shipment-row');
-        const acceptButtons = document.querySelectorAll('.accept-btn');
-        const productDetailsModal = document.getElementById('productDetailsModal');
-        const closeProductDetailsModal = document.getElementById('closeProductDetailsModal');
-        let selectedShipmentId;
-
-
-        shipmentRows.forEach(row => {
-            row.addEventListener('click', () => {
-                 const shipmentId = row.getAttribute('data-shipment-id');
-                selectedShipmentId = shipmentId;   
-                displayProductDetails(shipmentId);
-            });
-        });
-
-        acceptButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            event.stopPropagation();
-
-            const shipmentId = button.closest('tr').getAttribute('data-shipment-id-btn');
-            // Call a function to update delivery status to "DELIVERED"
-            console.log(shipmentId);
-            updateDeliveryStatus(shipmentId);
-        });
+    
+    const acceptButtons = document.querySelectorAll(".accept-btn");
+    
+    acceptButtons.forEach((button) => { 
+      button.removeEventListener("click", handleAcceptButtonClick);
+      button.unbind("click").addEventListener("click", handleAcceptButtonClick);
     });
 
-        closeProductDetailsModal.addEventListener('click', () => {
-            productDetailsModal.style.display = 'none';
+    function handleAcceptButtonClick(event) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      const shipmentId = this.closest("tr").getAttribute(
+        "data-shipment-id-btn"
+      );
+      console.log(shipmentId);
+      updateDeliveryStatus(shipmentId);
+    }
+    
+    
+      document.addEventListener("DOMContentLoaded", function () {
+        const shipmentRows = document.querySelectorAll(".shipment-row");
+        const productDetailsModal = document.getElementById(
+          "productDetailsModal"
+        );
+        const closeProductDetailsModal = document.getElementById(
+          "closeProductDetailsModal"
+        );
+        let selectedShipmentId;
+
+        shipmentRows.forEach((row) => {
+          row.addEventListener("click", () => {
+            const shipmentId = row.getAttribute("data-shipment-id");
+            selectedShipmentId = shipmentId;
+            displayProductDetails(shipmentId);
+          });
         });
 
-        // Function to fetch and display product details
+
+        closeProductDetailsModal.addEventListener("click", () => {
+          productDetailsModal.style.display = "none";
+        });
+
         async function displayProductDetails(shipmentId) {
-    try {
-        const response = await fetch(`/shopmanager/shipmentproduct`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+          try {
+            const response = await fetch(`/shopmanager/shipmentproduct`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
                 // Add any additional headers if needed
-            },
-            body: JSON.stringify({ shipmentId })
-        });
+              },
+              body: JSON.stringify({ shipmentId }),
+            });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch product details');
-        }
+            if (!response.ok) {
+              throw new Error("Failed to fetch product details");
+            }
 
-        const productDetails = await response.json();
+            const productDetails = await response.json();
 
-        // Build HTML for product details table
-        const productDetailsTable = document.getElementById('productDetailsTable');
-        productDetailsTable.innerHTML = `
+            // Build HTML for product details table
+            const productDetailsTable = document.getElementById(
+              "productDetailsTable"
+            );
+            productDetailsTable.innerHTML = `
             <tr>
                 <th>Product ID</th>
+                <th>Product Name</th>
                 <th>Quantity</th>
                 <th>Return Date</th>
                 <th>Return Amount</th>
             </tr>
-            ${productDetails.map(product => `
+            ${productDetails
+              .map(
+                (product) => `
                 <tr>
                     <td>${product.PRODUCT_ID}</td>
+                    <td>${product.PRODUCT_NAME}</td>
                     <td>${product.QUANTITY}</td>
-                    <td>${product.RETURN_DATE || 'N/A'}</td>
-                    <td>${product.RETURN_AMOUNT || 'N/A'}</td>
+                    <td>${product.RETURN_DATE || "N/A"}</td>
+                    <td>${product.RETURN_AMOUNT || "N/A"}</td>
                 </tr>
-            `).join('')}
+            `
+              )
+              .join("")}
         `;
 
-        // Show the modal
-        const productDetailsModal = document.getElementById('productDetailsModal');
-        productDetailsModal.style.display = 'block';
-    } catch (error) {
-        console.error('Error fetching product details:', error);
-        // Handle error (e.g., show an alert)
-    }
-}
-
-    });
-</script>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+            // Show the modal
+            const productDetailsModal = document.getElementById(
+              "productDetailsModal"
+            );
+            productDetailsModal.style.display = "block";
+          } catch (error) {
+            console.error("Error fetching product details:", error);
+            // Handle error (e.g., show an alert)
+          }
+        }
+      });
+    </script>
+  </body>
 </html>

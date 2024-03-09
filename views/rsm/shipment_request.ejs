@@ -35,8 +35,9 @@
         <div class="main-body">
           <div class="info">
             <brf
-            <h2>Shipment Request</h2>
+            <h2>Shipment Request</h2><br>
             <span style="font-size: .9rem;">- Request Id: <%= request.req_id %></span><br>
+            <span style="font-size: .9rem;">- Status: <%= request.status %></span><br>
             <br>
             <span style="font-size: .8rem;">- Shop Info:</span>
             <h3><%= request.shop_name %></h3>
@@ -69,7 +70,10 @@
           <br> <br> <br>
           <div class="navigation-buttons">
             <button type="button" onclick="goBack()">&#x2190; Back</button>
-            <button type="button">Generate Shipment</button>
+            <div id="action-buttons">
+              <button type="button" data-req_id="<%= request.req_id %>" onclick="completeShipmentRequest(this)">Complete Processing</button>
+              <button type="button" data-req_id="<%= request.req_id %>" onclick="closeShipmentRequest(this)">Close Request</button>
+            </div>
           </div>
           <br> <br> <br> <br> <br>
 

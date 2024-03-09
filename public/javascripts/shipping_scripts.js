@@ -57,3 +57,44 @@ async function createNewShipment(button){
     }
     location.reload();
 }
+
+async function closeShipmentRequest(button){
+    let request_id = button.getAttribute("data-req_id");
+    let respone = await fetch('/rsm/close-shipment-request', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({request_id})
+    });
+    if (!respone.ok){
+        throw new Error("Something happened in backend");
+    }
+    else{
+        let res = await respone.json();
+        location.reload();
+        alert(res.message);
+    }
+}
+
+
+async function completeShipmentRequest(button){
+    let request_id = button.getAttribute("data-req_id");
+    
+    let respone = await fetch('/rsm/complete-shipment-request', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({request_id})
+    });
+    if (!respone.ok){
+        throw new Error("Something happened in backend");
+    }
+    else{
+        let res = await respone.json();
+        location.reload();
+        alert(res.message);
+    }
+
+}

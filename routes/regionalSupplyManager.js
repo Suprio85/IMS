@@ -41,7 +41,7 @@ async function getAllShops(region_id){
 async function getProductAllotment(product_id, region_id){
     let connection;
     let amount = 0;
-    let query1 = "SELECT AMOUNT FROM PRODUCT_ALLOTEMENT WHERE PRODUCT_ID=:product_id AND REGION_ID=:region_id AND STATUS='UPDATED'";
+    let query1 = "SELECT (AMOUNT-USED_AMOUNT) FROM PRODUCT_ALLOTEMENT WHERE PRODUCT_ID=:product_id AND REGION_ID=:region_id AND STATUS='UPDATED'";
     let query2 = `
         SELECT NVL(SUM(SRP.SUPPLIABLE_AMOUNT), 0)
         FROM (SELECT * FROM AREAS WHERE REGION_ID = :region_id) A
@@ -68,7 +68,7 @@ async function getAllShipRequest(region_id){
     let connection;
     let requests = [];
     let query = "SELECT SH.SHOP_NAME, SR.REQUEST_ID, A.STREET_ADDRESS||', '||A.POSTAL_CODE||', '||A.CITY, SH.SHOP_ID "+
-                "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE STATUS<>'PROCESSED') "+
+                "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE STATUS<>'CLOSED') "+
                 "SR ON SH.SHOP_ID=SR.SHOP_ID "+
                 "JOIN AREAS A ON SH.AREA_CODE=A.AREA_CODE WHERE A.REGION_ID=:region_id";
     try{
@@ -118,7 +118,7 @@ async function getRequestInfo(request_id){
     let request = {};
     let products = [];
     let connection;
-    let query = "SELECT SH.SHOP_NAME, A.STREET_ADDRESS||', '||A.POSTAL_CODE||', '||A.CITY, SH.SHOP_ID "+
+    let query = "SELECT SH.SHOP_NAME, A.STREET_ADDRESS||', '||A.POSTAL_CODE||', '||A.CITY, SH.SHOP_ID, SR.STATUS "+
                 "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE REQUEST_ID=:request_id) "+
                 "SR ON SH.SHOP_ID=SR.SHOP_ID "+
                 "JOIN AREAS A ON SH.AREA_CODE=A.AREA_CODE";
@@ -128,7 +128,8 @@ async function getRequestInfo(request_id){
     try{
         connection = await oracledb.getConnection(dbconfig);
         let result = await connection.execute(query, {request_id});
-        request.shop_name = result.rows[0][0]; request.shop_location = result.rows[0][1]; request.shop_id = result.rows[0][2];
+        request.shop_name = result.rows[0][0]; request.shop_location = result.rows[0][1]; 
+        request.shop_id = result.rows[0][2]; request.status=result.rows[0][3];
         request.req_id = request_id;
         result = await connection.execute(product_query, {request_id});
         for(let product of result.rows){
@@ -146,21 +147,33 @@ async function getRequestInfo(request_id){
 }
 
 
-async function updateSuppliableAmount(product_id, shop_id, amount){
-    let requestId = "SELECT REQUEST_ID FROM SHIPMENT_REQUEST WHERE STATUS IN ('PROCESSING', 'PENDING') AND SHOP_ID=:shop_id";
-    let statusUpdateQuery = "UPDATE SHIPMENT_REQUEST SET STATUS='PROCESSING' WHERE STATUS<>'PROCESSING' AND REQUEST_ID=:req_id";
+async function updateSuppliableAmount(product_id, shop_id, amount, region_id){
+    let requestId = "SELECT REQUEST_ID, STATUS FROM SHIPMENT_REQUEST WHERE STATUS IN ('PROCESSING', 'PENDING', 'PROCESSED') AND SHOP_ID=:shop_id";
+    let statusUpdateQuery = "UPDATE SHIPMENT_REQUEST SET STATUS='PROCESSING' WHERE STATUS = 'PENDING' AND REQUEST_ID=:req_id";
+    let statusUpdateQuery2 = "UPDATE SHIPMENT_REQUEST SET STATUS='PROCESSING' WHERE REQUEST_ID=:req_id";
     let suppAmountQuery = "UPDATE SHIPMENT_REQUEST_PRODUCT SET SUPPLIABLE_AMOUNT=:amount "+
                           "WHERE PRODUCT_ID=:product_id AND REQUEST_ID=:req_id"
+    let update2 = "UPDATE PRODUCT_ALLOTEMENT SET USED_AMOUNT=USED_AMOUNT+:amount "+
+                          "WHERE PRODUCT_ID=:product_id AND REGION_ID=:region_id"
     let connection;
-    let success = false;
+    let success = 0;
     try{
         connection = await oracledb.getConnection(dbconfig);
-        let req_id = (await connection.execute(requestId, {shop_id})).rows[0][0];
-        await connection.execute(statusUpdateQuery, {req_id});
-        await connection.execute(suppAmountQuery, {req_id, product_id, amount});
-        console.log("Updated successfully,", req_id);
-        connection.commit();
-        success = true;
+        let req_reponse = (await connection.execute(requestId, {shop_id})).rows;
+        if(req_reponse.length === 0){
+            success = -1;
+        }
+        else{
+            let req_id = req_reponse[0][0];
+            let req_status = req_reponse[0][1];
+            if(req_status === "PROCESSED")
+                await connection.execute(statusUpdateQuery2, {req_id});
+            await connection.execute(suppAmountQuery, {req_id, product_id, amount});
+            // await connection.execute(update2, {product_id, amount, region_id});
+            console.log("Updated successfully,", req_id);
+            connection.commit();
+            success = 1;
+        }
     } catch(err){
         console.log(err);
         connection.rollback();
@@ -234,7 +247,8 @@ async function getProductVsTimeInfo(request){
 
 async function createNewShipment(request_id, inventory_id, region_id){
     let connection;
-    let worked = false;
+    let message = "Shipment Creation failed"
+    let worked = 0;
     let query=`
         BEGIN
             CREATE_NEW_SHIPMENT(:request_id, :inventory_id, :region_id, :success);
@@ -245,11 +259,15 @@ async function createNewShipment(request_id, inventory_id, region_id){
                                         region_id, success: {dir: oracledb.BIND_OUT, type: oracledb.NUMBER}});
         connection.commit();
         worked = response.outBinds.success;
+        if(worked===1) message="Shipment Created";
+        else if(worked===0) message="No New Shipment was created";
+        else if(worked===-1) message="Unprocessed Request can not have Shipment";
+        else if(worked===-2) message="Closed Request can not have Shipment";
     } catch (err){
         console.log(err);
         if(connection) connection.rollback();
     } finally { if(connection) connection.close(); }
-    return worked;
+    return message;
 }
 
 async function getAllPendingShipments(shop_id){
@@ -295,6 +313,23 @@ async function supplyTheShipment(shipment_id){
     return supplied;
 }
 
+async function setRequestStatus(req_id, status){
+    let connection;
+    try{
+        connection = await oracledb.getConnection(dbconfig);
+        await connection.execute("UPDATE SHIPMENT_REQUEST SET STATUS=:status WHERE REQUEST_ID=:req_id", {status, req_id});
+        connection.commit();
+        connection.close();
+        return true;
+    } catch (err){
+        console.log(err);
+        if(connection){
+            connection.rollback(); connection.close();
+        }
+        return false;
+    }
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -326,8 +361,11 @@ router.get("/process-request", async(req, res)=>{
     let info = await getRequestInfo(requestId);
     let inventories = await getAllInventories();
     let shipments = await getAllPendingShipments(info.request.shop_id);
+    let isClosed = info.status==='CLOSED'? true:false;
+    let isProcessed = (info.status==='PROCESSED' || isClosed)? true:false;
+    let isShipable = (isProcessed && !isClosed) ? true : false;
     // res.status(200).send(info);
-    res.status(200).render("rsm/shipment_request", {username, ...info, inventories, shipments});
+    res.status(200).render("rsm/shipment_request", {username, ...info, inventories, shipments, isProcessed, isClosed, isShipable});
 })
 
 
@@ -349,16 +387,14 @@ router.post("/fetch-sale-over-time", async(req, res, next)=>{
 })
 
 
-router.post("/total-alloted-product", async(req, res, next)=>{
-    console.log("Showing product id", req.body.productId);
-})
-
 
 router.post("/allot-product-to-shop", async(req, res, next)=>{
+    let region_id = 101;
     console.log(req.body);
-    let success = await updateSuppliableAmount(req.body.productId, req.body.shopId, req.body.quantity);
+    let success = await updateSuppliableAmount(req.body.productId, req.body.shopId, req.body.quantity, region_id);
     let message = "Allotement unsuccessful";
-    if(success) message = "Alloted Successfully";
+    if(success === 1) message = "Alloted Successfully";
+    else if(success === -1) message = "Closed Requests cannot have new allocatioins";
     res.json({message});
 })
 
@@ -375,10 +411,28 @@ router.post("/create-new-shipment", async(req, res)=>{
     let region_id= 101;
     console.log(req.body);
     let message = "It didn't work";
-    let worked = await createNewShipment(req.body.request_id, req.body.inventory_id, region_id);
-    if (worked) message = "New Shipment created";
+    message = await createNewShipment(req.body.request_id, req.body.inventory_id, region_id);
     res.json({message});
 })
+
+
+router.post("/complete-shipment-request", async(req, res)=>{
+    console.log(req.body);
+    let message = "Failed to Complete the shipment";
+    let flag = await setRequestStatus(req.body.request_id, "PROCESSED");
+    if (flag) message = "Request Processing Completed Successfully";
+    res.json({message});
+})
+
+router.post("/close-shipment-request", async(req, res)=>{
+    console.log(req.body);
+    let message = "Failed to Closed the shipment";
+    let flag = await setRequestStatus(req.body.request_id, "CLOSED");
+    if (flag) message = "Request Closed Successfully";
+    res.json({message});
+})
+
+
 
 
 module.exports = router;

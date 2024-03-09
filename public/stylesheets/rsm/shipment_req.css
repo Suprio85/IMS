@@ -117,3 +117,12 @@ button[type="button"] {
 .all-shipments {
   width: 60%;
 }
+
+#action-buttons{
+  display: flex;
+  justify-content: space-between;
+}
+
+#action-buttons button{
+  margin-right: 10px;
+}

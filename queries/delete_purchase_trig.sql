@@ -1,0 +1,22 @@
+
+CREATE OR REPLACE TRIGGER delete_purchased_products
+BEFORE DELETE CASCADE ON PURCHASE
+FOR EACH ROW
+DECLARE
+    v_available_quantity NUMBER;
+    curr_shop_id NUMBER;
+BEGIN
+    -- Get the available quantity in SHOP_PRODUCTS for the specific product and shop
+    SELECT SHOP_ID INTO curr_shop_id FROM PURCHASE WHERE PURCHASE_ID=:NEW.PURCHASE_ID;
+
+    FOR PR IN (SELECT PRODUCT_ID, QUANTITY FROM PURCHASED_PRODUCT WHERE PURCHASE_ID=:OLD.PURCHASE_ID) LOOP
+        UPDATE SHOP_PRODUCTS SET QUANTITY = QUANTITY + PR.QUANTITY
+        WHERE SHOP_ID=curr_shop_id AND PRODUCT_ID=PR.PRODUCT_ID;    
+    END LOOP;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        -- Handle the case where no corresponding SHOP_PRODUCTS record is found
+        RAISE_APPLICATION_ERROR(-20002, 'Product not found in SHOP_PRODUCTS');
+END;
+
+/

@@ -2,11 +2,11 @@
     <html lang="en">
     <head>
       <meta charset="UTF-8" />
-      <title>Cashier | Complete Purchase</title>
+      <title>Cashier | Delete Purchase</title>
       <!-- <link rel="stylesheet" href="style.css" /> -->
       <!-- Font Awesome Cdn Link -->
       <link rel='stylesheet' href='/stylesheets/cashier/header_style.css' />
-      <link rel='stylesheet' href='/stylesheets/cashier/cash_memo2.css' />
+      <link rel='stylesheet' href='/stylesheets/cashier/search_record.css' />
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-0b12LiiKvOWTUO9oGBaXFsrtS0EGGJRqOk9ksO9WZPiFEwy5GehJ3V1zzfejk5K6aaVJT0rrIya1ZxEjHejj9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     </head>
     <body>
@@ -17,9 +17,9 @@
             <span>Main Menu</span>
             <a href="/cashier/dashboard">Dashboard</a>
             <a href="#">Profile</a>
-            <a href="/cashier/cash_memo" class="active">Make Purchase</a>
+            <a href="/cashier/cash_memo">Make Purchase</a>
             <a href="/cashier/search_record">Search Records</a>
-            <a href="/cashier/delete-purchase">Delete Purchase</a>
+            <a href="/cashier/delete-purchase" class="active">Delete Purchase</a>
             <!-- <a href="#">My Account</a>
             <a href="#">Documnets</a> -->
     
@@ -33,51 +33,39 @@
         </nav>
     
         <div class="main-body">
-          <h2>Record Purchase</h2><br><br>
+        <h2>Delete Purchase</h2><br><br>
+        <form action="/cashier/delete-purchase" method="POST" id="delete_purchase">
+            <label for="purchase_id">Purchase ID:</label>
+            <input type="text" id="purchase_id" name="purchase_id" required>
+            <button type="submit">Cancel Purchase</button>
+        </form>
           <!-- <div class="promo_card">
             <h1>Welcome to EasyPay</h1>
             <span>Lorem ipsum dolor sit amet.</span>
             <button>Learn More</button>
           </div> -->
     
-          <form id="cash_memo" action="/cashier/record-purchase" method="POST">
-              <span>- Customer Info: </span><br><br>
-              <div class="customer">
-                <label for="customerName">Customer Name:  </label>
-                <input type="text" id="customer_name" name="customerName" required><br><br>
-
-                <label for="customerEmail">Customer Email:  </label>
-                <input type="email" id="customer_mail" name="customerEmail" required><br><br>
-
-                <label for="customerMobile">Customer Mobile:  </label>
-                <input type="tel" id="customer_mobile" name="customerMobile" required><br><br>
-              </div>
-
-              <span>- Product info: </span><br>
-              <div id="products">
-                  <div class="product">
-                      <br>
-                      <label for="productId">Product ID/Name:</label>
-                      <input type="number" class="productId" name="productId" required>
-                      <label for="quantity">Quantity:</label>
-                      <input type="number" class="quantity" name="quantity" required min="0">
-                      <button class="remove-product" id="remove_button" onclick="removeProduct(this)">Remove</button>
-                  </div>
-                  <br>
-              </div>
-              <!-- <br> -->
-              <button type="button" id="add_button" onclick="addProduct()">Add Product</button><br><br>
-
-              <button type="submit" id="submit_button">Submit</button>
-          </form>
-          
+         
         </div>
       </div>
       <div class="popup-container" id="popupContainer">
         <div class="popup-content" id="general_popup_content">
+          <span><u>Order Info:</u> </span>
+          <div class="info" id="orderPopup">
+            <div class="placeholders">
+              <ul>
+                <li>Purchase Id: </li>
+                <li>Date: </li>
+                <li>Time: </li>
+              </ul>
+            </div>
+            <div class="place-value">
+              <ul class="place-list" id="order_value_list"></ul>
+            </div>
+          </div> <br><br>
           <span><u>Customer Info:</u> </span>
-          <div class="customer-info" id="customerPopup">
-            <div class="customer-placeholders">
+          <div class="info" id="customerPopup">
+            <div class="placeholders">
               <ul>
                 <li>Name: </li>
                 <li>Email: </li>
@@ -106,22 +94,28 @@
             </table>
           </div>
           <div id="accessibility">
-            <button type="button" onclick="closePopup()">Close</button>
-            <button type="button" onclick="confirmPurchase()">Confirm</button>
+            <button type="button" onclick="cancelPurchase()">Cancel purchase</button>
+            <!-- <button type="button" onclick="confirmPurchase()">Confirm</button> -->
           </div>
         </div>
-        <div class="popup-content" id="completion">
-          <span>Successful</span><br>
-          <div>
-            <button type="button" id="failed_back_button" onclick="backToReciept()" disabled>Back</button>
-            <button type="button" onclick="forwarding()">Ok</button>
-          </div>
-        </div>
-      </div>
-
+    </div> 
       
-      <script src="/javascripts/takeMemo.js">
-      </script>
+    <script src="/javascripts/searchRecords.js"></script>
+    <script>
+        document.getElementById("delete_purchase").addEventListener('submit', async function(event){
+            event.preventDefault();
+            let purchase_id = document.getElementById("purchase_id").value;
+            await populatePopup(purchase_id);
+            document.getElementById("popupContainer").style.display = "block";
+        })
+        
+        async function cancelPurchase(){
+            let purchase_id = document.getElementById("purchase_id").value;
+            let message = await deleteSinglePurchase(purchase_id);
+            alert(message);
+            window.location.href = "/cashier/dashboard";
+        }
+    </script>
     </body>
     </html>
     </span>

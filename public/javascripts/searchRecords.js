@@ -192,3 +192,19 @@ document.getElementById("result_table").addEventListener("click", async(event)=>
 function closePopup(){
     document.getElementById("popupContainer").style.display = "none";
 }
+
+
+async function deleteSinglePurchase(purchase_id){
+    var url = `/cashier/delete-single-purchase`;
+    var respone = await fetch(url, {
+        method: "POST",
+        headers: { 'Content-type': 'application/json' },
+        body: JSON.stringify({purchase_id})
+    });
+    if (!respone.ok){
+        throw new Error("Database crashed I think");
+    }
+    let mssg = await respone.json();
+    console.log(mssg);
+    return mssg.message;
+}

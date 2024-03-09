@@ -1,6 +1,7 @@
 var express = require('express');
 var oracledb = require('oracledb');
 var dbconfig = require('../dbconfig');
+const { route } = require('./regionalSupplyManager');
 // const { route } = require('./login');
 
 var router = express.Router();
@@ -283,7 +284,7 @@ router.get('/dashboard', async function(req, res){
     let shop_id = req.session.employee_info[req.session.employee_info.length-1];
     let username = req.session.employee_info[1];
     let products = await findTopSaleProductToday(shop_id)
-    let requirements = {"order": null};
+    let requirements = {"product": null};
     let records = await getOrderInfoFromQuery(requirements, shop_id);
     console.log("rendering page with ", products);
     res.status(200).render('user_cashier/dashboard', {username, products, records});
@@ -337,6 +338,50 @@ router.post("/get_single_order", async(req, res)=>{
     console.log("Order : ", id);
     var info = await findOrderById(id);
     res.status(200).json(info);
+})
+
+
+router.get("/delete-purchase", (req, res)=>{
+    if(req.session.employee_info === undefined){
+        res.redirect("/login");
+        return;
+    }
+    var username = req.session.employee_info[1];
+    res.render("user_cashier/delete_purchase", {username});
+})
+
+
+async function deletePurchaseFromDB(purchase_id, shop_id){
+    let connection;
+    let product_query = "SELECT PRODUCT_ID, QUANTITY FROM PURCHASED_PRODUCT WHERE PURCHASE_ID=:purchase_id";
+    let del_query = "DELETE PURCHASE WHERE PURCHASE_ID =:purchase_id";
+    let update_query = "UPDATE SHOP_PRODUCTS SET QUANTITY=QUANTITY+:p_amount WHERE SHOP_ID=:shop_id AND PRODUCT_ID=:pid"
+    let message = "Deletion failed";
+    try{
+        connection =await oracledb.getConnection(dbconfig);
+        let products = (await connection.execute(product_query, {purchase_id})).rows;
+        products.forEach(async(p) => {
+            await connection.execute(update_query, {pid:p[0], p_amount:p[1], shop_id});
+        });
+        await connection.execute(del_query, {purchase_id});
+        connection.commit();
+        message = purchase_id + " Deleted";
+    } catch(err){
+        console.log(err);
+        if (connection) connection.rollback();
+    } finally{
+        if(connection) connection.close();
+    }
+    return message;
+}
+
+
+router.post("/delete-single-purchase", async(req, res)=>{
+    console.log(req.body.purchase_id);
+    let shop_id = req.session.employee_info[req.session.employee_info.length-1];
+    let message = await deletePurchaseFromDB(req.body.purchase_id, shop_id);
+    console.log(message);
+    res.json({message});
 })
 
 

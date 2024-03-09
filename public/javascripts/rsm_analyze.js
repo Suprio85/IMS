@@ -246,10 +246,10 @@ async function submitAllotForm() {
     if (enteredQuantity > totalQuantity) {
         errorMessageElement.textContent =
             "Entered quantity exceeds total quantity!";
-    } else if(enteredQuantity < lrange && lrange > totalQuantity){
+    } else if(enteredQuantity <= lrange && lrange <= totalQuantity){
         errorMessageElement.textContent =
             "Entered quantity can't bw Lower than recommended range";
-    } else if(enteredQuantity > lrange){
+    } else if(enteredQuantity >= rrange){
         errorMessageElement.textContent =
             "Entered quantity can't bw Higher than recommended range";
     } else if (enteredQuantity <= 0) {

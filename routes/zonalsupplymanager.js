@@ -260,7 +260,7 @@ router.post('/totalproductregion', async function (req, res) {
 
         const query = `
   UPDATE PRODUCT_ALLOTEMENT
-  SET AMOUNT = :quantity, STATUS = 'ON PROCESS'
+  SET AMOUNT = :quantity, STATUS = 'ON PROCESS', LAST_UPDATED=CURRENT_TIMESTAMP, USED_AMOUNT=1
   WHERE PRODUCT_ID = :productId AND REGION_ID = :regionId
 `;
 

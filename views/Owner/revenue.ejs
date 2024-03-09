@@ -14,6 +14,109 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
       />
+      <style>
+
+form {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+form#contact {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+form#contact fieldset {
+  border: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+
+form#contact legend {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+
+form#contact input[type="date"] {
+  width: calc(50% - 5px);
+  padding: 10px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+form#contact to {
+  display: inline-block;
+  margin: 0 10px;
+  color: #555;
+}
+
+form#contact button.btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #101416;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2em;
+  transition: background-color 0.3s ease-in-out;
+}
+
+form#contact button.btn:hover {
+  background-color: #cf7ffd;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+table thead {
+  background-color: #2c373e;
+  color: #fff;
+}
+
+
+table th {
+  padding: 12px;
+  text-align: left;
+}
+
+table tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+
+table td {
+  padding: 10px;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+
+table tbody tr:hover {
+  background-color: #e0e0e0;
+}
+
+      </style>
     </head>
     <body>
       <header class="header">
@@ -39,7 +142,7 @@
             <a href="/profile">Profile</a>
             <a href="/owner/addproduct">Add Products</a>
             <a href="/owner/location">Locations</a>
-            <a href="owner/revenue">Revenue</a>
+            <a href="/owner/revenue">Revenue</a>
           </div>
         </nav>
         <div class="main-body">

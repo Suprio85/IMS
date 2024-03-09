@@ -50,8 +50,8 @@ router.post("/", async function (req, res, next) {
 
         //Process each request
         for (const request of req.body.requests) {
-            const { productId, amount, inventoryId } = parseRequest(request);
-            console.log(productId, amount, inventoryId);
+            const { productId, amount, inventoryId, price } = parseRequest(request);
+            console.log(productId, amount, inventoryId, price);
 
             // Insert into INVENTORY_LOT
             const insertLotQuery = `
@@ -73,7 +73,7 @@ router.post("/", async function (req, res, next) {
                 VALUES (:lotId, :productId, :quantity, :price, SYSTIMESTAMP)`;
             await connection.execute(
                 insertLotProductQuery,
-                { lotId, productId, quantity: amount, price: 0 }
+                { lotId, productId, quantity: amount, price: price }
             );
 
             console.log("inserted into INVENTORY_LOT_PRODUCTS");
@@ -91,6 +91,7 @@ router.post("/", async function (req, res, next) {
             console.log("updated INVENTORY_PRODUCTS");
         }
 
+        connection.commit();
         res.status(200).send('Requests processed successfully');
     } catch (error) {
         console.error('Error processing requests:', error);
@@ -113,12 +114,13 @@ router.post("/", async function (req, res, next) {
  });
 
 function parseRequest(request) {
-    const matches = request.match(/Product ID: (\d+), Amount: (\d+), Inventory ID: (\d+)/);
+    const matches = request.match(/Product ID: (\d+), Amount: (\d+), Inventory ID: (\d+), Price: (\d+)/);
     if (matches) {
         const productId = parseInt(matches[1]);
         const amount = parseInt(matches[2]);
         const inventoryId = parseInt(matches[3]);
-        return { productId, amount, inventoryId };
+        const price = parseInt(matches[4]);
+        return { productId, amount, inventoryId, price };
     } else {
         throw new Error('Invalid request format');
     }

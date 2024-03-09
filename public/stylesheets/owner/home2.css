@@ -290,7 +290,6 @@ table td{
 #lineChart {
   /* Set the canvas dimensions to 100% of the parent container */
   width: 100%;
-  height: 100%;
 }
 
 

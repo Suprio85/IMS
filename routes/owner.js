@@ -234,7 +234,7 @@ router.post('/', async function (req, res) {
 
         if (regionId == "General") {
             query =
-                `SELECT NVL(SUM(TOTAL_SALE),0)AS TOTAL_SALES , TO_CHAR(MONTH_YEAR, 'MON') AS MONTH
+                `SELECT NVL(SUM(TOTAL_SALE),0)AS TOTAL_SALES , TO_CHAR(MONTH_YEAR, 'MON, YY') AS MONTH
             FROM TEMP_MONTHLY_SALE
             WHERE PRODUCT_ID = :productId 
             AND TO_CHAR(MONTH_YEAR, 'YYYY-MM') BETWEEN :startMonth AND :endMonth

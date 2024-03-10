@@ -1,6 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+var cron = require('node-cron');
 
 //body parser and cookies
 const bodyParser = require('body-parser');
@@ -14,6 +15,8 @@ const dbConfig = require('./dbconfig');
 
 const session = require('express-session');
 const flash = require('connect-flash');
+
+var schedule = require("./schedules");
 
 
 
@@ -64,6 +67,27 @@ app.use('/cashier', cashierRouter);
 app.use('/zsm', zsmRouter);
 app.use('/profile', profileRouter);
 app.use('/rsm', rsmRouter);
+
+
+// Running all the proceedures automatically at 2:00 am on 2nd and 17th each month
+cron.schedule("0 2 2,17 * * *", async()=>{
+   console.log("Hii, Look I am running");
+   console.log("Running Monthly Sale Porceedure");
+   let success = await schedule.runMonthlySaleProceedure();
+   if(success){
+      console.log("It ran successfully");
+   }
+   success = await schedule.updatePriceProcedure();
+   console.log("Running Update Price Procedure");
+   if(success)
+      console.log("Price updated Successfully");
+   
+   console.log("Updating Status of Pending requests");
+   success = await schedule.updateRequestStatus();
+   if(success)
+      console.log("Request statuses Updated to 'PROCESSING' Successfully");
+   
+})
 
 
 

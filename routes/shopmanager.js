@@ -90,6 +90,7 @@ router.post('/', async function (req, res, next) {
   console.log(req.body);
   const from = req.body.from;
   const to = req.body.to;
+  const username = req.session.user.username;
 
   console.log(typeof from, typeof to)
 

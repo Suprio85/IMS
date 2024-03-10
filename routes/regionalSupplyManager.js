@@ -83,7 +83,7 @@ async function getAllShipRequest(region_id){
     let connection;
     let requests = [];
     let query = "SELECT SH.SHOP_NAME, SR.REQUEST_ID, A.STREET_ADDRESS||', '||A.POSTAL_CODE||', '||A.CITY, SH.SHOP_ID "+
-                "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE STATUS<>'CLOSED') "+
+                "FROM SHOPS SH JOIN (SELECT * FROM SHIPMENT_REQUEST WHERE STATUS IN('PROCESSING', 'PROCESSED')) "+
                 "SR ON SH.SHOP_ID=SR.SHOP_ID "+
                 "JOIN AREAS A ON SH.AREA_CODE=A.AREA_CODE WHERE A.REGION_ID=:region_id";
     try{
@@ -163,7 +163,7 @@ async function getRequestInfo(request_id){
 
 
 async function updateSuppliableAmount(product_id, shop_id, amount, region_id){
-    let requestId = "SELECT REQUEST_ID, STATUS FROM SHIPMENT_REQUEST WHERE STATUS IN ('PROCESSING', 'PENDING', 'PROCESSED') AND SHOP_ID=:shop_id";
+    let requestId = "SELECT REQUEST_ID, STATUS FROM SHIPMENT_REQUEST WHERE STATUS IN ('PROCESSING', 'PROCESSED') AND SHOP_ID=:shop_id";
     let statusUpdateQuery = "UPDATE SHIPMENT_REQUEST SET STATUS='PROCESSING' WHERE STATUS = 'PENDING' AND REQUEST_ID=:req_id";
     let statusUpdateQuery2 = "UPDATE SHIPMENT_REQUEST SET STATUS='PROCESSING' WHERE REQUEST_ID=:req_id";
     let suppAmountQuery = "UPDATE SHIPMENT_REQUEST_PRODUCT SET SUPPLIABLE_AMOUNT=:amount "+

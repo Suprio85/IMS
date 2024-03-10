@@ -7,6 +7,7 @@
 @calculate_product_allotement.sql;
 @create_shipment_proc.sql;
 @product_price_proc.sql;
+@TotalSaleInRegion.sql;
 
 @insersions.sql;
 

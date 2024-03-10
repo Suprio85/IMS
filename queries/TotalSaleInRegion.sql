@@ -24,3 +24,4 @@ EXCEPTION
         RETURN 0;
 END get_total_quantity; 
 -- FOR OWNER PRODUCT VS REGION GRAPH;
+/

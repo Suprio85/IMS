@@ -88,6 +88,10 @@ ORDER BY TOTAL_SALES DESC
 
 router.post('/', async function (req, res, next) {
   console.log(req.body);
+  if(req.session.user === undefined){
+      res.redirect('/login');
+      return;
+  }
   const from = req.body.from;
   const to = req.body.to;
   const username = req.session.user.username;
@@ -165,7 +169,6 @@ router.get('/profile', function (req, res, next) {
 router.get('/productquantity', async function (req, res, next) {
   if(req.session.user === undefined){
     res.redirect('/login');
-    console.log("I did come here right ?");
     return;
   }
   const connection = await oracledb.getConnection(dbConfig);
@@ -188,7 +191,6 @@ router.get('/addproduct', function (req, res, next) {
 function renderRequestPage(req, res, next) {
   if(req.session.user === undefined){
     res.redirect('/login');
-    console.log("I did come here right ?");
     return;
   }
   const username = req.session.user.username;

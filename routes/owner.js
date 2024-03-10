@@ -31,6 +31,11 @@ async function getCatagory() {
 
 router.get('/', async function (req, res, next) {
     username = "suprio";
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
+    username = req.session.user.username;
 
     const connection = await oracledb.getConnection(dbConfig);
 
@@ -370,8 +375,11 @@ router.post('/region', async function (req, res, next) {
 router.get('/revenue',async  function (req, res, next) {
 
     // res.render('owner/revenue', { title: 'Revenue' });
-    username = "suprio";
-
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
+    username = req.session.user.username;
     const connection = await oracledb.getConnection(dbConfig); 
     
 //     const query = `SELECT
@@ -422,9 +430,12 @@ router.post('/revenue',async  function (req, res, next) {
     const start = req.body.start;
     const end = req.body.end;
     console.log(start, end);
-    username = "suprio";
 
-    username = "suprio";
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
+    username = req.session.user.username;
 
     const connection = await oracledb.getConnection(dbConfig); 
     

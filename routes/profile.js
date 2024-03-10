@@ -7,6 +7,10 @@ const { session } = require('passport');
 let id = 2001;
 
 router.get('/', async function (req, res, next) {
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     id = req.session.user.id;
     
     const query =   `SELECT E.EMPLOYEE_ID, E.FIRST_NAME, E.LAST_NAME, E.SALARY, E.BANK_ACCOUNT,
@@ -50,6 +54,10 @@ router.get('/', async function (req, res, next) {
 });
 
 router.post('/', async function (req, res, next) {
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     console.log(req.body);
     id = req.session.user.id;
     const connection = oracledb.getConnection(dbConfig);

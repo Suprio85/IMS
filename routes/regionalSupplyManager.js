@@ -362,9 +362,10 @@ async function getRID(eid){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 router.get('/', async(req, res, next)=>{
-    var employee_id = 2001;
-    var region_id = 101;
-    var username = 'nafis';
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     username = req.session.user.username;
     employee_id = req.session.user.id;
     region_id =await getRID(employee_id);
@@ -378,7 +379,10 @@ router.get('/', async(req, res, next)=>{
 
 
 router.get("/all-requests", async(req, res)=>{
-    var employee_id = 2001;
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     var region_id = req.session.user.rid;
     var username;
     username = req.session.user.username;
@@ -389,6 +393,10 @@ router.get("/all-requests", async(req, res)=>{
 })
 
 router.get("/process-request", async(req, res)=>{
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     let username;
     username = req.session.user.username;
     employee_id = req.session.user.id;
@@ -405,6 +413,10 @@ router.get("/process-request", async(req, res)=>{
 
 
 router.post("/total-alloted-product", async(req, res, next)=>{
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     let productId = req.body.productId;
     let shop_id = req.body.shop_id
     var region_id = req.session.user.rid;
@@ -428,6 +440,10 @@ router.post("/fetch-sale-over-time", async(req, res, next)=>{
 
 
 router.post("/allot-product-to-shop", async(req, res, next)=>{
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     var region_id = req.session.user.rid;
     console.log(req.body);
     username = req.session.user.username;
@@ -440,6 +456,10 @@ router.post("/allot-product-to-shop", async(req, res, next)=>{
 })
 
 router.post("/supply-shipment", async(req, res)=>{
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     username = req.session.user.username;
     employee_id = req.session.user.id;
     let message = "Shipment failed";
@@ -451,6 +471,10 @@ router.post("/supply-shipment", async(req, res)=>{
 
 
 router.post("/create-new-shipment", async(req, res)=>{
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     username = req.session.user.username;
     employee_id = req.session.user.id;
     var region_id = req.session.user.rid;
@@ -462,6 +486,10 @@ router.post("/create-new-shipment", async(req, res)=>{
 
 
 router.post("/complete-shipment-request", async(req, res)=>{
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     username = req.session.user.username;
     employee_id = req.session.user.id;
     console.log(req.body);
@@ -472,6 +500,10 @@ router.post("/complete-shipment-request", async(req, res)=>{
 })
 
 router.post("/close-shipment-request", async(req, res)=>{
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     username = req.session.user.username;
     employee_id = req.session.user.id;
     console.log(req.body);

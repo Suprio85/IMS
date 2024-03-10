@@ -33,6 +33,10 @@ async function getCatagory() {
 }
 
 router.post('/search', async function (req, res, next) {
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     
     username = req.session.user.username;
     console.log(req.body);
@@ -179,6 +183,10 @@ router.post('/search', async function (req, res, next) {
 
 
 router.get('/', async function (req, res, next) {
+    if(req.session.user === undefined){
+        res.redirect('/login');
+        return;
+    }
     username = req.session.user.username;
 
     const connection = await oracledb.getConnection(dbConfig);
